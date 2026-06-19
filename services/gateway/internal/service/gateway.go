@@ -16,11 +16,12 @@ var upgrader = websocket.Upgrader{
 // GatewayService handles WebSocket connections.
 type GatewayService struct {
 	uc *biz.GatewayUseCase
+	cm biz.ConnManager
 }
 
 // NewGatewayService creates a GatewayService.
-func NewGatewayService(uc *biz.GatewayUseCase) *GatewayService {
-	return &GatewayService{uc: uc}
+func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager) *GatewayService {
+	return &GatewayService{uc: uc, cm: cm}
 }
 
 // HandleWebSocket handles a WebSocket upgrade request.
@@ -32,6 +33,12 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 	defer conn.Close()
 
-	// TODO: authenticate via JWT, route messages to backend services
-	s.uc.HandleConnection(r.Context(), conn)
+	// For now, generate anonymous ID (auth to be added later)
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		userID = "anon-" + r.RemoteAddr
+	}
+
+	s.cm.Add(userID, conn)
+	s.uc.HandleConnection(r.Context(), conn, userID)
 }

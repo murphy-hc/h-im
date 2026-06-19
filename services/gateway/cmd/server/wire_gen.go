@@ -19,11 +19,11 @@ import (
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	confServer := bc.Server
-	gatewayUseCase := biz.NewGatewayUseCase()
-	gatewayService := service.NewGatewayService(gatewayUseCase)
+	connManager := biz.NewConnManager()
+	gatewayUseCase := biz.NewGatewayUseCase(connManager)
+	gatewayService := service.NewGatewayService(gatewayUseCase, connManager)
 	wsServer := server.NewWSServer(confServer, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
-	connManager := biz.NewConnManager()
 	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
 	app := newApp(wsServer, httpServer, grpcServer)

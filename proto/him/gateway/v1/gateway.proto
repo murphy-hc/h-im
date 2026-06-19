@@ -1,0 +1,40 @@
+syntax = "proto3";
+package him.gateway.v1;
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1";
+
+service GatewayService {
+  rpc SendToUser(SendToUserRequest)           returns (SendToUserResponse);
+  rpc BroadcastToGroup(BroadcastToGroupRequest) returns (BroadcastToGroupResponse);
+  rpc BroadcastToChatroom(BroadcastToChatroomRequest) returns (BroadcastToChatroomResponse);
+  rpc SendCommand(SendCommandRequest)         returns (SendCommandResponse);
+}
+
+message SendToUserRequest {
+  string user_id   = 1;
+  int32  frame_type = 2;
+  bytes  payload   = 3;
+}
+message SendToUserResponse { bool success = 1; }
+
+message BroadcastToGroupRequest {
+  string group_id          = 1;
+  int32  frame_type         = 2;
+  bytes  payload           = 3;
+  repeated string exclude_user_ids = 4;
+}
+message BroadcastToGroupResponse { int32 delivered_count = 1; }
+
+message BroadcastToChatroomRequest {
+  string room_id   = 1;
+  int32  frame_type = 2;
+  int32  priority  = 3;
+  bytes  payload   = 4;
+}
+message BroadcastToChatroomResponse { int32 delivered_count = 1; }
+
+message SendCommandRequest {
+  string user_id   = 1;
+  string command   = 2;
+  string target_id = 3;
+}
+message SendCommandResponse { bool success = 1; }

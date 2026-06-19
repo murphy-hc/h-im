@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package him.message.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/message/v1;messagev1";
+
+import "him/common/v1/types.proto";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum MessageType {
+  MESSAGE_TYPE_UNSPECIFIED = 0;
+  MESSAGE_TYPE_TEXT        = 1;
+  MESSAGE_TYPE_IMAGE       = 2;
+  MESSAGE_TYPE_VOICE       = 3;
+  MESSAGE_TYPE_VIDEO       = 4;
+  MESSAGE_TYPE_FILE        = 5;
+  MESSAGE_TYPE_SYSTEM      = 6;
+}
+
+enum ConversationType {
+  CONVERSATION_TYPE_UNSPECIFIED = 0;
+  CONVERSATION_TYPE_PRIVATE     = 1;
+  CONVERSATION_TYPE_GROUP       = 2;
+}
+
+message Message {
+  string message_id      = 1;
+  string conversation_id = 2;
+  ConversationType conv_type = 3;
+  string sender_id       = 4;
+  string receiver_id     = 5;
+  MessageType msg_type   = 6;
+  string content         = 7;
+  string reply_to        = 8;  // message_id of the message being replied to
+  int64  created_at      = 9;
+  bool   is_read         = 10;
+}
+
+// ── Send ────────────────────────────────────────────────────────────────────
+
+message SendMessageRequest {
+  string         sender_id   = 1;
+  string         receiver_id = 2;
+  ConversationType conv_type = 3;
+  MessageType    msg_type    = 4;
+  string         content     = 5;
+  string         reply_to    = 6;  // optional
+}
+
+message SendMessageResponse {
+  string message_id = 1;
+  int64  created_at = 2;
+}
+
+// ── Get ─────────────────────────────────────────────────────────────────────
+
+message GetMessagesRequest {
+  string conversation_id = 1;
+  him.common.v1.Pagination pagination = 2;
+}
+
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  him.common.v1.PaginationResponse pagination = 2;
+}
+
+// ── Read ────────────────────────────────────────────────────────────────────
+
+message MarkReadRequest {
+  string user_id         = 1;
+  string conversation_id = 2;
+  string last_message_id = 3;
+}
+
+message MarkReadResponse {
+  bool success = 1;
+}
+
+// ── Reply ───────────────────────────────────────────────────────────────────
+
+message ReplyToMessageRequest {
+  string message_id = 1;  // the message to reply to
+  string content    = 2;
+  MessageType msg_type = 3;
+}
+
+message ReplyToMessageResponse {
+  string message_id = 1;
+  int64  created_at = 2;
+}
+
+// ── Recall ──────────────────────────────────────────────────────────────────
+
+message RecallMessageRequest {
+  string message_id = 1;
+}
+
+message RecallMessageResponse {
+  bool success = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service MessageService {
+  rpc SendMessage(SendMessageRequest)       returns (SendMessageResponse);
+  rpc GetMessages(GetMessagesRequest)       returns (GetMessagesResponse);
+  rpc MarkRead(MarkReadRequest)             returns (MarkReadResponse);
+  rpc ReplyToMessage(ReplyToMessageRequest) returns (ReplyToMessageResponse);
+  rpc RecallMessage(RecallMessageRequest)   returns (RecallMessageResponse);
+}

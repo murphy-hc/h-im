@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: him-postgres
+    environment:
+      POSTGRES_USER: him
+      POSTGRES_PASSWORD: him_secret
+      POSTGRES_DB: him
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U him"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Redis ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: him-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── RocketMQ Name Server ───────────────────────────────────────────────────
+  rocketmq-namesrv:
+    image: apache/rocketmq:5.3.0
+    container_name: him-rocketmq-namesrv
+    command: sh mqnamesrv
+    ports:
+      - "9876:9876"
+    environment:
+      JAVA_OPT_EXT: "-server -Xms256m -Xmx256m"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s localhost:9876"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── RocketMQ Broker ────────────────────────────────────────────────────────
+  rocketmq-broker:
+    image: apache/rocketmq:5.3.0
+    container_name: him-rocketmq-broker
+    command: sh mqbroker -n rocketmq-namesrv:9876
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+    environment:
+      JAVA_OPT_EXT: "-server -Xms512m -Xmx512m"
+    depends_on:
+      rocketmq-namesrv:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

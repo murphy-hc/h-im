@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package him.chatroom.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/chatroom/v1;chatroomv1";
+
+import "him/common/v1/types.proto";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_HIGH        = 1;
+  PRIORITY_MEDIUM      = 2;
+  PRIORITY_LOW         = 3;
+}
+
+message ChatroomInfo {
+  string room_id    = 1;
+  string name       = 2;
+  int32  member_count = 3;
+  int64  created_at = 4;
+}
+
+message ChatroomMessage {
+  string  message_id = 1;
+  string  room_id    = 2;
+  string  sender_id  = 3;
+  string  content    = 4;
+  Priority priority  = 5;
+  int64   created_at = 6;
+}
+
+// ── RPCs ────────────────────────────────────────────────────────────────────
+
+message CreateRoomRequest {
+  string name = 1;
+}
+
+message CreateRoomResponse {
+  string room_id = 1;
+}
+
+message JoinRoomRequest {
+  string room_id = 1;
+  string user_id = 2;
+}
+
+message JoinRoomResponse {
+  bool success = 1;
+}
+
+message LeaveRoomRequest {
+  string room_id = 1;
+  string user_id = 2;
+}
+
+message LeaveRoomResponse {
+  bool success = 1;
+}
+
+message SendMessageRequest {
+  string   room_id   = 1;
+  string   sender_id = 2;
+  string   content   = 3;
+  Priority priority  = 4;
+}
+
+message SendMessageResponse {
+  string message_id = 1;
+  int64  created_at = 2;
+}
+
+message GetMessagesRequest {
+  string room_id = 1;
+  him.common.v1.Pagination pagination = 2;
+}
+
+message GetMessagesResponse {
+  repeated ChatroomMessage messages = 1;
+  him.common.v1.PaginationResponse pagination = 2;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service ChatroomService {
+  rpc CreateRoom(CreateRoomRequest)     returns (CreateRoomResponse);
+  rpc JoinRoom(JoinRoomRequest)         returns (JoinRoomResponse);
+  rpc LeaveRoom(LeaveRoomRequest)       returns (LeaveRoomResponse);
+  rpc SendMessage(SendMessageRequest)   returns (SendMessageResponse);
+  rpc GetMessages(GetMessagesRequest)   returns (GetMessagesResponse);
+}

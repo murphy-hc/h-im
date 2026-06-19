@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package him.user.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/user/v1;userv1";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+message User {
+  string user_id   = 1;
+  string nickname  = 2;
+  string avatar    = 3;
+  int64  created_at = 4;
+  int64  updated_at = 5;
+}
+
+// ── RPCs ────────────────────────────────────────────────────────────────────
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  string user_id = 1;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string access_token  = 1;
+  string refresh_token = 2;
+  int64  expires_at    = 3;
+}
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message GetProfileResponse {
+  User user = 1;
+}
+
+message UpdateProfileRequest {
+  string nickname = 1;
+  string avatar   = 2;
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+}
+
+message BatchGetUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message BatchGetUsersResponse {
+  repeated User users = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service UserService {
+  rpc Register(RegisterRequest)           returns (RegisterResponse);
+  rpc Login(LoginRequest)                 returns (LoginResponse);
+  rpc GetProfile(GetProfileRequest)       returns (GetProfileResponse);
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+}

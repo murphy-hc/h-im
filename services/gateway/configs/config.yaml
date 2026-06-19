@@ -1,0 +1,8 @@
+server:
+  ws:
+    addr: ":8080"
+
+jwt:
+  secret: "change-me"
+  access_ttl: 15m
+  refresh_ttl: 720h

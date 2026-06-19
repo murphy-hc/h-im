@@ -1,0 +1,23 @@
+go 1.24
+
+use (
+	./gen/go
+	./pkg/errcode
+	./pkg/jwt
+	./pkg/logger
+	./pkg/pagination
+	./pkg/postgres
+	./pkg/redis
+	./pkg/rocketmq
+	./pkg/snowflake
+	./services/auth
+	./services/chatroom
+	./services/contact
+	./services/gateway
+	./services/group
+	./services/media
+	./services/message
+	./services/push
+	./services/sequence
+	./services/user
+)

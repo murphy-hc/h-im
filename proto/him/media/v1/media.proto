@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package him.media.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/media/v1;mediav1";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum MediaType {
+  MEDIA_TYPE_UNSPECIFIED = 0;
+  MEDIA_TYPE_IMAGE       = 1;
+  MEDIA_TYPE_VOICE       = 2;
+  MEDIA_TYPE_VIDEO       = 3;
+  MEDIA_TYPE_FILE        = 4;
+}
+
+message MediaInfo {
+  string media_id  = 1;
+  string url       = 2;
+  string thumb_url = 3;
+  MediaType type   = 4;
+  string mime_type = 5;
+  int64  size      = 6;
+  int64  created_at = 7;
+}
+
+// ── Upload ──────────────────────────────────────────────────────────────────
+
+message UploadMediaRequest {
+  string user_id   = 1;
+  MediaType type   = 2;
+  bytes  data      = 3;
+  string file_name = 4;
+}
+
+message UploadMediaResponse {
+  string media_id  = 1;
+  string url       = 2;
+  string thumb_url = 3;
+}
+
+// ── Download ────────────────────────────────────────────────────────────────
+
+message DownloadMediaRequest {
+  string media_id = 1;
+}
+
+message DownloadMediaResponse {
+  bytes data      = 1;
+  string mime_type = 2;
+}
+
+// ── GetInfo ─────────────────────────────────────────────────────────────────
+
+message GetMediaInfoRequest {
+  string media_id = 1;
+}
+
+message GetMediaInfoResponse {
+  MediaInfo media = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service MediaService {
+  rpc UploadMedia(UploadMediaRequest)     returns (UploadMediaResponse);
+  rpc DownloadMedia(DownloadMediaRequest) returns (DownloadMediaResponse);
+  rpc GetMediaInfo(GetMediaInfoRequest)   returns (GetMediaInfoResponse);
+}

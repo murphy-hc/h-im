@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package him.contact.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/contact/v1;contactv1";
+
+import "him/common/v1/types.proto";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum FriendStatus {
+  FRIEND_STATUS_UNSPECIFIED = 0;
+  FRIEND_STATUS_PENDING     = 1;
+  FRIEND_STATUS_ACCEPTED    = 2;
+  FRIEND_STATUS_BLOCKED     = 3;
+}
+
+message FriendInfo {
+  string user_id    = 1;
+  string nickname   = 2;
+  string avatar     = 3;
+  FriendStatus status = 4;
+  int64  created_at = 5;
+}
+
+message FriendRequest {
+  string request_id = 1;
+  string from_user  = 2;
+  string to_user    = 3;
+  string message    = 4;
+  int64  created_at = 5;
+}
+
+// ── RPCs ────────────────────────────────────────────────────────────────────
+
+message SendFriendRequestRequest {
+  string from_user = 1;
+  string to_user   = 2;
+  string message   = 3;
+}
+
+message SendFriendRequestResponse {
+  string request_id = 1;
+}
+
+message AcceptFriendRequestRequest {
+  string request_id = 1;
+}
+
+message AcceptFriendRequestResponse {
+  bool success = 1;
+}
+
+message RejectFriendRequestRequest {
+  string request_id = 1;
+}
+
+message RejectFriendRequestResponse {
+  bool success = 1;
+}
+
+message RemoveFriendRequest {
+  string user_id   = 1;
+  string friend_id = 2;
+}
+
+message RemoveFriendResponse {
+  bool success = 1;
+}
+
+message BlockUserRequest {
+  string user_id   = 1;
+  string block_id  = 2;
+}
+
+message BlockUserResponse {
+  bool success = 1;
+}
+
+message UnblockUserRequest {
+  string user_id   = 1;
+  string block_id  = 2;
+}
+
+message UnblockUserResponse {
+  bool success = 1;
+}
+
+message GetFriendsRequest {
+  string user_id = 1;
+  him.common.v1.Pagination pagination = 2;
+}
+
+message GetFriendsResponse {
+  repeated FriendInfo friends = 1;
+  him.common.v1.PaginationResponse pagination = 2;
+}
+
+message GetFriendRequestsRequest {
+  string user_id = 1;
+}
+
+message GetFriendRequestsResponse {
+  repeated FriendRequest requests = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service ContactService {
+  rpc SendFriendRequest(SendFriendRequestRequest)       returns (SendFriendRequestResponse);
+  rpc AcceptFriendRequest(AcceptFriendRequestRequest)   returns (AcceptFriendRequestResponse);
+  rpc RejectFriendRequest(RejectFriendRequestRequest)   returns (RejectFriendRequestResponse);
+  rpc RemoveFriend(RemoveFriendRequest)                 returns (RemoveFriendResponse);
+  rpc BlockUser(BlockUserRequest)                       returns (BlockUserResponse);
+  rpc UnblockUser(UnblockUserRequest)                   returns (UnblockUserResponse);
+  rpc GetFriends(GetFriendsRequest)                     returns (GetFriendsResponse);
+  rpc GetFriendRequests(GetFriendRequestsRequest)       returns (GetFriendRequestsResponse);
+}

@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package him.group.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/group/v1;groupv1";
+
+import "him/common/v1/types.proto";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum GroupRole {
+  GROUP_ROLE_UNSPECIFIED = 0;
+  GROUP_ROLE_OWNER       = 1;
+  GROUP_ROLE_ADMIN       = 2;
+  GROUP_ROLE_MEMBER      = 3;
+}
+
+message GroupInfo {
+  string group_id   = 1;
+  string name       = 2;
+  string avatar     = 3;
+  string owner_id   = 4;
+  int32  member_count = 5;
+  int64  created_at = 6;
+  int64  updated_at = 7;
+}
+
+message GroupMember {
+  string user_id  = 1;
+  string nickname = 2;
+  string avatar   = 3;
+  GroupRole role  = 4;
+  int64  joined_at = 5;
+}
+
+// ── RPCs ────────────────────────────────────────────────────────────────────
+
+message CreateGroupRequest {
+  string name           = 1;
+  string avatar         = 2;
+  repeated string member_ids = 3;
+}
+
+message CreateGroupResponse {
+  string group_id = 1;
+}
+
+message JoinGroupRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+
+message JoinGroupResponse {
+  bool success = 1;
+}
+
+message LeaveGroupRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+
+message LeaveGroupResponse {
+  bool success = 1;
+}
+
+message DismissGroupRequest {
+  string group_id = 1;
+}
+
+message DismissGroupResponse {
+  bool success = 1;
+}
+
+message GetGroupInfoRequest {
+  string group_id = 1;
+}
+
+message GetGroupInfoResponse {
+  GroupInfo group = 1;
+}
+
+message GetGroupMembersRequest {
+  string group_id = 1;
+  him.common.v1.Pagination pagination = 2;
+}
+
+message GetGroupMembersResponse {
+  repeated GroupMember members = 1;
+  him.common.v1.PaginationResponse pagination = 2;
+}
+
+message SetMemberRoleRequest {
+  string group_id = 1;
+  string user_id  = 2;
+  GroupRole role  = 3;
+}
+
+message SetMemberRoleResponse {
+  bool success = 1;
+}
+
+message KickMemberRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+
+message KickMemberResponse {
+  bool success = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service GroupService {
+  rpc CreateGroup(CreateGroupRequest)         returns (CreateGroupResponse);
+  rpc JoinGroup(JoinGroupRequest)             returns (JoinGroupResponse);
+  rpc LeaveGroup(LeaveGroupRequest)           returns (LeaveGroupResponse);
+  rpc DismissGroup(DismissGroupRequest)       returns (DismissGroupResponse);
+  rpc GetGroupInfo(GetGroupInfoRequest)       returns (GetGroupInfoResponse);
+  rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse);
+  rpc SetMemberRole(SetMemberRoleRequest)     returns (SetMemberRoleResponse);
+  rpc KickMember(KickMemberRequest)           returns (KickMemberResponse);
+}

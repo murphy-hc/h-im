@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package him.sequence.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/sequence/v1;sequencev1";
+
+message NextIDRequest {}
+
+message NextIDResponse {
+  int64 id = 1;
+}
+
+message NextBatchIDRequest {
+  int32 count = 1;
+}
+
+message NextBatchIDResponse {
+  repeated int64 ids = 1;
+}
+
+service SequenceService {
+  rpc NextID(NextIDRequest)           returns (NextIDResponse);
+  rpc NextBatchID(NextBatchIDRequest) returns (NextBatchIDResponse);
+}

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package him.common.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/common/v1;commonv1";
+
+// Pagination is embedded in list request messages.
+message Pagination {
+  int32 page      = 1;
+  int32 page_size = 2;
+}
+
+// PaginationResponse is embedded in list response messages.
+message PaginationResponse {
+  int32 page       = 1;
+  int32 page_size  = 2;
+  int64 total      = 3;
+  int32 total_page = 4;
+}
+
+// Empty is used when an RPC returns nothing.
+message Empty {}

@@ -1,0 +1,12 @@
+server:
+  grpc:
+    addr: ":9103"
+
+data:
+  database:
+    driver: postgres
+    source: postgres://him:him_secret@localhost:5432/him?sslmode=disable
+  redis:
+    addr: localhost:6379
+    password: ""
+    db: 0

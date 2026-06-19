@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package him.push.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/push/v1;pushv1";
+
+// ── Models ──────────────────────────────────────────────────────────────────
+
+enum DevicePlatform {
+  DEVICE_PLATFORM_UNSPECIFIED = 0;
+  DEVICE_PLATFORM_IOS         = 1;
+  DEVICE_PLATFORM_ANDROID     = 2;
+  DEVICE_PLATFORM_WEB         = 3;
+}
+
+message DeviceInfo {
+  string device_id   = 1;
+  string device_token = 2;
+  DevicePlatform platform = 3;
+}
+
+// ── RPCs ────────────────────────────────────────────────────────────────────
+
+message RegisterDeviceRequest {
+  string user_id    = 1;
+  DeviceInfo device = 2;
+}
+
+message RegisterDeviceResponse {
+  bool success = 1;
+}
+
+message UnregisterDeviceRequest {
+  string user_id   = 1;
+  string device_id = 2;
+}
+
+message UnregisterDeviceResponse {
+  bool success = 1;
+}
+
+message PushToUserRequest {
+  string user_id = 1;
+  string title   = 2;
+  string body    = 3;
+  string payload = 4;  // JSON payload for app routing
+}
+
+message PushToUserResponse {
+  bool success = 1;
+}
+
+message PushToTopicRequest {
+  string topic   = 1;
+  string title   = 2;
+  string body    = 3;
+  string payload = 4;
+}
+
+message PushToTopicResponse {
+  bool success = 1;
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
+service PushService {
+  rpc RegisterDevice(RegisterDeviceRequest)     returns (RegisterDeviceResponse);
+  rpc UnregisterDevice(UnregisterDeviceRequest) returns (UnregisterDeviceResponse);
+  rpc PushToUser(PushToUserRequest)             returns (PushToUserResponse);
+  rpc PushToTopic(PushToTopicRequest)           returns (PushToTopicResponse);
+}

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package him.common.v1;
+
+option go_package = "github.com/murphy-hc/h-im/gen/go/him/common/v1;commonv1";
+
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;
+
+  // Auth 1000-1099
+  ERROR_CODE_TOKEN_EXPIRED     = 1000;
+  ERROR_CODE_TOKEN_INVALID     = 1001;
+  ERROR_CODE_PERMISSION_DENIED = 1002;
+
+  // User 1100-1199
+  ERROR_CODE_USER_NOT_FOUND      = 1100;
+  ERROR_CODE_USER_ALREADY_EXISTS = 1101;
+
+  // Message 1200-1299
+  ERROR_CODE_MESSAGE_NOT_FOUND   = 1200;
+  ERROR_CODE_MESSAGE_SEND_FAILED = 1201;
+
+  // Contact 1300-1399
+  ERROR_CODE_ALREADY_FRIENDS   = 1300;
+  ERROR_CODE_NOT_FRIENDS       = 1301;
+  ERROR_CODE_FRIEND_REQUEST_EXPIRED = 1302;
+
+  // Group 1400-1499
+  ERROR_CODE_GROUP_NOT_FOUND          = 1400;
+  ERROR_CODE_NOT_GROUP_MEMBER         = 1401;
+  ERROR_CODE_GROUP_MEMBER_LIMIT       = 1402;
+  ERROR_CODE_GROUP_PERMISSION_DENIED  = 1403;
+
+  // Chatroom 1500-1599
+  ERROR_CODE_ROOM_NOT_FOUND    = 1500;
+  ERROR_CODE_NOT_ROOM_MEMBER   = 1501;
+  ERROR_CODE_INVALID_PRIORITY  = 1502;
+
+  // Media 1600-1699
+  ERROR_CODE_MEDIA_UPLOAD_FAILED   = 1600;
+  ERROR_CODE_MEDIA_NOT_FOUND       = 1601;
+  ERROR_CODE_MEDIA_SIZE_EXCEEDED   = 1602;
+}
+
+// ErrorDetail carries structured error information.
+message ErrorDetail {
+  ErrorCode code    = 1;
+  string    message = 2;
+  repeated string details = 3;
+}

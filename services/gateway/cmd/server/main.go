@@ -11,6 +11,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	kratosgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	pkgmetrics "github.com/murphy-hc/h-im/pkg/metrics"
 	pkgtracing "github.com/murphy-hc/h-im/pkg/tracing"
 	"github.com/rs/xid"
@@ -29,7 +30,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(ws *server.WSServer, hs *khttp.Server) *kratos.App {
+func newApp(ws *server.WSServer, hs *khttp.Server, gs *kratosgrpc.Server) *kratos.App {
 	id := xid.New().String()
 	return kratos.New(
 		kratos.ID(id),
@@ -37,7 +38,7 @@ func newApp(ws *server.WSServer, hs *khttp.Server) *kratos.App {
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(log.DefaultLogger),
-		kratos.Server(ws, hs),
+		kratos.Server(ws, hs, gs),
 	)
 }
 

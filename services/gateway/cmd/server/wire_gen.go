@@ -23,7 +23,10 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	gatewayService := service.NewGatewayService(gatewayUseCase)
 	wsServer := server.NewWSServer(confServer, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
-	app := newApp(wsServer, httpServer)
+	connManager := biz.NewConnManager()
+	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
+	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
+	app := newApp(wsServer, httpServer, grpcServer)
 	return app, func() {
 	}, nil
 }

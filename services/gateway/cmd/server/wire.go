@@ -18,6 +18,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	panic(wire.Build(
 		server.WSServerProviderSet,
 		server.HTTPProviderSet,
+		server.GRPCProviderSet,
 		service.ProviderSet,
 		biz.ProviderSet,
 		newApp,

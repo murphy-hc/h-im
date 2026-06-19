@@ -7,3 +7,4 @@ import (
 
 var WSServerProviderSet = wire.NewSet(NewWSServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
 var HTTPProviderSet = wire.NewSet(NewHTTPServer)
+var GRPCProviderSet = wire.NewSet(NewGRPCServer)

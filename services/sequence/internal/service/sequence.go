@@ -18,14 +18,15 @@ func NewSequenceService(uc *biz.SequenceUseCase) *SequenceService {
 	return &SequenceService{uc: uc}
 }
 
-// NextID returns a single snowflake ID.
-func (s *SequenceService) NextID(ctx context.Context, req *pb.NextIDRequest) (*pb.NextIDResponse, error) {
-	return &pb.NextIDResponse{Id: s.uc.NextID()}, nil
-}
-
-// NextBatchID returns a batch of snowflake IDs.
+// NextBatchID allocates a segment of IDs.
 func (s *SequenceService) NextBatchID(ctx context.Context, req *pb.NextBatchIDRequest) (*pb.NextBatchIDResponse, error) {
-	count := req.GetCount()
-	ids := s.uc.NextBatchID(count)
-	return &pb.NextBatchIDResponse{Ids: ids}, nil
+	start, end, step, err := s.uc.AllocateSegment(ctx, req.GetKey(), req.GetSize())
+	if err != nil {
+		return nil, err
+	}
+	return &pb.NextBatchIDResponse{
+		Start: start,
+		End:   end,
+		Step:  step,
+	}, nil
 }

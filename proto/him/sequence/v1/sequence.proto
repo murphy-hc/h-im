@@ -4,21 +4,17 @@ package him.sequence.v1;
 
 option go_package = "github.com/murphy-hc/h-im/gen/go/him/sequence/v1;sequencev1";
 
-message NextIDRequest {}
-
-message NextIDResponse {
-  int64 id = 1;
-}
-
 message NextBatchIDRequest {
-  int32 count = 1;
+  string key  = 1;  // sequence name, e.g. "message_id", "user_id"
+  int32  size = 2;  // segment size, <=0 to use default
 }
 
 message NextBatchIDResponse {
-  repeated int64 ids = 1;
+  int64 start = 1;  // segment start (inclusive)
+  int64 end   = 2;  // segment end (inclusive)
+  int32 step  = 3;  // increment step
 }
 
 service SequenceService {
-  rpc NextID(NextIDRequest)           returns (NextIDResponse);
   rpc NextBatchID(NextBatchIDRequest) returns (NextBatchIDResponse);
 }

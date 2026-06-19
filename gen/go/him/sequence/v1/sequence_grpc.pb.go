@@ -19,7 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SequenceService_NextID_FullMethodName      = "/him.sequence.v1.SequenceService/NextID"
 	SequenceService_NextBatchID_FullMethodName = "/him.sequence.v1.SequenceService/NextBatchID"
 )
 
@@ -27,7 +26,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SequenceServiceClient interface {
-	NextID(ctx context.Context, in *NextIDRequest, opts ...grpc.CallOption) (*NextIDResponse, error)
 	NextBatchID(ctx context.Context, in *NextBatchIDRequest, opts ...grpc.CallOption) (*NextBatchIDResponse, error)
 }
 
@@ -37,16 +35,6 @@ type sequenceServiceClient struct {
 
 func NewSequenceServiceClient(cc grpc.ClientConnInterface) SequenceServiceClient {
 	return &sequenceServiceClient{cc}
-}
-
-func (c *sequenceServiceClient) NextID(ctx context.Context, in *NextIDRequest, opts ...grpc.CallOption) (*NextIDResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(NextIDResponse)
-	err := c.cc.Invoke(ctx, SequenceService_NextID_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *sequenceServiceClient) NextBatchID(ctx context.Context, in *NextBatchIDRequest, opts ...grpc.CallOption) (*NextBatchIDResponse, error) {
@@ -63,7 +51,6 @@ func (c *sequenceServiceClient) NextBatchID(ctx context.Context, in *NextBatchID
 // All implementations must embed UnimplementedSequenceServiceServer
 // for forward compatibility.
 type SequenceServiceServer interface {
-	NextID(context.Context, *NextIDRequest) (*NextIDResponse, error)
 	NextBatchID(context.Context, *NextBatchIDRequest) (*NextBatchIDResponse, error)
 	mustEmbedUnimplementedSequenceServiceServer()
 }
@@ -75,9 +62,6 @@ type SequenceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSequenceServiceServer struct{}
 
-func (UnimplementedSequenceServiceServer) NextID(context.Context, *NextIDRequest) (*NextIDResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method NextID not implemented")
-}
 func (UnimplementedSequenceServiceServer) NextBatchID(context.Context, *NextBatchIDRequest) (*NextBatchIDResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NextBatchID not implemented")
 }
@@ -100,24 +84,6 @@ func RegisterSequenceServiceServer(s grpc.ServiceRegistrar, srv SequenceServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&SequenceService_ServiceDesc, srv)
-}
-
-func _SequenceService_NextID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NextIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SequenceServiceServer).NextID(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SequenceService_NextID_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SequenceServiceServer).NextID(ctx, req.(*NextIDRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _SequenceService_NextBatchID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -145,10 +111,6 @@ var SequenceService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "him.sequence.v1.SequenceService",
 	HandlerType: (*SequenceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "NextID",
-			Handler:    _SequenceService_NextID_Handler,
-		},
 		{
 			MethodName: "NextBatchID",
 			Handler:    _SequenceService_NextBatchID_Handler,

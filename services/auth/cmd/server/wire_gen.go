@@ -7,17 +7,18 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
 	"github.com/murphy-hc/h-im/services/auth/internal/biz"
 	"github.com/murphy-hc/h-im/services/auth/internal/conf"
 	"github.com/murphy-hc/h-im/services/auth/internal/data"
 	"github.com/murphy-hc/h-im/services/auth/internal/server"
 	"github.com/murphy-hc/h-im/services/auth/internal/service"
-	"google.golang.org/grpc"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Injectors from wire.go:
 
-func wireApp(confServer *conf.Server, confData *conf.Data) (*grpc.Server, func(), error) {
+func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	dataData, cleanup, err := data.NewData()
 	if err != nil {
 		return nil, nil, err
@@ -25,8 +26,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data) (*grpc.Server, func()
 	authRepo := data.NewAuthRepo(dataData)
 	authUseCase := biz.NewAuthUseCase(authRepo)
 	authService := service.NewAuthService(authUseCase)
-	grpcServer := server.NewGRPCServer(confServer, authService)
-	return grpcServer, func() {
+	grpcServer := server.NewGRPCServer(bc, meter, authService)
+	httpServer := server.NewHTTPServer(bc, meter)
+	app := newApp(grpcServer, httpServer)
+	return app, func() {
 		cleanup()
 	}, nil
 }

@@ -5,47 +5,33 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"github.com/murphy-hc/h-im/services/sequence/internal/data"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-// Requires a running PostgreSQL with the sequences table created.
-// Skip if no PG available.
+// Requires a running PostgreSQL.
 func TestAllocateSegment_Integration(t *testing.T) {
 	dsn := os.Getenv("PG_DSN")
 	if dsn == "" {
 		dsn = "postgres://him:him_secret@localhost:5432/him?sslmode=disable"
 	}
 
-	pool, err := pgxpool.New(context.Background(), dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		t.Skipf("PG not available: %v", err)
 	}
-	defer pool.Close()
-
-	if err := pool.Ping(context.Background()); err != nil {
-		t.Skipf("PG ping failed: %v", err)
-	}
 
 	// Ensure the sequences table exists.
-	_, err = pool.Exec(context.Background(),
-		`CREATE TABLE IF NOT EXISTS sequences (
-			key TEXT PRIMARY KEY,
-			next_val BIGINT NOT NULL DEFAULT 1,
-			step INT NOT NULL DEFAULT 1,
-			segment_size INT NOT NULL DEFAULT 100
-		)`,
-	)
-	if err != nil {
-		t.Fatalf("failed to create sequences table: %v", err)
+	if err := db.AutoMigrate(&data.SequenceModel{}); err != nil {
+		t.Fatalf("failed to migrate: %v", err)
 	}
 
 	t.Cleanup(func() {
-		_, _ = pool.Exec(context.Background(), "DELETE FROM sequences WHERE key LIKE 'test_%'")
+		db.Exec("DELETE FROM sequences WHERE key LIKE 'test_%'")
 	})
 
-	d := &data.Data{PG: pool}
+	d := &data.Data{DB: db}
 	repo := data.NewSequenceRepo(d)
 
 	key := "test_segment_id"

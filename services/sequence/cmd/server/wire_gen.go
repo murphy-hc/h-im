@@ -8,33 +8,28 @@ package main
 
 import (
 	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/murphy-hc/h-im/services/sequence/internal/biz"
 	"github.com/murphy-hc/h-im/services/sequence/internal/conf"
 	"github.com/murphy-hc/h-im/services/sequence/internal/data"
 	"github.com/murphy-hc/h-im/services/sequence/internal/server"
 	"github.com/murphy-hc/h-im/services/sequence/internal/service"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Injectors from wire.go:
 
-func wireApp(confServer *conf.Server, confData *conf.Data) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData()
+func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
+	dataData, cleanup, err := data.NewData(bc)
 	if err != nil {
 		return nil, nil, err
 	}
 	sequenceRepo := data.NewSequenceRepo(dataData)
 	sequenceUseCase := biz.NewSequenceUseCase(sequenceRepo)
 	sequenceService := service.NewSequenceService(sequenceUseCase)
-	grpcServer := server.NewGRPCServer(confServer, sequenceService)
-	app := newApp(grpcServer)
+	grpcServer := server.NewGRPCServer(bc, meter, sequenceService)
+	httpServer := server.NewHTTPServer(bc, meter)
+	app := newApp(grpcServer, httpServer)
 	return app, func() {
 		cleanup()
 	}, nil
-}
-
-// wire.go:
-
-func newApp(gs *grpc.Server) *kratos.App {
-	return kratos.New(kratos.Server(gs))
 }

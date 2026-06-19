@@ -1,8 +1,20 @@
 server:
+  env: "dev"
   ws:
+    network: "tcp"
     addr: ":8080"
+  http:
+    network: "tcp"
+    addr: ":8180"
 
-jwt:
-  secret: "change-me"
-  access_ttl: 15m
-  refresh_ttl: 720h
+otel:
+  service_name: "him-gateway"
+  endpoint: "localhost:4318"
+  sample_rate: 1.0
+  path: "/v1/traces"
+  timeout: "5s"
+  insecure: true
+  transport: "http"
+
+log:
+  level: "info"

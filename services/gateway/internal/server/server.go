@@ -1,5 +1,9 @@
 package server
 
-import "github.com/google/wire"
+import (
+	"github.com/google/wire"
+	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
+)
 
-var ProviderSet = wire.NewSet(NewWSServer)
+var WSServerProviderSet = wire.NewSet(NewWSServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
+var HTTPProviderSet = wire.NewSet(NewHTTPServer)

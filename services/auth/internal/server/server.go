@@ -1,6 +1,9 @@
 package server
 
-import "github.com/google/wire"
+import (
+	"github.com/google/wire"
+	"github.com/murphy-hc/h-im/services/auth/internal/conf"
+)
 
-// ProviderSet is server providers.
-var ProviderSet = wire.NewSet(NewGRPCServer)
+var GRPCProviderSet = wire.NewSet(NewGRPCServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
+var HTTPProviderSet = wire.NewSet(NewHTTPServer)

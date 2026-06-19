@@ -1,15 +1,17 @@
-go 1.24.0
+go 1.24.6
 
 use (
 	./gen/go
 	./pkg/errcode
 	./pkg/jwt
 	./pkg/logger
+	./pkg/metrics
 	./pkg/pagination
 	./pkg/postgres
 	./pkg/redis
 	./pkg/rocketmq
 	./pkg/snowflake
+	./pkg/tracing
 	./services/auth
 	./services/chatroom
 	./services/contact

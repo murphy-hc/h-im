@@ -1,12 +1,33 @@
 server:
+  env: "dev"
+  http:
+    network: "tcp"
+    addr: ":8104"
   grpc:
+    network: "tcp"
     addr: ":9104"
+
+otel:
+  service_name: "him-group"
+  endpoint: "localhost:4318"
+  sample_rate: 1.0
+  path: "/v1/traces"
+  timeout: "5s"
+  insecure: true
+  transport: "http"
+
+log:
+  level: "info"
 
 data:
   database:
-    driver: postgres
-    source: postgres://him:him_secret@localhost:5432/him?sslmode=disable
+    group:
+      dsn: "postgres://him:him_secret@localhost:5432/him?sslmode=disable"
+      max_idle_conns: 10
+      max_open_conns: 50
   redis:
-    addr: localhost:6379
+    network: "tcp"
+    addr: "localhost:6379"
     password: ""
-    db: 0
+    read_timeout: "1s"
+    write_timeout: "1s"

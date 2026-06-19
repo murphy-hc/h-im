@@ -9,9 +9,27 @@ build:
 	@for svc in $$(ls -d services/*/); do \
 		name=$$(basename $$svc); \
 		echo "  ► $$name"; \
-		(cd $$svc && go build ./cmd/server/) || exit 1; \
+		if [ -f $$svc/Makefile ]; then \
+			(cd $$svc && $(MAKE) build) || exit 1; \
+		else \
+			(cd $$svc && go build ./cmd/server/) || exit 1; \
+		fi; \
 	done
 	@echo "All services built."
+
+build-%:
+	@echo "Building $*..."
+	@go work sync
+	@cd services/$* && $(MAKE) build
+
+test-%:
+	@cd services/$* && $(MAKE) test
+
+proto-%:
+	@cd services/$* && $(MAKE) proto
+
+wire-%:
+	@cd services/$* && $(MAKE) wire
 
 lint:
 	@echo "Running go vet..."
@@ -46,6 +64,15 @@ proto-gen:
 	buf generate
 
 proto: proto-lint proto-gen
+
+proto-conf:
+	@echo "Generating service conf protos..."
+	@for svc in $$(ls -d services/*/); do \
+		if [ -f $$svc/internal/conf/conf.proto ]; then \
+			protoc -I . --go_out=. --go_opt=paths=source_relative $$svc/internal/conf/conf.proto; \
+			echo "  ► $$(basename $$svc) conf.pb.go"; \
+		fi; \
+	done
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 docker-up:

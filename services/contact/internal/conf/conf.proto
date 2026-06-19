@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package him.contact.conf;
+
+option go_package = "github.com/murphy-hc/h-im/services/contact/internal/conf;conf";
+
+import "google/protobuf/duration.proto";
+
+message Bootstrap {
+  Server server = 1;
+  Data data = 2;
+  Log log = 3;
+  Otel otel = 4;
+}
+
+message Server {
+  string env = 1;
+  HTTP http = 2;
+  GRPC grpc = 3;
+  message HTTP {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+}
+
+message Data {
+  Database database = 1;
+  Redis redis = 2;
+}
+
+message Database {
+  message Postgres {
+    int32 max_idle_conns = 1;
+    int32 max_open_conns = 2;
+    google.protobuf.Duration conn_max_lifetime = 3;
+    google.protobuf.Duration conn_max_idle_time = 4;
+    string dsn = 5;
+  }
+  Postgres contact = 1;
+}
+
+message Redis {
+  string network = 1;
+  string addr = 2;
+  google.protobuf.Duration read_timeout = 3;
+  google.protobuf.Duration write_timeout = 4;
+  string username = 5;
+  string password = 6;
+}
+
+message Log {
+  string level = 1;
+}
+
+message Otel {
+  string service_name = 1;
+  string endpoint = 2;
+  double sample_rate = 3;
+  string path = 4;
+  google.protobuf.Duration timeout = 5;
+  bool insecure = 6;
+  string transport = 7;
+}

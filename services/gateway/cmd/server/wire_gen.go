@@ -7,19 +7,23 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
 	"github.com/murphy-hc/h-im/services/gateway/internal/server"
 	"github.com/murphy-hc/h-im/services/gateway/internal/service"
-	"net/http"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Injectors from wire.go:
 
-func wireApp(confServer *conf.Server, data *conf.Data) (*http.Server, func(), error) {
+func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
+	confServer := bc.Server
 	gatewayUseCase := biz.NewGatewayUseCase()
 	gatewayService := service.NewGatewayService(gatewayUseCase)
-	httpServer := server.NewWSServer(confServer, gatewayService)
-	return httpServer, func() {
+	wsServer := server.NewWSServer(confServer, gatewayService)
+	httpServer := server.NewHTTPServer(bc, meter)
+	app := newApp(wsServer, httpServer)
+	return app, func() {
 	}, nil
 }

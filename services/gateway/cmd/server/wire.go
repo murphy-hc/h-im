@@ -4,19 +4,22 @@
 package main
 
 import (
-	"net/http"
-
+	"github.com/go-kratos/kratos/v2"
 	"github.com/google/wire"
+	"go.opentelemetry.io/otel/metric"
+
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
 	"github.com/murphy-hc/h-im/services/gateway/internal/server"
 	"github.com/murphy-hc/h-im/services/gateway/internal/service"
 )
 
-func wireApp(*conf.Server, *conf.Data) (*http.Server, func(), error) {
+func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	panic(wire.Build(
-		server.ProviderSet,
+		server.WSServerProviderSet,
+		server.HTTPProviderSet,
 		service.ProviderSet,
 		biz.ProviderSet,
+		newApp,
 	))
 }

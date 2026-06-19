@@ -4,9 +4,9 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
 	"github.com/google/wire"
-	"google.golang.org/grpc"
-
+	"go.opentelemetry.io/otel/metric"
 	"github.com/murphy-hc/h-im/services/group/internal/biz"
 	"github.com/murphy-hc/h-im/services/group/internal/conf"
 	"github.com/murphy-hc/h-im/services/group/internal/data"
@@ -14,11 +14,13 @@ import (
 	"github.com/murphy-hc/h-im/services/group/internal/service"
 )
 
-func wireApp(*conf.Server, *conf.Data) (*grpc.Server, func(), error) {
+func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	panic(wire.Build(
-		server.ProviderSet,
+		server.GRPCProviderSet,
+		server.HTTPProviderSet,
 		service.ProviderSet,
 		biz.ProviderSet,
 		data.ProviderSet,
+		newApp,
 	))
 }

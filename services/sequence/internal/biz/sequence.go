@@ -1,28 +1,24 @@
 package biz
 
-import "github.com/murphy-hc/h-im/pkg/snowflake"
+import (
+	"context"
+	"fmt"
+)
 
-// SequenceUseCase handles ID generation business logic.
+// SequenceUseCase handles segment-based ID generation.
 type SequenceUseCase struct {
-	gen *snowflake.Generator
+	repo SequenceRepo
 }
 
 // NewSequenceUseCase creates a SequenceUseCase.
-func NewSequenceUseCase() *SequenceUseCase {
-	gen := snowflake.New(1) // TODO: worker ID from config or service discovery
-	return &SequenceUseCase{gen: gen}
+func NewSequenceUseCase(repo SequenceRepo) *SequenceUseCase {
+	return &SequenceUseCase{repo: repo}
 }
 
-// NextID returns the next unique ID.
-func (uc *SequenceUseCase) NextID() int64 {
-	return uc.gen.NextID()
-}
-
-// NextBatchID returns a batch of unique IDs.
-func (uc *SequenceUseCase) NextBatchID(count int32) []int64 {
-	ids := make([]int64, count)
-	for i := int32(0); i < count; i++ {
-		ids[i] = uc.gen.NextID()
+// AllocateSegment allocates a segment of IDs for the given key.
+func (uc *SequenceUseCase) AllocateSegment(ctx context.Context, key string, size int32) (start, end int64, step int32, err error) {
+	if key == "" {
+		return 0, 0, 0, fmt.Errorf("key must not be empty")
 	}
-	return ids
+	return uc.repo.AllocateSegment(ctx, key, size)
 }

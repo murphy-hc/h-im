@@ -1,20 +1,21 @@
 version: "3.9"
 
 services:
-  # ── PostgreSQL ────────────────────────────────────────────────────────────
-  postgres:
+  # ── MySQL ────────────────────────────────────────────────────────────────────
+  mysql:
     image: mysql:8.0
     container_name: him-mysql
     environment:
+      MYSQL_ROOT_PASSWORD: root_secret
       MYSQL_USER: him
       MYSQL_PASSWORD: him_secret
-      MYSQL_DB: him
+      MYSQL_DATABASE: him
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping "]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -33,34 +34,16 @@ services:
       timeout: 3s
       retries: 5
 
-  # ── RocketMQ Name Server ───────────────────────────────────────────────────
-  rocketmq-namesrv:
+  # ── Kafka ───────────────────────────────────────────────────────────────────
+  kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: him-rocketmq-namesrv
-    command: sh mqnamesrv
+    container_name: him-kafka
     ports:
-      - "9876:9876"
+      - "9092:9092"
     environment:
-      JAVA_OPT_EXT: "-server -Xms256m -Xmx256m"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s localhost:9876"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  # ── RocketMQ Broker ────────────────────────────────────────────────────────
-  rocketmq-broker:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: him-rocketmq-broker
-    command: sh mqbroker -n rocketmq-namesrv:9876
-    ports:
-      - "10911:10911"
-      - "10909:10909"
-    environment:
-      JAVA_OPT_EXT: "-server -Xms512m -Xmx512m"
-    depends_on:
-      rocketmq-namesrv:
-        condition: service_healthy
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
 
 volumes:
   mysql_data:

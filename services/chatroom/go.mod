@@ -52,8 +52,5 @@ replace (
 	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
 	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 	github.com/murphy-hc/h-im/pkg/pagination => ../../pkg/pagination
-	github.com/murphy-hc/h-im/pkg/postgres => ../../pkg/postgres
 	github.com/murphy-hc/h-im/pkg/redis => ../../pkg/redis
-	github.com/murphy-hc/h-im/pkg/rocketmq => ../../pkg/rocketmq
-	github.com/murphy-hc/h-im/pkg/snowflake => ../../pkg/snowflake
 )

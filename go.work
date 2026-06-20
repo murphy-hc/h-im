@@ -9,9 +9,7 @@ use (
 	./pkg/logger
 	./pkg/metrics
 	./pkg/pagination
-	./pkg/postgres
 	./pkg/redis
-	./pkg/snowflake
 	./pkg/tracing
 	./services/auth
 	./services/chatroom

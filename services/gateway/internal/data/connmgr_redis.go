@@ -33,11 +33,11 @@ func roomKey(roomID string) string           { return redisKeyPrefix + ":room:" 
 
 func (cm *redisConnManager) Add(userID, deviceID string, conn *websocket.Conn) error {
 	cm.mu.Lock()
-	defer cm.mu.Unlock()
 	if cm.localConns[userID] == nil {
 		cm.localConns[userID] = make(map[string]*websocket.Conn)
 	}
 	cm.localConns[userID][deviceID] = conn
+	cm.mu.Unlock()
 	return cm.rdb.Set(context.Background(), connKey(userID, deviceID), instanceID, 0).Err()
 }
 

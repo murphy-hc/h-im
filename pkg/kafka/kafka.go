@@ -1,5 +1,5 @@
 // Package rocketmq provides a RocketMQ producer/consumer wrapper.
-package rocketmq
+package kafka
 
 import (
 	"context"

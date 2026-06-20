@@ -1,7 +1,9 @@
 package database
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/driver/mysql"
@@ -37,7 +39,9 @@ func NewDB(cfg *Config) (*gorm.DB, func(), error) {
 	if cfg.MaxOpenConns > 0 {
 		sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
 	}
-	if err := sqlDB.Ping(); err != nil {
+	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := sqlDB.PingContext(pingCtx); err != nil {
 		return nil, nil, fmt.Errorf("database: ping: %w", err)
 	}
 	log.Infof("database: connected")

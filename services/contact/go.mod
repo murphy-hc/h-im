@@ -52,5 +52,4 @@ replace (
 	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
 	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 	github.com/murphy-hc/h-im/pkg/pagination => ../../pkg/pagination
-	github.com/murphy-hc/h-im/pkg/postgres => ../../pkg/postgres
 )

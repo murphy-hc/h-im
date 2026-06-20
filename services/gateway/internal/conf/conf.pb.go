@@ -220,7 +220,7 @@ func (x *Data) GetDatabase() *Database {
 
 type Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Gateway       *Database_Postgres     `protobuf:"bytes,1,opt,name=gateway,proto3" json:"gateway,omitempty"`
+	Gateway       *Database_MySQL        `protobuf:"bytes,1,opt,name=gateway,proto3" json:"gateway,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -255,7 +255,7 @@ func (*Database) Descriptor() ([]byte, []int) {
 	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Database) GetGateway() *Database_Postgres {
+func (x *Database) GetGateway() *Database_MySQL {
 	if x != nil {
 		return x.Gateway
 	}
@@ -730,7 +730,7 @@ func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
 	return nil
 }
 
-type Database_Postgres struct {
+type Database_MySQL struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	MaxIdleConns    int32                  `protobuf:"varint,1,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`
 	MaxOpenConns    int32                  `protobuf:"varint,2,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`
@@ -741,20 +741,20 @@ type Database_Postgres struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *Database_Postgres) Reset() {
-	*x = Database_Postgres{}
+func (x *Database_MySQL) Reset() {
+	*x = Database_MySQL{}
 	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Database_Postgres) String() string {
+func (x *Database_MySQL) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Database_Postgres) ProtoMessage() {}
+func (*Database_MySQL) ProtoMessage() {}
 
-func (x *Database_Postgres) ProtoReflect() protoreflect.Message {
+func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
 	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -766,40 +766,40 @@ func (x *Database_Postgres) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Database_Postgres.ProtoReflect.Descriptor instead.
-func (*Database_Postgres) Descriptor() ([]byte, []int) {
+// Deprecated: Use Database_MySQL.ProtoReflect.Descriptor instead.
+func (*Database_MySQL) Descriptor() ([]byte, []int) {
 	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{3, 0}
 }
 
-func (x *Database_Postgres) GetMaxIdleConns() int32 {
+func (x *Database_MySQL) GetMaxIdleConns() int32 {
 	if x != nil {
 		return x.MaxIdleConns
 	}
 	return 0
 }
 
-func (x *Database_Postgres) GetMaxOpenConns() int32 {
+func (x *Database_MySQL) GetMaxOpenConns() int32 {
 	if x != nil {
 		return x.MaxOpenConns
 	}
 	return 0
 }
 
-func (x *Database_Postgres) GetConnMaxLifetime() *durationpb.Duration {
+func (x *Database_MySQL) GetConnMaxLifetime() *durationpb.Duration {
 	if x != nil {
 		return x.ConnMaxLifetime
 	}
 	return nil
 }
 
-func (x *Database_Postgres) GetConnMaxIdleTime() *durationpb.Duration {
+func (x *Database_MySQL) GetConnMaxIdleTime() *durationpb.Duration {
 	if x != nil {
 		return x.ConnMaxIdleTime
 	}
 	return nil
 }
 
-func (x *Database_Postgres) GetDsn() string {
+func (x *Database_MySQL) GetDsn() string {
 	if x != nil {
 		return x.Dsn
 	}
@@ -841,10 +841,10 @@ const file_services_gateway_internal_conf_conf_proto_rawDesc = "" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"m\n" +
 	"\x04Data\x12-\n" +
 	"\x05redis\x18\x01 \x01(\v2\x17.him.gateway.conf.RedisR\x05redis\x126\n" +
-	"\bdatabase\x18\x02 \x01(\v2\x1a.him.gateway.conf.DatabaseR\bdatabase\"\xc3\x02\n" +
-	"\bDatabase\x12=\n" +
-	"\agateway\x18\x01 \x01(\v2#.him.gateway.conf.Database.PostgresR\agateway\x1a\xf7\x01\n" +
-	"\bPostgres\x12$\n" +
+	"\bdatabase\x18\x02 \x01(\v2\x1a.him.gateway.conf.DatabaseR\bdatabase\"\xbd\x02\n" +
+	"\bDatabase\x12:\n" +
+	"\agateway\x18\x01 \x01(\v2 .him.gateway.conf.Database.MySQLR\agateway\x1a\xf4\x01\n" +
+	"\x05MySQL\x12$\n" +
 	"\x0emax_idle_conns\x18\x01 \x01(\x05R\fmaxIdleConns\x12$\n" +
 	"\x0emax_open_conns\x18\x02 \x01(\x05R\fmaxOpenConns\x12E\n" +
 	"\x11conn_max_lifetime\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxLifetime\x12F\n" +
@@ -894,7 +894,7 @@ var file_services_gateway_internal_conf_conf_proto_goTypes = []any{
 	(*Server_WS)(nil),           // 8: him.gateway.conf.Server.WS
 	(*Server_HTTP)(nil),         // 9: him.gateway.conf.Server.HTTP
 	(*Server_GRPC)(nil),         // 10: him.gateway.conf.Server.GRPC
-	(*Database_Postgres)(nil),   // 11: him.gateway.conf.Database.Postgres
+	(*Database_MySQL)(nil),      // 11: him.gateway.conf.Database.MySQL
 	(*durationpb.Duration)(nil), // 12: google.protobuf.Duration
 }
 var file_services_gateway_internal_conf_conf_proto_depIdxs = []int32{
@@ -908,15 +908,15 @@ var file_services_gateway_internal_conf_conf_proto_depIdxs = []int32{
 	10, // 7: him.gateway.conf.Server.grpc:type_name -> him.gateway.conf.Server.GRPC
 	4,  // 8: him.gateway.conf.Data.redis:type_name -> him.gateway.conf.Redis
 	3,  // 9: him.gateway.conf.Data.database:type_name -> him.gateway.conf.Database
-	11, // 10: him.gateway.conf.Database.gateway:type_name -> him.gateway.conf.Database.Postgres
+	11, // 10: him.gateway.conf.Database.gateway:type_name -> him.gateway.conf.Database.MySQL
 	12, // 11: him.gateway.conf.Otel.timeout:type_name -> google.protobuf.Duration
 	12, // 12: him.gateway.conf.Server.WS.read_timeout:type_name -> google.protobuf.Duration
 	12, // 13: him.gateway.conf.Server.WS.write_timeout:type_name -> google.protobuf.Duration
 	12, // 14: him.gateway.conf.Server.WS.handshake_timeout:type_name -> google.protobuf.Duration
 	12, // 15: him.gateway.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
 	12, // 16: him.gateway.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	12, // 17: him.gateway.conf.Database.Postgres.conn_max_lifetime:type_name -> google.protobuf.Duration
-	12, // 18: him.gateway.conf.Database.Postgres.conn_max_idle_time:type_name -> google.protobuf.Duration
+	12, // 17: him.gateway.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
+	12, // 18: him.gateway.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
 	19, // [19:19] is the sub-list for method output_type
 	19, // [19:19] is the sub-list for method input_type
 	19, // [19:19] is the sub-list for extension type_name

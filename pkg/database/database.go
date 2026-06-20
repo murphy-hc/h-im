@@ -4,24 +4,24 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 )
 
 // Config holds database connection configuration.
 type Config struct {
-	DSN           string
-	MaxIdleConns  int
-	MaxOpenConns  int
+	DSN          string
+	MaxIdleConns int
+	MaxOpenConns int
 }
 
-// NewDB creates a GORM DB connection with connection pool configuration.
+// NewDB creates a GORM DB connection with MySQL.
 func NewDB(cfg *Config) (*gorm.DB, func(), error) {
 	if cfg.DSN == "" {
 		return nil, nil, fmt.Errorf("database: dsn is empty")
 	}
-	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(cfg.DSN), &gorm.Config{
 		Logger: gormlogger.Default.LogMode(gormlogger.Warn),
 	})
 	if err != nil {

@@ -18,9 +18,9 @@ Go monorepo for an IM (Instant Messaging) system. Module root: `github.com/murph
 | Framework | Kratos v2 (`github.com/go-kratos/kratos/v2`) |
 | Inter-service | gRPC + Protobuf (Buf for shared protos, protoc for service conf) |
 | DI | Google Wire (compile-time) |
-| Database | PostgreSQL via GORM (`gorm.io/gorm` + `gorm.io/driver/postgres`) |
+| Database | MySQL via GORM (`gorm.io/gorm` + `gorm.io/driver/mysql`) |
 | Cache | Redis |
-| Message Queue | RocketMQ |
+| Message Queue | Kafka |
 | Observability | OpenTelemetry (tracing) + Prometheus (metrics) + structured logging |
 | Container | Docker (debian:bookworm-slim base image) |
 | Registry | Alibaba Cloud ACR |
@@ -36,7 +36,7 @@ make tidy                # go mod tidy in all modules
 make proto               # buf lint + buf generate (api protos)
 make proto-conf          # protoc generate all services' conf.pb.go
 make build-{name}        # Build a single service (e.g. make build-sequence)
-make docker-up           # Start PG + Redis + RocketMQ locally
+make docker-up           # Start MySQL + Redis + Kafka locally
 ```
 
 ### Per-service (any service under services/)
@@ -78,18 +78,18 @@ Client (WS) ←→ Gateway ──gRPC──→ Auth / User / Message / Contact /
 ```
 
 - **gateway**: WebSocket gateway — the single client entry point. Handles connections, auth, message routing. Returns `*server.WSServer` (wraps `net/http.Server` as Kratos transport).
-- **sequence**: Segment-based ID allocator using PostgreSQL. Callers request a range `[start, end]` and hand out IDs locally. Atomic allocation via `SELECT FOR UPDATE`.
-- **message**: Core message pipeline — persist, publish to RocketMQ, read receipts, replies.
+- **sequence**: Segment-based ID allocator using MySQL. Callers request a range `[start, end]` and hand out IDs locally. Atomic allocation via `SELECT FOR UPDATE`.
+- **message**: Core message pipeline — persist, publish to Kafka, read receipts, replies.
 - **user / auth / contact / group / chatroom / push / media**: gRPC services, each with Kratos observability stack.
 
 ### Message Flow
 
 ```
 Sender → Gateway → Message Service → Sequence (get ID segment)
-                                   → PostgreSQL (persist)
-                                   → RocketMQ (publish)
+                                   → MySQL (persist)
+                                   → Kafka (publish)
                                            ↓
-Receiver ← Gateway ← RocketMQ consumer ←───┘
+Receiver ← Gateway ← Kafka consumer ←───┘
 ```
 
 ### Observability Stack (all services)
@@ -162,15 +162,14 @@ server → service → biz ← data
 
 | Package | Purpose |
 |---------|---------|
+| `pkg/database` | GORM connection factory (MySQL driver) |
 | `pkg/tracing` | OTLP trace exporter (HTTP/gRPC, configurable timeout/transport) |
 | `pkg/metrics` | Prometheus meter (`NewMeterProvider` accepts any `sdkmetric.Reader`) |
 | `pkg/errcode` | Domain error code constants |
 | `pkg/jwt` | JWT issue/validate helpers |
 | `pkg/pagination` | Pagination request/response utilities |
-| `pkg/snowflake` | Snowflake ID generator (legacy, not used by sequence) |
-| `pkg/postgres` | pgx-based PostgreSQL pool (legacy, GORM preferred) |
 | `pkg/redis` | Redis client wrapper |
-| `pkg/rocketmq` | RocketMQ producer/consumer stub |
+| `pkg/kafka` | Kafka producer/consumer stub |
 | `pkg/logger` | slog-based logger factory |
 
 ## Module Conventions

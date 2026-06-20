@@ -5,12 +5,12 @@ use (
 	./pkg/database
 	./pkg/errcode
 	./pkg/jwt
+	./pkg/kafka
 	./pkg/logger
 	./pkg/metrics
 	./pkg/pagination
 	./pkg/postgres
 	./pkg/redis
-	./pkg/rocketmq
 	./pkg/snowflake
 	./pkg/tracing
 	./services/auth

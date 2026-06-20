@@ -204,7 +204,7 @@ func (x *Data) GetRedis() *Redis {
 
 type Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Group         *Database_Postgres     `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	Group         *Database_MySQL        `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -239,7 +239,7 @@ func (*Database) Descriptor() ([]byte, []int) {
 	return file_services_group_internal_conf_conf_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Database) GetGroup() *Database_Postgres {
+func (x *Database) GetGroup() *Database_MySQL {
 	if x != nil {
 		return x.Group
 	}
@@ -586,7 +586,7 @@ func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
 	return nil
 }
 
-type Database_Postgres struct {
+type Database_MySQL struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	MaxIdleConns    int32                  `protobuf:"varint,1,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`
 	MaxOpenConns    int32                  `protobuf:"varint,2,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`
@@ -597,20 +597,20 @@ type Database_Postgres struct {
 	sizeCache       protoimpl.SizeCache
 }
 
-func (x *Database_Postgres) Reset() {
-	*x = Database_Postgres{}
+func (x *Database_MySQL) Reset() {
+	*x = Database_MySQL{}
 	mi := &file_services_group_internal_conf_conf_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Database_Postgres) String() string {
+func (x *Database_MySQL) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Database_Postgres) ProtoMessage() {}
+func (*Database_MySQL) ProtoMessage() {}
 
-func (x *Database_Postgres) ProtoReflect() protoreflect.Message {
+func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
 	mi := &file_services_group_internal_conf_conf_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -622,40 +622,40 @@ func (x *Database_Postgres) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Database_Postgres.ProtoReflect.Descriptor instead.
-func (*Database_Postgres) Descriptor() ([]byte, []int) {
+// Deprecated: Use Database_MySQL.ProtoReflect.Descriptor instead.
+func (*Database_MySQL) Descriptor() ([]byte, []int) {
 	return file_services_group_internal_conf_conf_proto_rawDescGZIP(), []int{3, 0}
 }
 
-func (x *Database_Postgres) GetMaxIdleConns() int32 {
+func (x *Database_MySQL) GetMaxIdleConns() int32 {
 	if x != nil {
 		return x.MaxIdleConns
 	}
 	return 0
 }
 
-func (x *Database_Postgres) GetMaxOpenConns() int32 {
+func (x *Database_MySQL) GetMaxOpenConns() int32 {
 	if x != nil {
 		return x.MaxOpenConns
 	}
 	return 0
 }
 
-func (x *Database_Postgres) GetConnMaxLifetime() *durationpb.Duration {
+func (x *Database_MySQL) GetConnMaxLifetime() *durationpb.Duration {
 	if x != nil {
 		return x.ConnMaxLifetime
 	}
 	return nil
 }
 
-func (x *Database_Postgres) GetConnMaxIdleTime() *durationpb.Duration {
+func (x *Database_MySQL) GetConnMaxIdleTime() *durationpb.Duration {
 	if x != nil {
 		return x.ConnMaxIdleTime
 	}
 	return nil
 }
 
-func (x *Database_Postgres) GetDsn() string {
+func (x *Database_MySQL) GetDsn() string {
 	if x != nil {
 		return x.Dsn
 	}
@@ -686,10 +686,10 @@ const file_services_group_internal_conf_conf_proto_rawDesc = "" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"i\n" +
 	"\x04Data\x124\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x18.him.group.conf.DatabaseR\bdatabase\x12+\n" +
-	"\x05redis\x18\x02 \x01(\v2\x15.him.group.conf.RedisR\x05redis\"\xbd\x02\n" +
-	"\bDatabase\x127\n" +
-	"\x05group\x18\x01 \x01(\v2!.him.group.conf.Database.PostgresR\x05group\x1a\xf7\x01\n" +
-	"\bPostgres\x12$\n" +
+	"\x05redis\x18\x02 \x01(\v2\x15.him.group.conf.RedisR\x05redis\"\xb7\x02\n" +
+	"\bDatabase\x124\n" +
+	"\x05group\x18\x01 \x01(\v2\x1e.him.group.conf.Database.MySQLR\x05group\x1a\xf4\x01\n" +
+	"\x05MySQL\x12$\n" +
 	"\x0emax_idle_conns\x18\x01 \x01(\x05R\fmaxIdleConns\x12$\n" +
 	"\x0emax_open_conns\x18\x02 \x01(\x05R\fmaxOpenConns\x12E\n" +
 	"\x11conn_max_lifetime\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxLifetime\x12F\n" +
@@ -737,7 +737,7 @@ var file_services_group_internal_conf_conf_proto_goTypes = []any{
 	(*Otel)(nil),                // 6: him.group.conf.Otel
 	(*Server_HTTP)(nil),         // 7: him.group.conf.Server.HTTP
 	(*Server_GRPC)(nil),         // 8: him.group.conf.Server.GRPC
-	(*Database_Postgres)(nil),   // 9: him.group.conf.Database.Postgres
+	(*Database_MySQL)(nil),      // 9: him.group.conf.Database.MySQL
 	(*durationpb.Duration)(nil), // 10: google.protobuf.Duration
 }
 var file_services_group_internal_conf_conf_proto_depIdxs = []int32{
@@ -749,14 +749,14 @@ var file_services_group_internal_conf_conf_proto_depIdxs = []int32{
 	8,  // 5: him.group.conf.Server.grpc:type_name -> him.group.conf.Server.GRPC
 	3,  // 6: him.group.conf.Data.database:type_name -> him.group.conf.Database
 	4,  // 7: him.group.conf.Data.redis:type_name -> him.group.conf.Redis
-	9,  // 8: him.group.conf.Database.group:type_name -> him.group.conf.Database.Postgres
+	9,  // 8: him.group.conf.Database.group:type_name -> him.group.conf.Database.MySQL
 	10, // 9: him.group.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
 	10, // 10: him.group.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
 	10, // 11: him.group.conf.Otel.timeout:type_name -> google.protobuf.Duration
 	10, // 12: him.group.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
 	10, // 13: him.group.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	10, // 14: him.group.conf.Database.Postgres.conn_max_lifetime:type_name -> google.protobuf.Duration
-	10, // 15: him.group.conf.Database.Postgres.conn_max_idle_time:type_name -> google.protobuf.Duration
+	10, // 14: him.group.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
+	10, // 15: him.group.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
 	16, // [16:16] is the sub-list for method output_type
 	16, // [16:16] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name

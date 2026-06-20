@@ -23,7 +23,7 @@ data:
     password: ""
   database:
     gateway:
-      dsn: "postgres://him:him_secret@localhost:5432/him?sslmode=disable"
+      dsn: "him:him_secret@tcp(localhost:3306)/him?charset=utf8mb4&parseTime=True""
       max_idle_conns: 10
       max_open_conns: 50
 

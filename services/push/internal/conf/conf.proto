@@ -35,14 +35,14 @@ message Data {
 }
 
 message Database {
-  message Postgres {
+  message MySQL {
     int32 max_idle_conns = 1;
     int32 max_open_conns = 2;
     google.protobuf.Duration conn_max_lifetime = 3;
     google.protobuf.Duration conn_max_idle_time = 4;
     string dsn = 5;
   }
-  Postgres push = 1;
+  MySQL push = 1;
 }
 
 message Redis {

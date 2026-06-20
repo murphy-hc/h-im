@@ -3,18 +3,18 @@ version: "3.9"
 services:
   # ── PostgreSQL ────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
-    container_name: him-postgres
+    image: mysql:8.0
+    container_name: him-mysql
     environment:
-      POSTGRES_USER: him
-      POSTGRES_PASSWORD: him_secret
-      POSTGRES_DB: him
+      MYSQL_USER: him
+      MYSQL_PASSWORD: him_secret
+      MYSQL_DB: him
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U him"]
+      test: ["CMD-SHELL", "mysqladmin ping "]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -35,7 +35,7 @@ services:
 
   # ── RocketMQ Name Server ───────────────────────────────────────────────────
   rocketmq-namesrv:
-    image: apache/rocketmq:5.3.0
+    image: confluentinc/cp-kafka:7.5.0
     container_name: him-rocketmq-namesrv
     command: sh mqnamesrv
     ports:
@@ -50,7 +50,7 @@ services:
 
   # ── RocketMQ Broker ────────────────────────────────────────────────────────
   rocketmq-broker:
-    image: apache/rocketmq:5.3.0
+    image: confluentinc/cp-kafka:7.5.0
     container_name: him-rocketmq-broker
     command: sh mqbroker -n rocketmq-namesrv:9876
     ports:
@@ -63,5 +63,5 @@ services:
         condition: service_healthy
 
 volumes:
-  postgres_data:
+  mysql_data:
   redis_data:

@@ -9,8 +9,8 @@ import (
 )
 
 func TestEncodeDecodeRoundTrip(t *testing.T) {
-	original := &gatewayv1.AuthRequest{Token: "test-token"}
-	frame, err := biz.Encode(1, gatewayv1.FrameType_FRAME_TYPE_AUTH_REQ, original)
+	original := &gatewayv1.ErrorMessage{Code: 500, Message: "test error"}
+	frame, err := biz.Encode(1, gatewayv1.FrameType_FRAME_TYPE_ERROR, original)
 	if err != nil {
 		t.Fatalf("encode: %v", err)
 	}
@@ -21,15 +21,15 @@ func TestEncodeDecodeRoundTrip(t *testing.T) {
 	if version != 1 {
 		t.Errorf("version = %d, want 1", version)
 	}
-	if ft != gatewayv1.FrameType_FRAME_TYPE_AUTH_REQ {
+	if ft != gatewayv1.FrameType_FRAME_TYPE_ERROR {
 		t.Errorf("wrong frame type")
 	}
-	var decoded gatewayv1.AuthRequest
+	var decoded gatewayv1.ErrorMessage
 	if err := proto.Unmarshal(payload, &decoded); err != nil {
 		t.Fatalf("unmarshal: %v", err)
 	}
-	if decoded.Token != original.Token {
-		t.Errorf("token mismatch")
+	if decoded.Code != original.Code {
+		t.Errorf("code mismatch")
 	}
 }
 

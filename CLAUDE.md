@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **⚠️ 约束：禁止自动执行 `git add` 和 `git commit`。** 所有 git 操作需用户明确指示。
+> 
+> **⚠️ 约束：services/ 下所有微服务必须遵循 Kratos DDD 分层**，目录结构统一为 `cmd/` `internal/server/` `internal/service/` `internal/biz/` `internal/data/` `internal/conf/`，依赖方向 `server → service → biz ← data`。
+
 ## Project
 
 Go monorepo for an IM (Instant Messaging) system. Module root: `github.com/murphy-hc/h-im`. All services use the Kratos v2 framework with Wire DI, OpenTelemetry tracing, Prometheus metrics, and GORM for database access.

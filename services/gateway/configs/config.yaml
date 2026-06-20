@@ -3,9 +3,29 @@ server:
   ws:
     network: "tcp"
     addr: ":8080"
+    read_timeout: "10s"
+    write_timeout: "10s"
+    read_buffer_size: 4096
+    write_buffer_size: 4096
+    handshake_timeout: "10s"
+    enable_compression: true
   http:
     network: "tcp"
     addr: ":8180"
+  grpc:
+    network: "tcp"
+    addr: ":9200"
+
+data:
+  redis:
+    network: "tcp"
+    addr: "localhost:6379"
+    password: ""
+  database:
+    gateway:
+      dsn: "postgres://him:him_secret@localhost:5432/him?sslmode=disable"
+      max_idle_conns: 10
+      max_open_conns: 50
 
 otel:
   service_name: "him-gateway"
@@ -15,6 +35,9 @@ otel:
   timeout: "5s"
   insecure: true
   transport: "http"
+
+user:
+  multi_device: true
 
 log:
   level: "info"

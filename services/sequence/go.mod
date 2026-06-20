@@ -8,6 +8,7 @@ require (
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.7.0
 	github.com/murphy-hc/h-im/gen/go v0.0.0
+	github.com/murphy-hc/h-im/pkg/database v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-00010101000000-000000000000
 	github.com/prometheus/client_golang v1.23.2
@@ -69,3 +70,5 @@ replace (
 	github.com/murphy-hc/h-im/pkg/metrics => ../../pkg/metrics
 	github.com/murphy-hc/h-im/pkg/tracing => ../../pkg/tracing
 )
+
+replace github.com/murphy-hc/h-im/pkg/database => ../../pkg/database

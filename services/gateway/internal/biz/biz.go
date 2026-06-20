@@ -2,4 +2,4 @@ package biz
 
 import "github.com/google/wire"
 
-var ProviderSet = wire.NewSet(NewGatewayUseCase, NewConnManager)
+var ProviderSet = wire.NewSet(NewGatewayUseCase)

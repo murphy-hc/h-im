@@ -25,8 +25,10 @@ const (
 type Bootstrap struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Server        *Server                `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
+	Data          *Data                  `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 	Log           *Log                   `protobuf:"bytes,3,opt,name=log,proto3" json:"log,omitempty"`
 	Otel          *Otel                  `protobuf:"bytes,4,opt,name=otel,proto3" json:"otel,omitempty"`
+	User          *User                  `protobuf:"bytes,5,opt,name=user,proto3" json:"user,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,6 +70,13 @@ func (x *Bootstrap) GetServer() *Server {
 	return nil
 }
 
+func (x *Bootstrap) GetData() *Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
 func (x *Bootstrap) GetLog() *Log {
 	if x != nil {
 		return x.Log
@@ -82,11 +91,19 @@ func (x *Bootstrap) GetOtel() *Otel {
 	return nil
 }
 
+func (x *Bootstrap) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Env           string                 `protobuf:"bytes,1,opt,name=env,proto3" json:"env,omitempty"`
 	Ws            *Server_WS             `protobuf:"bytes,2,opt,name=ws,proto3" json:"ws,omitempty"`
 	Http          *Server_HTTP           `protobuf:"bytes,3,opt,name=http,proto3" json:"http,omitempty"`
+	Grpc          *Server_GRPC           `protobuf:"bytes,4,opt,name=grpc,proto3" json:"grpc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,6 +159,177 @@ func (x *Server) GetHttp() *Server_HTTP {
 	return nil
 }
 
+func (x *Server) GetGrpc() *Server_GRPC {
+	if x != nil {
+		return x.Grpc
+	}
+	return nil
+}
+
+type Data struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Redis         *Redis                 `protobuf:"bytes,1,opt,name=redis,proto3" json:"redis,omitempty"`
+	Database      *Database              `protobuf:"bytes,2,opt,name=database,proto3" json:"database,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Data) Reset() {
+	*x = Data{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Data) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Data) ProtoMessage() {}
+
+func (x *Data) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Data.ProtoReflect.Descriptor instead.
+func (*Data) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Data) GetRedis() *Redis {
+	if x != nil {
+		return x.Redis
+	}
+	return nil
+}
+
+func (x *Data) GetDatabase() *Database {
+	if x != nil {
+		return x.Database
+	}
+	return nil
+}
+
+type Database struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Gateway       *Database_Postgres     `protobuf:"bytes,1,opt,name=gateway,proto3" json:"gateway,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Database) Reset() {
+	*x = Database{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Database) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Database) ProtoMessage() {}
+
+func (x *Database) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Database.ProtoReflect.Descriptor instead.
+func (*Database) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Database) GetGateway() *Database_Postgres {
+	if x != nil {
+		return x.Gateway
+	}
+	return nil
+}
+
+type Redis struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
+	Addr          string                 `protobuf:"bytes,2,opt,name=addr,proto3" json:"addr,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Username      string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Redis) Reset() {
+	*x = Redis{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Redis) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Redis) ProtoMessage() {}
+
+func (x *Redis) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Redis.ProtoReflect.Descriptor instead.
+func (*Redis) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Redis) GetNetwork() string {
+	if x != nil {
+		return x.Network
+	}
+	return ""
+}
+
+func (x *Redis) GetAddr() string {
+	if x != nil {
+		return x.Addr
+	}
+	return ""
+}
+
+func (x *Redis) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *Redis) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
 type Log struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Level         string                 `protobuf:"bytes,1,opt,name=level,proto3" json:"level,omitempty"`
@@ -151,7 +339,7 @@ type Log struct {
 
 func (x *Log) Reset() {
 	*x = Log{}
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[2]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +351,7 @@ func (x *Log) String() string {
 func (*Log) ProtoMessage() {}
 
 func (x *Log) ProtoReflect() protoreflect.Message {
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[2]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +364,7 @@ func (x *Log) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Log.ProtoReflect.Descriptor instead.
 func (*Log) Descriptor() ([]byte, []int) {
-	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{2}
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Log) GetLevel() string {
@@ -201,7 +389,7 @@ type Otel struct {
 
 func (x *Otel) Reset() {
 	*x = Otel{}
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -213,7 +401,7 @@ func (x *Otel) String() string {
 func (*Otel) ProtoMessage() {}
 
 func (x *Otel) ProtoReflect() protoreflect.Message {
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -226,7 +414,7 @@ func (x *Otel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Otel.ProtoReflect.Descriptor instead.
 func (*Otel) Descriptor() ([]byte, []int) {
-	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Otel) GetServiceName() string {
@@ -278,17 +466,67 @@ func (x *Otel) GetTransport() string {
 	return ""
 }
 
-type Server_WS struct {
+type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
-	Addr          string                 `protobuf:"bytes,2,opt,name=addr,proto3" json:"addr,omitempty"`
+	MultiDevice   bool                   `protobuf:"varint,1,opt,name=multi_device,json=multiDevice,proto3" json:"multi_device,omitempty"` // allow multiple devices to connect simultaneously
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *User) Reset() {
+	*x = User{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *User) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*User) ProtoMessage() {}
+
+func (x *User) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *User) GetMultiDevice() bool {
+	if x != nil {
+		return x.MultiDevice
+	}
+	return false
+}
+
+type Server_WS struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Network           string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
+	Addr              string                 `protobuf:"bytes,2,opt,name=addr,proto3" json:"addr,omitempty"`
+	ReadTimeout       *durationpb.Duration   `protobuf:"bytes,3,opt,name=read_timeout,json=readTimeout,proto3" json:"read_timeout,omitempty"`
+	WriteTimeout      *durationpb.Duration   `protobuf:"bytes,4,opt,name=write_timeout,json=writeTimeout,proto3" json:"write_timeout,omitempty"`
+	ReadBufferSize    int32                  `protobuf:"varint,5,opt,name=read_buffer_size,json=readBufferSize,proto3" json:"read_buffer_size,omitempty"`
+	WriteBufferSize   int32                  `protobuf:"varint,6,opt,name=write_buffer_size,json=writeBufferSize,proto3" json:"write_buffer_size,omitempty"`
+	HandshakeTimeout  *durationpb.Duration   `protobuf:"bytes,7,opt,name=handshake_timeout,json=handshakeTimeout,proto3" json:"handshake_timeout,omitempty"`
+	EnableCompression bool                   `protobuf:"varint,8,opt,name=enable_compression,json=enableCompression,proto3" json:"enable_compression,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
 func (x *Server_WS) Reset() {
 	*x = Server_WS{}
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -300,7 +538,7 @@ func (x *Server_WS) String() string {
 func (*Server_WS) ProtoMessage() {}
 
 func (x *Server_WS) ProtoReflect() protoreflect.Message {
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -330,6 +568,48 @@ func (x *Server_WS) GetAddr() string {
 	return ""
 }
 
+func (x *Server_WS) GetReadTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ReadTimeout
+	}
+	return nil
+}
+
+func (x *Server_WS) GetWriteTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.WriteTimeout
+	}
+	return nil
+}
+
+func (x *Server_WS) GetReadBufferSize() int32 {
+	if x != nil {
+		return x.ReadBufferSize
+	}
+	return 0
+}
+
+func (x *Server_WS) GetWriteBufferSize() int32 {
+	if x != nil {
+		return x.WriteBufferSize
+	}
+	return 0
+}
+
+func (x *Server_WS) GetHandshakeTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.HandshakeTimeout
+	}
+	return nil
+}
+
+func (x *Server_WS) GetEnableCompression() bool {
+	if x != nil {
+		return x.EnableCompression
+	}
+	return false
+}
+
 type Server_HTTP struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
@@ -341,7 +621,7 @@ type Server_HTTP struct {
 
 func (x *Server_HTTP) Reset() {
 	*x = Server_HTTP{}
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +633,7 @@ func (x *Server_HTTP) String() string {
 func (*Server_HTTP) ProtoMessage() {}
 
 func (x *Server_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,26 +670,191 @@ func (x *Server_HTTP) GetTimeout() *durationpb.Duration {
 	return nil
 }
 
+type Server_GRPC struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Network       string                 `protobuf:"bytes,1,opt,name=network,proto3" json:"network,omitempty"`
+	Addr          string                 `protobuf:"bytes,2,opt,name=addr,proto3" json:"addr,omitempty"`
+	Timeout       *durationpb.Duration   `protobuf:"bytes,3,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Server_GRPC) Reset() {
+	*x = Server_GRPC{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Server_GRPC) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Server_GRPC) ProtoMessage() {}
+
+func (x *Server_GRPC) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Server_GRPC.ProtoReflect.Descriptor instead.
+func (*Server_GRPC) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{1, 2}
+}
+
+func (x *Server_GRPC) GetNetwork() string {
+	if x != nil {
+		return x.Network
+	}
+	return ""
+}
+
+func (x *Server_GRPC) GetAddr() string {
+	if x != nil {
+		return x.Addr
+	}
+	return ""
+}
+
+func (x *Server_GRPC) GetTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.Timeout
+	}
+	return nil
+}
+
+type Database_Postgres struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MaxIdleConns    int32                  `protobuf:"varint,1,opt,name=max_idle_conns,json=maxIdleConns,proto3" json:"max_idle_conns,omitempty"`
+	MaxOpenConns    int32                  `protobuf:"varint,2,opt,name=max_open_conns,json=maxOpenConns,proto3" json:"max_open_conns,omitempty"`
+	ConnMaxLifetime *durationpb.Duration   `protobuf:"bytes,3,opt,name=conn_max_lifetime,json=connMaxLifetime,proto3" json:"conn_max_lifetime,omitempty"`
+	ConnMaxIdleTime *durationpb.Duration   `protobuf:"bytes,4,opt,name=conn_max_idle_time,json=connMaxIdleTime,proto3" json:"conn_max_idle_time,omitempty"`
+	Dsn             string                 `protobuf:"bytes,5,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *Database_Postgres) Reset() {
+	*x = Database_Postgres{}
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Database_Postgres) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Database_Postgres) ProtoMessage() {}
+
+func (x *Database_Postgres) ProtoReflect() protoreflect.Message {
+	mi := &file_services_gateway_internal_conf_conf_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Database_Postgres.ProtoReflect.Descriptor instead.
+func (*Database_Postgres) Descriptor() ([]byte, []int) {
+	return file_services_gateway_internal_conf_conf_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *Database_Postgres) GetMaxIdleConns() int32 {
+	if x != nil {
+		return x.MaxIdleConns
+	}
+	return 0
+}
+
+func (x *Database_Postgres) GetMaxOpenConns() int32 {
+	if x != nil {
+		return x.MaxOpenConns
+	}
+	return 0
+}
+
+func (x *Database_Postgres) GetConnMaxLifetime() *durationpb.Duration {
+	if x != nil {
+		return x.ConnMaxLifetime
+	}
+	return nil
+}
+
+func (x *Database_Postgres) GetConnMaxIdleTime() *durationpb.Duration {
+	if x != nil {
+		return x.ConnMaxIdleTime
+	}
+	return nil
+}
+
+func (x *Database_Postgres) GetDsn() string {
+	if x != nil {
+		return x.Dsn
+	}
+	return ""
+}
+
 var File_services_gateway_internal_conf_conf_proto protoreflect.FileDescriptor
 
 const file_services_gateway_internal_conf_conf_proto_rawDesc = "" +
 	"\n" +
-	")services/gateway/internal/conf/conf.proto\x12\x10him.gateway.conf\x1a\x1egoogle/protobuf/duration.proto\"\x92\x01\n" +
+	")services/gateway/internal/conf/conf.proto\x12\x10him.gateway.conf\x1a\x1egoogle/protobuf/duration.proto\"\xea\x01\n" +
 	"\tBootstrap\x120\n" +
-	"\x06server\x18\x01 \x01(\v2\x18.him.gateway.conf.ServerR\x06server\x12'\n" +
+	"\x06server\x18\x01 \x01(\v2\x18.him.gateway.conf.ServerR\x06server\x12*\n" +
+	"\x04data\x18\x02 \x01(\v2\x16.him.gateway.conf.DataR\x04data\x12'\n" +
 	"\x03log\x18\x03 \x01(\v2\x15.him.gateway.conf.LogR\x03log\x12*\n" +
-	"\x04otel\x18\x04 \x01(\v2\x16.him.gateway.conf.OtelR\x04otel\"\x99\x02\n" +
+	"\x04otel\x18\x04 \x01(\v2\x16.him.gateway.conf.OtelR\x04otel\x12*\n" +
+	"\x04user\x18\x05 \x01(\v2\x16.him.gateway.conf.UserR\x04user\"\x83\x06\n" +
 	"\x06Server\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12+\n" +
 	"\x02ws\x18\x02 \x01(\v2\x1b.him.gateway.conf.Server.WSR\x02ws\x121\n" +
-	"\x04http\x18\x03 \x01(\v2\x1d.him.gateway.conf.Server.HTTPR\x04http\x1a2\n" +
+	"\x04http\x18\x03 \x01(\v2\x1d.him.gateway.conf.Server.HTTPR\x04http\x121\n" +
+	"\x04grpc\x18\x04 \x01(\v2\x1d.him.gateway.conf.Server.GRPCR\x04grpc\x1a\xfd\x02\n" +
 	"\x02WS\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
-	"\x04addr\x18\x02 \x01(\tR\x04addr\x1ai\n" +
+	"\x04addr\x18\x02 \x01(\tR\x04addr\x12<\n" +
+	"\fread_timeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\vreadTimeout\x12>\n" +
+	"\rwrite_timeout\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwriteTimeout\x12(\n" +
+	"\x10read_buffer_size\x18\x05 \x01(\x05R\x0ereadBufferSize\x12*\n" +
+	"\x11write_buffer_size\x18\x06 \x01(\x05R\x0fwriteBufferSize\x12F\n" +
+	"\x11handshake_timeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\x10handshakeTimeout\x12-\n" +
+	"\x12enable_compression\x18\b \x01(\bR\x11enableCompression\x1ai\n" +
 	"\x04HTTP\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x1b\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x1ai\n" +
+	"\x04GRPC\x12\x18\n" +
+	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
+	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"m\n" +
+	"\x04Data\x12-\n" +
+	"\x05redis\x18\x01 \x01(\v2\x17.him.gateway.conf.RedisR\x05redis\x126\n" +
+	"\bdatabase\x18\x02 \x01(\v2\x1a.him.gateway.conf.DatabaseR\bdatabase\"\xc3\x02\n" +
+	"\bDatabase\x12=\n" +
+	"\agateway\x18\x01 \x01(\v2#.him.gateway.conf.Database.PostgresR\agateway\x1a\xf7\x01\n" +
+	"\bPostgres\x12$\n" +
+	"\x0emax_idle_conns\x18\x01 \x01(\x05R\fmaxIdleConns\x12$\n" +
+	"\x0emax_open_conns\x18\x02 \x01(\x05R\fmaxOpenConns\x12E\n" +
+	"\x11conn_max_lifetime\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxLifetime\x12F\n" +
+	"\x12conn_max_idle_time\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\x0fconnMaxIdleTime\x12\x10\n" +
+	"\x03dsn\x18\x05 \x01(\tR\x03dsn\"m\n" +
+	"\x05Redis\x12\x18\n" +
+	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
+	"\x04addr\x18\x02 \x01(\tR\x04addr\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x1a\n" +
+	"\busername\x18\x04 \x01(\tR\busername\"\x1b\n" +
 	"\x03Log\x12\x14\n" +
 	"\x05level\x18\x01 \x01(\tR\x05level\"\xe9\x01\n" +
 	"\x04Otel\x12!\n" +
@@ -420,7 +865,9 @@ const file_services_gateway_internal_conf_conf_proto_rawDesc = "" +
 	"\x04path\x18\x04 \x01(\tR\x04path\x123\n" +
 	"\atimeout\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12\x1a\n" +
 	"\binsecure\x18\x06 \x01(\bR\binsecure\x12\x1c\n" +
-	"\ttransport\x18\a \x01(\tR\ttransportB?Z=github.com/murphy-hc/h-im/services/gateway/internal/conf;confb\x06proto3"
+	"\ttransport\x18\a \x01(\tR\ttransport\")\n" +
+	"\x04User\x12!\n" +
+	"\fmulti_device\x18\x01 \x01(\bR\vmultiDeviceB?Z=github.com/murphy-hc/h-im/services/gateway/internal/conf;confb\x06proto3"
 
 var (
 	file_services_gateway_internal_conf_conf_proto_rawDescOnce sync.Once
@@ -434,29 +881,47 @@ func file_services_gateway_internal_conf_conf_proto_rawDescGZIP() []byte {
 	return file_services_gateway_internal_conf_conf_proto_rawDescData
 }
 
-var file_services_gateway_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_services_gateway_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_services_gateway_internal_conf_conf_proto_goTypes = []any{
 	(*Bootstrap)(nil),           // 0: him.gateway.conf.Bootstrap
 	(*Server)(nil),              // 1: him.gateway.conf.Server
-	(*Log)(nil),                 // 2: him.gateway.conf.Log
-	(*Otel)(nil),                // 3: him.gateway.conf.Otel
-	(*Server_WS)(nil),           // 4: him.gateway.conf.Server.WS
-	(*Server_HTTP)(nil),         // 5: him.gateway.conf.Server.HTTP
-	(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
+	(*Data)(nil),                // 2: him.gateway.conf.Data
+	(*Database)(nil),            // 3: him.gateway.conf.Database
+	(*Redis)(nil),               // 4: him.gateway.conf.Redis
+	(*Log)(nil),                 // 5: him.gateway.conf.Log
+	(*Otel)(nil),                // 6: him.gateway.conf.Otel
+	(*User)(nil),                // 7: him.gateway.conf.User
+	(*Server_WS)(nil),           // 8: him.gateway.conf.Server.WS
+	(*Server_HTTP)(nil),         // 9: him.gateway.conf.Server.HTTP
+	(*Server_GRPC)(nil),         // 10: him.gateway.conf.Server.GRPC
+	(*Database_Postgres)(nil),   // 11: him.gateway.conf.Database.Postgres
+	(*durationpb.Duration)(nil), // 12: google.protobuf.Duration
 }
 var file_services_gateway_internal_conf_conf_proto_depIdxs = []int32{
-	1, // 0: him.gateway.conf.Bootstrap.server:type_name -> him.gateway.conf.Server
-	2, // 1: him.gateway.conf.Bootstrap.log:type_name -> him.gateway.conf.Log
-	3, // 2: him.gateway.conf.Bootstrap.otel:type_name -> him.gateway.conf.Otel
-	4, // 3: him.gateway.conf.Server.ws:type_name -> him.gateway.conf.Server.WS
-	5, // 4: him.gateway.conf.Server.http:type_name -> him.gateway.conf.Server.HTTP
-	6, // 5: him.gateway.conf.Otel.timeout:type_name -> google.protobuf.Duration
-	6, // 6: him.gateway.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	1,  // 0: him.gateway.conf.Bootstrap.server:type_name -> him.gateway.conf.Server
+	2,  // 1: him.gateway.conf.Bootstrap.data:type_name -> him.gateway.conf.Data
+	5,  // 2: him.gateway.conf.Bootstrap.log:type_name -> him.gateway.conf.Log
+	6,  // 3: him.gateway.conf.Bootstrap.otel:type_name -> him.gateway.conf.Otel
+	7,  // 4: him.gateway.conf.Bootstrap.user:type_name -> him.gateway.conf.User
+	8,  // 5: him.gateway.conf.Server.ws:type_name -> him.gateway.conf.Server.WS
+	9,  // 6: him.gateway.conf.Server.http:type_name -> him.gateway.conf.Server.HTTP
+	10, // 7: him.gateway.conf.Server.grpc:type_name -> him.gateway.conf.Server.GRPC
+	4,  // 8: him.gateway.conf.Data.redis:type_name -> him.gateway.conf.Redis
+	3,  // 9: him.gateway.conf.Data.database:type_name -> him.gateway.conf.Database
+	11, // 10: him.gateway.conf.Database.gateway:type_name -> him.gateway.conf.Database.Postgres
+	12, // 11: him.gateway.conf.Otel.timeout:type_name -> google.protobuf.Duration
+	12, // 12: him.gateway.conf.Server.WS.read_timeout:type_name -> google.protobuf.Duration
+	12, // 13: him.gateway.conf.Server.WS.write_timeout:type_name -> google.protobuf.Duration
+	12, // 14: him.gateway.conf.Server.WS.handshake_timeout:type_name -> google.protobuf.Duration
+	12, // 15: him.gateway.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	12, // 16: him.gateway.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	12, // 17: him.gateway.conf.Database.Postgres.conn_max_lifetime:type_name -> google.protobuf.Duration
+	12, // 18: him.gateway.conf.Database.Postgres.conn_max_idle_time:type_name -> google.protobuf.Duration
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_services_gateway_internal_conf_conf_proto_init() }
@@ -470,7 +935,7 @@ func file_services_gateway_internal_conf_conf_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_gateway_internal_conf_conf_proto_rawDesc), len(file_services_gateway_internal_conf_conf_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

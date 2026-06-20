@@ -25,45 +25,39 @@ type FrameType int32
 
 const (
 	FrameType_FRAME_TYPE_UNSPECIFIED  FrameType = 0
-	FrameType_FRAME_TYPE_AUTH_REQ     FrameType = 1
-	FrameType_FRAME_TYPE_AUTH_RESP    FrameType = 2
-	FrameType_FRAME_TYPE_PRIVATE_CHAT FrameType = 3
-	FrameType_FRAME_TYPE_PRIVATE_ACK  FrameType = 4
-	FrameType_FRAME_TYPE_GROUP_CHAT   FrameType = 5
-	FrameType_FRAME_TYPE_GROUP_ACK    FrameType = 6
-	FrameType_FRAME_TYPE_CHATROOM_MSG FrameType = 7
-	FrameType_FRAME_TYPE_CHATROOM_ACK FrameType = 8
-	FrameType_FRAME_TYPE_HEARTBEAT    FrameType = 9
-	FrameType_FRAME_TYPE_ERROR        FrameType = 10
+	FrameType_FRAME_TYPE_PRIVATE_CHAT FrameType = 1
+	FrameType_FRAME_TYPE_PRIVATE_ACK  FrameType = 2
+	FrameType_FRAME_TYPE_GROUP_CHAT   FrameType = 3
+	FrameType_FRAME_TYPE_GROUP_ACK    FrameType = 4
+	FrameType_FRAME_TYPE_CHATROOM_MSG FrameType = 5
+	FrameType_FRAME_TYPE_CHATROOM_ACK FrameType = 6
+	FrameType_FRAME_TYPE_HEARTBEAT    FrameType = 7
+	FrameType_FRAME_TYPE_ERROR        FrameType = 8
 )
 
 // Enum value maps for FrameType.
 var (
 	FrameType_name = map[int32]string{
-		0:  "FRAME_TYPE_UNSPECIFIED",
-		1:  "FRAME_TYPE_AUTH_REQ",
-		2:  "FRAME_TYPE_AUTH_RESP",
-		3:  "FRAME_TYPE_PRIVATE_CHAT",
-		4:  "FRAME_TYPE_PRIVATE_ACK",
-		5:  "FRAME_TYPE_GROUP_CHAT",
-		6:  "FRAME_TYPE_GROUP_ACK",
-		7:  "FRAME_TYPE_CHATROOM_MSG",
-		8:  "FRAME_TYPE_CHATROOM_ACK",
-		9:  "FRAME_TYPE_HEARTBEAT",
-		10: "FRAME_TYPE_ERROR",
+		0: "FRAME_TYPE_UNSPECIFIED",
+		1: "FRAME_TYPE_PRIVATE_CHAT",
+		2: "FRAME_TYPE_PRIVATE_ACK",
+		3: "FRAME_TYPE_GROUP_CHAT",
+		4: "FRAME_TYPE_GROUP_ACK",
+		5: "FRAME_TYPE_CHATROOM_MSG",
+		6: "FRAME_TYPE_CHATROOM_ACK",
+		7: "FRAME_TYPE_HEARTBEAT",
+		8: "FRAME_TYPE_ERROR",
 	}
 	FrameType_value = map[string]int32{
 		"FRAME_TYPE_UNSPECIFIED":  0,
-		"FRAME_TYPE_AUTH_REQ":     1,
-		"FRAME_TYPE_AUTH_RESP":    2,
-		"FRAME_TYPE_PRIVATE_CHAT": 3,
-		"FRAME_TYPE_PRIVATE_ACK":  4,
-		"FRAME_TYPE_GROUP_CHAT":   5,
-		"FRAME_TYPE_GROUP_ACK":    6,
-		"FRAME_TYPE_CHATROOM_MSG": 7,
-		"FRAME_TYPE_CHATROOM_ACK": 8,
-		"FRAME_TYPE_HEARTBEAT":    9,
-		"FRAME_TYPE_ERROR":        10,
+		"FRAME_TYPE_PRIVATE_CHAT": 1,
+		"FRAME_TYPE_PRIVATE_ACK":  2,
+		"FRAME_TYPE_GROUP_CHAT":   3,
+		"FRAME_TYPE_GROUP_ACK":    4,
+		"FRAME_TYPE_CHATROOM_MSG": 5,
+		"FRAME_TYPE_CHATROOM_ACK": 6,
+		"FRAME_TYPE_HEARTBEAT":    7,
+		"FRAME_TYPE_ERROR":        8,
 	}
 )
 
@@ -94,110 +88,6 @@ func (FrameType) EnumDescriptor() ([]byte, []int) {
 	return file_him_gateway_v1_ws_proto_rawDescGZIP(), []int{0}
 }
 
-type AuthRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthRequest) Reset() {
-	*x = AuthRequest{}
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthRequest) ProtoMessage() {}
-
-func (x *AuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthRequest.ProtoReflect.Descriptor instead.
-func (*AuthRequest) Descriptor() ([]byte, []int) {
-	return file_him_gateway_v1_ws_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *AuthRequest) GetToken() string {
-	if x != nil {
-		return x.Token
-	}
-	return ""
-}
-
-type AuthResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
-	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthResponse) Reset() {
-	*x = AuthResponse{}
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthResponse) ProtoMessage() {}
-
-func (x *AuthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
-func (*AuthResponse) Descriptor() ([]byte, []int) {
-	return file_him_gateway_v1_ws_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *AuthResponse) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *AuthResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *AuthResponse) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
 type ErrorMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
@@ -208,7 +98,7 @@ type ErrorMessage struct {
 
 func (x *ErrorMessage) Reset() {
 	*x = ErrorMessage{}
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[2]
+	mi := &file_him_gateway_v1_ws_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -220,7 +110,7 @@ func (x *ErrorMessage) String() string {
 func (*ErrorMessage) ProtoMessage() {}
 
 func (x *ErrorMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_him_gateway_v1_ws_proto_msgTypes[2]
+	mi := &file_him_gateway_v1_ws_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -233,7 +123,7 @@ func (x *ErrorMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorMessage.ProtoReflect.Descriptor instead.
 func (*ErrorMessage) Descriptor() ([]byte, []int) {
-	return file_him_gateway_v1_ws_proto_rawDescGZIP(), []int{2}
+	return file_him_gateway_v1_ws_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ErrorMessage) GetCode() int32 {
@@ -254,29 +144,20 @@ var File_him_gateway_v1_ws_proto protoreflect.FileDescriptor
 
 const file_him_gateway_v1_ws_proto_rawDesc = "" +
 	"\n" +
-	"\x17him/gateway/v1/ws.proto\x12\x0ehim.gateway.v1\"#\n" +
-	"\vAuthRequest\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"W\n" +
-	"\fAuthResponse\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x18\n" +
-	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\"<\n" +
+	"\x17him/gateway/v1/ws.proto\x12\x0ehim.gateway.v1\"<\n" +
 	"\fErrorMessage\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*\xb2\x02\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*\xff\x01\n" +
 	"\tFrameType\x12\x1a\n" +
-	"\x16FRAME_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13FRAME_TYPE_AUTH_REQ\x10\x01\x12\x18\n" +
-	"\x14FRAME_TYPE_AUTH_RESP\x10\x02\x12\x1b\n" +
-	"\x17FRAME_TYPE_PRIVATE_CHAT\x10\x03\x12\x1a\n" +
-	"\x16FRAME_TYPE_PRIVATE_ACK\x10\x04\x12\x19\n" +
-	"\x15FRAME_TYPE_GROUP_CHAT\x10\x05\x12\x18\n" +
-	"\x14FRAME_TYPE_GROUP_ACK\x10\x06\x12\x1b\n" +
-	"\x17FRAME_TYPE_CHATROOM_MSG\x10\a\x12\x1b\n" +
-	"\x17FRAME_TYPE_CHATROOM_ACK\x10\b\x12\x18\n" +
-	"\x14FRAME_TYPE_HEARTBEAT\x10\t\x12\x14\n" +
-	"\x10FRAME_TYPE_ERROR\x10\n" +
-	"B\xb2\x01\n" +
+	"\x16FRAME_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17FRAME_TYPE_PRIVATE_CHAT\x10\x01\x12\x1a\n" +
+	"\x16FRAME_TYPE_PRIVATE_ACK\x10\x02\x12\x19\n" +
+	"\x15FRAME_TYPE_GROUP_CHAT\x10\x03\x12\x18\n" +
+	"\x14FRAME_TYPE_GROUP_ACK\x10\x04\x12\x1b\n" +
+	"\x17FRAME_TYPE_CHATROOM_MSG\x10\x05\x12\x1b\n" +
+	"\x17FRAME_TYPE_CHATROOM_ACK\x10\x06\x12\x18\n" +
+	"\x14FRAME_TYPE_HEARTBEAT\x10\a\x12\x14\n" +
+	"\x10FRAME_TYPE_ERROR\x10\bB\xb2\x01\n" +
 	"\x12com.him.gateway.v1B\aWsProtoP\x01Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1\xa2\x02\x03HGX\xaa\x02\x0eHim.Gateway.V1\xca\x02\x0eHim\\Gateway\\V1\xe2\x02\x1aHim\\Gateway\\V1\\GPBMetadata\xea\x02\x10Him::Gateway::V1b\x06proto3"
 
 var (
@@ -292,12 +173,10 @@ func file_him_gateway_v1_ws_proto_rawDescGZIP() []byte {
 }
 
 var file_him_gateway_v1_ws_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_him_gateway_v1_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_him_gateway_v1_ws_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_him_gateway_v1_ws_proto_goTypes = []any{
 	(FrameType)(0),       // 0: him.gateway.v1.FrameType
-	(*AuthRequest)(nil),  // 1: him.gateway.v1.AuthRequest
-	(*AuthResponse)(nil), // 2: him.gateway.v1.AuthResponse
-	(*ErrorMessage)(nil), // 3: him.gateway.v1.ErrorMessage
+	(*ErrorMessage)(nil), // 1: him.gateway.v1.ErrorMessage
 }
 var file_him_gateway_v1_ws_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -318,7 +197,7 @@ func file_him_gateway_v1_ws_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_gateway_v1_ws_proto_rawDesc), len(file_him_gateway_v1_ws_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

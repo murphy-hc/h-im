@@ -4,18 +4,14 @@ option go_package = "github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1";
 
 enum FrameType {
   FRAME_TYPE_UNSPECIFIED  = 0;
-  FRAME_TYPE_AUTH_REQ     = 1;
-  FRAME_TYPE_AUTH_RESP    = 2;
-  FRAME_TYPE_PRIVATE_CHAT = 3;
-  FRAME_TYPE_PRIVATE_ACK  = 4;
-  FRAME_TYPE_GROUP_CHAT   = 5;
-  FRAME_TYPE_GROUP_ACK    = 6;
-  FRAME_TYPE_CHATROOM_MSG = 7;
-  FRAME_TYPE_CHATROOM_ACK = 8;
-  FRAME_TYPE_HEARTBEAT    = 9;
-  FRAME_TYPE_ERROR        = 10;
+  FRAME_TYPE_PRIVATE_CHAT = 1;
+  FRAME_TYPE_PRIVATE_ACK  = 2;
+  FRAME_TYPE_GROUP_CHAT   = 3;
+  FRAME_TYPE_GROUP_ACK    = 4;
+  FRAME_TYPE_CHATROOM_MSG = 5;
+  FRAME_TYPE_CHATROOM_ACK = 6;
+  FRAME_TYPE_HEARTBEAT    = 7;
+  FRAME_TYPE_ERROR        = 8;
 }
 
-message AuthRequest { string token = 1; }
-message AuthResponse { string user_id = 1; bool success = 2; string error = 3; }
 message ErrorMessage { int32 code = 1; string message = 2; }

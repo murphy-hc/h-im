@@ -12,7 +12,7 @@ const HeaderSize = 9
 
 const CurrentVersion uint8 = 1
 
-// Encode serializes a WS frame: 1 byte version + 4 bytes frameType (big-endian) + 4 bytes payloadLen (big-endian) + payload.
+// Encode serializes a proto.Message into a WS frame.
 func Encode(version uint8, frameType gatewayv1.FrameType, msg proto.Message) ([]byte, error) {
 	var payload []byte
 	if msg != nil {
@@ -22,12 +22,18 @@ func Encode(version uint8, frameType gatewayv1.FrameType, msg proto.Message) ([]
 			return nil, fmt.Errorf("marshal: %w", err)
 		}
 	}
+	return BuildFrame(version, uint32(frameType), payload), nil
+}
+
+// BuildFrame builds a full WS frame header from raw bytes, avoiding extra allocation.
+// For gRPC handlers that already have pre-serialized payloads.
+func BuildFrame(version uint8, frameType uint32, payload []byte) []byte {
 	buf := make([]byte, HeaderSize+len(payload))
 	buf[0] = version
-	binary.BigEndian.PutUint32(buf[1:5], uint32(frameType))
+	binary.BigEndian.PutUint32(buf[1:5], frameType)
 	binary.BigEndian.PutUint32(buf[5:9], uint32(len(payload)))
 	copy(buf[9:], payload)
-	return buf, nil
+	return buf
 }
 
 // Decode parses a WS frame and returns the version, frameType, payload bytes, and any error.

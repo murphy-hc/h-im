@@ -8,23 +8,60 @@ import "google/protobuf/duration.proto";
 
 message Bootstrap {
   Server server = 1;
+  Data data = 2;
   Log log = 3;
   Otel otel = 4;
+  User user = 5;
 }
 
 message Server {
   string env = 1;
   WS ws = 2;
   HTTP http = 3;
+  GRPC grpc = 4;
   message WS {
     string network = 1;
     string addr = 2;
+    google.protobuf.Duration read_timeout = 3;
+    google.protobuf.Duration write_timeout = 4;
+    int32 read_buffer_size = 5;
+    int32 write_buffer_size = 6;
+    google.protobuf.Duration handshake_timeout = 7;
+    bool enable_compression = 8;
   }
   message HTTP {
     string network = 1;
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+  message GRPC {
+    string network = 1;
+    string addr = 2;
+    google.protobuf.Duration timeout = 3;
+  }
+}
+
+message Data {
+  Redis redis = 1;
+  Database database = 2;
+}
+
+message Database {
+  message Postgres {
+    int32 max_idle_conns = 1;
+    int32 max_open_conns = 2;
+    google.protobuf.Duration conn_max_lifetime = 3;
+    google.protobuf.Duration conn_max_idle_time = 4;
+    string dsn = 5;
+  }
+  Postgres gateway = 1;
+}
+
+message Redis {
+  string network = 1;
+  string addr = 2;
+  string password = 3;
+  string username = 4;
 }
 
 message Log { string level = 1; }
@@ -37,4 +74,8 @@ message Otel {
   google.protobuf.Duration timeout = 5;
   bool insecure = 6;
   string transport = 7;
+}
+
+message User {
+  bool multi_device = 1; // allow multiple devices to connect simultaneously
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
+	"github.com/murphy-hc/h-im/services/gateway/internal/data"
 	"github.com/murphy-hc/h-im/services/gateway/internal/server"
 	"github.com/murphy-hc/h-im/services/gateway/internal/service"
 	"go.opentelemetry.io/otel/metric"
@@ -19,14 +20,29 @@ import (
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	confServer := bc.Server
-	connManager := biz.NewConnManager()
+	server_WS := confServer.Ws
+	upgrader := server.NewUpgrader(server_WS)
+	client, cleanup, err := data.NewRedisClient(bc)
+	if err != nil {
+		return nil, nil, err
+	}
+	connManager := data.NewConnManager(client)
 	gatewayUseCase := biz.NewGatewayUseCase(connManager)
-	gatewayService := service.NewGatewayService(gatewayUseCase, connManager)
-	wsServer := server.NewWSServer(confServer, gatewayService)
+	user := bc.User
+	dataData, cleanup2, err := data.NewData(bc)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	appRepo := data.NewAppRepo(dataData)
+	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, upgrader, user, appRepo)
+	wsServer := server.NewWSServer(confServer, upgrader, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
 	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
 	app := newApp(wsServer, httpServer, grpcServer)
 	return app, func() {
+		cleanup2()
+		cleanup()
 	}, nil
 }

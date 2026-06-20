@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gorilla/websocket"
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
@@ -19,42 +18,25 @@ func NewGatewayGrpcService(cm biz.ConnManager) *GatewayGrpcService {
 }
 
 func (s *GatewayGrpcService) SendToUser(ctx context.Context, req *gatewayv1.SendToUserRequest) (*gatewayv1.SendToUserResponse, error) {
-	conn, ok := s.cm.GetConn(req.UserId)
-	if !ok {
+	conns := s.cm.GetConns(req.UserId)
+	if len(conns) == 0 {
 		return &gatewayv1.SendToUserResponse{Success: false}, nil
 	}
-	ft := gatewayv1.FrameType(req.FrameType)
-	frame, err := biz.Encode(biz.CurrentVersion, ft, nil)
-	if err != nil {
-		return nil, fmt.Errorf("encode: %w", err)
-	}
-	msg := make([]byte, len(frame)+len(req.Payload))
-	copy(msg, frame)
-	copy(msg[len(frame):], req.Payload)
-	if err := conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
-		return &gatewayv1.SendToUserResponse{Success: false}, nil
+	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
+	for _, conn := range conns {
+		conn.WriteMessage(websocket.BinaryMessage, msg)
 	}
 	return &gatewayv1.SendToUserResponse{Success: true}, nil
 }
 
 func (s *GatewayGrpcService) BroadcastToGroup(ctx context.Context, req *gatewayv1.BroadcastToGroupRequest) (*gatewayv1.BroadcastToGroupResponse, error) {
-	members := s.cm.GetGroupMembers(req.GroupId)
-	ft := gatewayv1.FrameType(req.FrameType)
-	frame, _ := biz.Encode(biz.CurrentVersion, ft, nil)
-	msg := make([]byte, len(frame)+len(req.Payload))
-	copy(msg, frame)
-	copy(msg[len(frame):], req.Payload)
-	exclude := make(map[string]bool)
-	for _, uid := range req.ExcludeUserIds {
-		exclude[uid] = true
-	}
+	exclude := make(map[string]bool, len(req.ExcludeUserIds))
+	for _, uid := range req.ExcludeUserIds { exclude[uid] = true }
+	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
 	var delivered int32
-	for _, uid := range members {
-		if exclude[uid] {
-			continue
-		}
-		conn, ok := s.cm.GetConn(uid)
-		if ok {
+	for _, uid := range s.cm.GetGroupMembers(req.GroupId) {
+		if exclude[uid] { continue }
+		for _, conn := range s.cm.GetConns(uid) {
 			conn.WriteMessage(websocket.BinaryMessage, msg)
 			delivered++
 		}
@@ -63,15 +45,10 @@ func (s *GatewayGrpcService) BroadcastToGroup(ctx context.Context, req *gatewayv
 }
 
 func (s *GatewayGrpcService) BroadcastToChatroom(ctx context.Context, req *gatewayv1.BroadcastToChatroomRequest) (*gatewayv1.BroadcastToChatroomResponse, error) {
-	members := s.cm.GetRoomMembers(req.RoomId)
-	ft := gatewayv1.FrameType(req.FrameType)
-	frame, _ := biz.Encode(biz.CurrentVersion, ft, nil)
-	msg := make([]byte, len(frame)+len(req.Payload))
-	copy(msg, frame)
-	copy(msg[len(frame):], req.Payload)
+	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
 	var delivered int32
-	for _, uid := range members {
-		if conn, ok := s.cm.GetConn(uid); ok {
+	for _, uid := range s.cm.GetRoomMembers(req.RoomId) {
+		for _, conn := range s.cm.GetConns(uid) {
 			conn.WriteMessage(websocket.BinaryMessage, msg)
 			delivered++
 		}
@@ -80,13 +57,14 @@ func (s *GatewayGrpcService) BroadcastToChatroom(ctx context.Context, req *gatew
 }
 
 func (s *GatewayGrpcService) SendCommand(ctx context.Context, req *gatewayv1.SendCommandRequest) (*gatewayv1.SendCommandResponse, error) {
-	conn, ok := s.cm.GetConn(req.UserId)
-	if !ok {
+	conns := s.cm.KickUser(req.UserId)
+	if len(conns) == 0 {
 		return &gatewayv1.SendCommandResponse{Success: false}, nil
 	}
-	frame, _ := biz.Encode(biz.CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR, nil)
-	conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, req.Command))
-	_ = frame
-	_ = conn
+	closeMsg := websocket.FormatCloseMessage(websocket.CloseNormalClosure, req.Command)
+	for _, conn := range conns {
+		conn.WriteMessage(websocket.CloseMessage, closeMsg)
+		conn.Close()
+	}
 	return &gatewayv1.SendCommandResponse{Success: true}, nil
 }

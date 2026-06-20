@@ -10,6 +10,7 @@ import (
 
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
+	"github.com/murphy-hc/h-im/services/gateway/internal/data"
 	"github.com/murphy-hc/h-im/services/gateway/internal/server"
 	"github.com/murphy-hc/h-im/services/gateway/internal/service"
 )
@@ -21,6 +22,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		server.GRPCProviderSet,
 		service.ProviderSet,
 		biz.ProviderSet,
+		data.ProviderSet,
 		newApp,
 	))
 }

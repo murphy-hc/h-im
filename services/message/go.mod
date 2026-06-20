@@ -12,6 +12,7 @@ require (
 	github.com/rs/xid v1.6.0
 	go.opentelemetry.io/otel/metric v1.38.0
 	google.golang.org/protobuf v1.36.8
+	gorm.io/gorm v1.31.1
 )
 
 require (
@@ -26,6 +27,8 @@ require (
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
@@ -57,3 +60,5 @@ replace (
 	github.com/murphy-hc/h-im/pkg/rocketmq => ../../pkg/rocketmq
 	github.com/murphy-hc/h-im/pkg/snowflake => ../../pkg/snowflake
 )
+
+replace github.com/murphy-hc/h-im/pkg/database => ../../pkg/database

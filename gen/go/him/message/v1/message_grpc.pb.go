@@ -19,22 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MessageService_SendMessage_FullMethodName    = "/him.message.v1.MessageService/SendMessage"
-	MessageService_GetMessages_FullMethodName    = "/him.message.v1.MessageService/GetMessages"
-	MessageService_MarkRead_FullMethodName       = "/him.message.v1.MessageService/MarkRead"
-	MessageService_ReplyToMessage_FullMethodName = "/him.message.v1.MessageService/ReplyToMessage"
-	MessageService_RecallMessage_FullMethodName  = "/him.message.v1.MessageService/RecallMessage"
+	MessageService_SendMessage_FullMethodName = "/him.message.v1.MessageService/SendMessage"
+	MessageService_AckMessage_FullMethodName  = "/him.message.v1.MessageService/AckMessage"
 )
 
 // MessageServiceClient is the client API for MessageService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageServiceClient interface {
-	SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error)
-	GetMessages(ctx context.Context, in *GetMessagesRequest, opts ...grpc.CallOption) (*GetMessagesResponse, error)
-	MarkRead(ctx context.Context, in *MarkReadRequest, opts ...grpc.CallOption) (*MarkReadResponse, error)
-	ReplyToMessage(ctx context.Context, in *ReplyToMessageRequest, opts ...grpc.CallOption) (*ReplyToMessageResponse, error)
-	RecallMessage(ctx context.Context, in *RecallMessageRequest, opts ...grpc.CallOption) (*RecallMessageResponse, error)
+	SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error)
+	AckMessage(ctx context.Context, in *AckMessageReq, opts ...grpc.CallOption) (*AckMessageResp, error)
 }
 
 type messageServiceClient struct {
@@ -45,9 +39,9 @@ func NewMessageServiceClient(cc grpc.ClientConnInterface) MessageServiceClient {
 	return &messageServiceClient{cc}
 }
 
-func (c *messageServiceClient) SendMessage(ctx context.Context, in *SendMessageRequest, opts ...grpc.CallOption) (*SendMessageResponse, error) {
+func (c *messageServiceClient) SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SendMessageResponse)
+	out := new(SendMessageResp)
 	err := c.cc.Invoke(ctx, MessageService_SendMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -55,40 +49,10 @@ func (c *messageServiceClient) SendMessage(ctx context.Context, in *SendMessageR
 	return out, nil
 }
 
-func (c *messageServiceClient) GetMessages(ctx context.Context, in *GetMessagesRequest, opts ...grpc.CallOption) (*GetMessagesResponse, error) {
+func (c *messageServiceClient) AckMessage(ctx context.Context, in *AckMessageReq, opts ...grpc.CallOption) (*AckMessageResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetMessagesResponse)
-	err := c.cc.Invoke(ctx, MessageService_GetMessages_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *messageServiceClient) MarkRead(ctx context.Context, in *MarkReadRequest, opts ...grpc.CallOption) (*MarkReadResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(MarkReadResponse)
-	err := c.cc.Invoke(ctx, MessageService_MarkRead_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *messageServiceClient) ReplyToMessage(ctx context.Context, in *ReplyToMessageRequest, opts ...grpc.CallOption) (*ReplyToMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ReplyToMessageResponse)
-	err := c.cc.Invoke(ctx, MessageService_ReplyToMessage_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *messageServiceClient) RecallMessage(ctx context.Context, in *RecallMessageRequest, opts ...grpc.CallOption) (*RecallMessageResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecallMessageResponse)
-	err := c.cc.Invoke(ctx, MessageService_RecallMessage_FullMethodName, in, out, cOpts...)
+	out := new(AckMessageResp)
+	err := c.cc.Invoke(ctx, MessageService_AckMessage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +63,8 @@ func (c *messageServiceClient) RecallMessage(ctx context.Context, in *RecallMess
 // All implementations must embed UnimplementedMessageServiceServer
 // for forward compatibility.
 type MessageServiceServer interface {
-	SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error)
-	GetMessages(context.Context, *GetMessagesRequest) (*GetMessagesResponse, error)
-	MarkRead(context.Context, *MarkReadRequest) (*MarkReadResponse, error)
-	ReplyToMessage(context.Context, *ReplyToMessageRequest) (*ReplyToMessageResponse, error)
-	RecallMessage(context.Context, *RecallMessageRequest) (*RecallMessageResponse, error)
+	SendMessage(context.Context, *SendMessageReq) (*SendMessageResp, error)
+	AckMessage(context.Context, *AckMessageReq) (*AckMessageResp, error)
 	mustEmbedUnimplementedMessageServiceServer()
 }
 
@@ -114,20 +75,11 @@ type MessageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMessageServiceServer struct{}
 
-func (UnimplementedMessageServiceServer) SendMessage(context.Context, *SendMessageRequest) (*SendMessageResponse, error) {
+func (UnimplementedMessageServiceServer) SendMessage(context.Context, *SendMessageReq) (*SendMessageResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method SendMessage not implemented")
 }
-func (UnimplementedMessageServiceServer) GetMessages(context.Context, *GetMessagesRequest) (*GetMessagesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetMessages not implemented")
-}
-func (UnimplementedMessageServiceServer) MarkRead(context.Context, *MarkReadRequest) (*MarkReadResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method MarkRead not implemented")
-}
-func (UnimplementedMessageServiceServer) ReplyToMessage(context.Context, *ReplyToMessageRequest) (*ReplyToMessageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ReplyToMessage not implemented")
-}
-func (UnimplementedMessageServiceServer) RecallMessage(context.Context, *RecallMessageRequest) (*RecallMessageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RecallMessage not implemented")
+func (UnimplementedMessageServiceServer) AckMessage(context.Context, *AckMessageReq) (*AckMessageResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method AckMessage not implemented")
 }
 func (UnimplementedMessageServiceServer) mustEmbedUnimplementedMessageServiceServer() {}
 func (UnimplementedMessageServiceServer) testEmbeddedByValue()                        {}
@@ -151,7 +103,7 @@ func RegisterMessageServiceServer(s grpc.ServiceRegistrar, srv MessageServiceSer
 }
 
 func _MessageService_SendMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendMessageRequest)
+	in := new(SendMessageReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -163,79 +115,25 @@ func _MessageService_SendMessage_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: MessageService_SendMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServiceServer).SendMessage(ctx, req.(*SendMessageRequest))
+		return srv.(MessageServiceServer).SendMessage(ctx, req.(*SendMessageReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MessageService_GetMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMessagesRequest)
+func _MessageService_AckMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AckMessageReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MessageServiceServer).GetMessages(ctx, in)
+		return srv.(MessageServiceServer).AckMessage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MessageService_GetMessages_FullMethodName,
+		FullMethod: MessageService_AckMessage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServiceServer).GetMessages(ctx, req.(*GetMessagesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MessageService_MarkRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MarkReadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MessageServiceServer).MarkRead(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MessageService_MarkRead_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServiceServer).MarkRead(ctx, req.(*MarkReadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MessageService_ReplyToMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReplyToMessageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MessageServiceServer).ReplyToMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MessageService_ReplyToMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServiceServer).ReplyToMessage(ctx, req.(*ReplyToMessageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MessageService_RecallMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecallMessageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MessageServiceServer).RecallMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MessageService_RecallMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServiceServer).RecallMessage(ctx, req.(*RecallMessageRequest))
+		return srv.(MessageServiceServer).AckMessage(ctx, req.(*AckMessageReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -252,20 +150,8 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MessageService_SendMessage_Handler,
 		},
 		{
-			MethodName: "GetMessages",
-			Handler:    _MessageService_GetMessages_Handler,
-		},
-		{
-			MethodName: "MarkRead",
-			Handler:    _MessageService_MarkRead_Handler,
-		},
-		{
-			MethodName: "ReplyToMessage",
-			Handler:    _MessageService_ReplyToMessage_Handler,
-		},
-		{
-			MethodName: "RecallMessage",
-			Handler:    _MessageService_RecallMessage_Handler,
+			MethodName: "AckMessage",
+			Handler:    _MessageService_AckMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

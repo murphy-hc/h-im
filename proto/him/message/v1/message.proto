@@ -1,111 +1,229 @@
 syntax = "proto3";
-
 package him.message.v1;
-
 option go_package = "github.com/murphy-hc/h-im/gen/go/him/message/v1;messagev1";
 
 import "him/common/v1/types.proto";
 
-// ── Models ──────────────────────────────────────────────────────────────────
-
-enum MessageType {
-  MESSAGE_TYPE_UNSPECIFIED = 0;
-  MESSAGE_TYPE_TEXT        = 1;
-  MESSAGE_TYPE_IMAGE       = 2;
-  MESSAGE_TYPE_VOICE       = 3;
-  MESSAGE_TYPE_VIDEO       = 4;
-  MESSAGE_TYPE_FILE        = 5;
-  MESSAGE_TYPE_SYSTEM      = 6;
+enum ConversationType {
+  CONVERSATION_PRIVATE = 0;
+  CONVERSATION_GROUP   = 1;
+  CONVERSATION_ROOM    = 2;
 }
 
-enum ConversationType {
-  CONVERSATION_TYPE_UNSPECIFIED = 0;
-  CONVERSATION_TYPE_PRIVATE     = 1;
-  CONVERSATION_TYPE_GROUP       = 2;
+enum MessageType {
+  MSG_TYPE_TEXT         = 0;
+  MSG_TYPE_IMAGE        = 1;
+  MSG_TYPE_AUDIO        = 2;
+  MSG_TYPE_VIDEO        = 3;
+  MSG_TYPE_FILE         = 4;
+  MSG_TYPE_LOCATION     = 5;
+  MSG_TYPE_NOTIFICATION = 6;
+  MSG_TYPE_TIPS         = 7;
+  MSG_TYPE_CUSTOM       = 8;
+}
+
+enum SendingState {
+  SENDING   = 0;
+  SUCCEEDED = 1;
+  FAILED    = 2;
+}
+
+enum AckStatus {
+  ACK_UNKNOWN   = 0;
+  ACK_SENT      = 1;
+  ACK_DELIVERED = 2;
+  ACK_READ      = 3;
+}
+
+message Content {
+  string type  = 1;
+  string text  = 2;
+  string url   = 3;
+  bytes  data  = 4;
+}
+
+message Attachment {
+  oneof type {
+    ImageAttachment    image    = 1;
+    AudioAttachment    audio    = 2;
+    VideoAttachment    video    = 3;
+    FileAttachment     file     = 4;
+    LocationAttachment location = 5;
+  }
+}
+
+message ImageAttachment {
+  string url    = 1;
+  int32  width  = 2;
+  int32  height = 3;
+  string format = 4;
+  int64  size   = 5;
+  string md5    = 6;
+}
+
+message AudioAttachment {
+  string url      = 1;
+  int32  duration = 2;
+  int64  size     = 3;
+  string format   = 4;
+}
+
+message VideoAttachment {
+  string url       = 1;
+  int32  duration  = 2;
+  int32  width     = 3;
+  int32  height    = 4;
+  int64  size      = 5;
+  string format    = 6;
+  string thumb_url = 7;
+}
+
+message FileAttachment {
+  string url      = 1;
+  string filename = 2;
+  int64  size     = 3;
+  string format   = 4;
+  string md5      = 5;
+}
+
+message LocationAttachment {
+  double latitude  = 1;
+  double longitude = 2;
+  string title     = 3;
+  string address   = 4;
+}
+
+message ThreadReply {
+  int64  reply_to_msg_id    = 1;
+  string reply_to_client_id = 2;
+  string reply_to_sender    = 3;
+  string reply_content      = 4;
 }
 
 message Message {
-  string message_id      = 1;
-  string conversation_id = 2;
-  ConversationType conv_type = 3;
-  string sender_id       = 4;
-  string receiver_id     = 5;
-  MessageType msg_type   = 6;
-  string content         = 7;
-  string reply_to        = 8;  // message_id of the message being replied to
-  int64  created_at      = 9;
-  bool   is_read         = 10;
+  string           message_client_id = 1;
+  int64            message_server_id = 2;
+  string           sender_id         = 3;
+  string           receiver_id       = 4;
+  ConversationType conv_type         = 5;
+  MessageType      msg_type          = 6;
+  int32            msg_sub_type      = 7;
+  string           text              = 8;
+  Attachment       attachment        = 9;
+  SendingState     sending_state     = 10;
+  int64            create_time       = 11;
+  int64            server_time       = 12;
+  string           server_ext        = 13;
+  string           local_ext         = 14;
+  bool             is_deleted        = 15;
+  bool             is_remote_read    = 16;
+  bool             is_played         = 17;
+  ThreadReply      thread_reply      = 18;
+  repeated string  targets           = 19;
 }
 
-// ── Send ────────────────────────────────────────────────────────────────────
-
-message SendMessageRequest {
-  string         sender_id   = 1;
-  string         receiver_id = 2;
-  ConversationType conv_type = 3;
-  MessageType    msg_type    = 4;
-  string         content     = 5;
-  string         reply_to    = 6;  // optional
+message PrivateSend {
+  int64   seq     = 1;
+  string  to      = 2;
+  Content content = 3;
 }
 
-message SendMessageResponse {
-  string message_id = 1;
-  int64  created_at = 2;
+message PrivatePush {
+  int64    seq     = 1;
+  Message  message = 2;
 }
 
-// ── Get ─────────────────────────────────────────────────────────────────────
-
-message GetMessagesRequest {
-  string conversation_id = 1;
-  him.common.v1.Pagination pagination = 2;
+message PrivateAck {
+  int64     msg_server_id = 1;
+  string    msg_client_id = 2;
+  AckStatus status        = 3;
 }
 
-message GetMessagesResponse {
+
+message OfflineSync {
   repeated Message messages = 1;
-  him.common.v1.PaginationResponse pagination = 2;
 }
 
-// ── Read ────────────────────────────────────────────────────────────────────
-
-message MarkReadRequest {
-  string user_id         = 1;
-  string conversation_id = 2;
-  string last_message_id = 3;
+message StateSync {
+  string  type    = 1;
+  int64   msg_id  = 2;
+  string  user_id = 3;
 }
 
-message MarkReadResponse {
+// ---- Conversation ----
+
+message Conversation {
+  string conv_id      = 1;
+  string peer_id      = 2;
+  string last_msg     = 3;
+  int64  last_time    = 4;
+  int32  unread_count = 5;
+}
+
+message ConversationListReq {
+  int64 seq = 1;
+}
+
+message ConversationListResp {
+  int64  seq = 1;
+  repeated Conversation conversations = 2;
+}
+
+message ConversationMessagesReq {
+  int64  seq       = 1;
+  string conv_id   = 2;
+  int64  cursor    = 3;
+  int32  limit     = 4;
+  int32  direction = 5; // 0=older, 1=newer
+}
+
+message ConversationMessagesResp {
+  int64            seq      = 1;
+  string           conv_id  = 2;
+  repeated Message messages = 3;
+  bool             has_more = 4;
+}
+
+message ListConversationsResp {
+  repeated Conversation conversations = 1;
+  bool has_more = 2;
+}
+
+message ConversationPush {
+  string conv_id      = 1;
+  string peer_id      = 2;
+  string last_msg     = 3;
+  int64  last_time    = 4;
+  int32  unread_count = 5;
+}
+
+// ── gRPC Service ─────────────────────────────────────────────────────────────
+
+message SendMessageReq {
+  string         sender_id         = 1;
+  string         receiver_id       = 2;
+  ConversationType conv_type       = 3;
+  MessageType    msg_type          = 4;
+  string         text              = 5;
+  Attachment     attachment        = 6;
+  string         message_client_id = 7;
+}
+
+message SendMessageResp {
+  int64 message_server_id = 1;
+  int64 server_time       = 2;
+}
+
+message AckMessageReq {
+  int64  message_server_id = 1;
+  string user_id           = 2;
+}
+
+message AckMessageResp {
   bool success = 1;
 }
-
-// ── Reply ───────────────────────────────────────────────────────────────────
-
-message ReplyToMessageRequest {
-  string message_id = 1;  // the message to reply to
-  string content    = 2;
-  MessageType msg_type = 3;
-}
-
-message ReplyToMessageResponse {
-  string message_id = 1;
-  int64  created_at = 2;
-}
-
-// ── Recall ──────────────────────────────────────────────────────────────────
-
-message RecallMessageRequest {
-  string message_id = 1;
-}
-
-message RecallMessageResponse {
-  bool success = 1;
-}
-
-// ── Service ─────────────────────────────────────────────────────────────────
 
 service MessageService {
-  rpc SendMessage(SendMessageRequest)       returns (SendMessageResponse);
-  rpc GetMessages(GetMessagesRequest)       returns (GetMessagesResponse);
-  rpc MarkRead(MarkReadRequest)             returns (MarkReadResponse);
-  rpc ReplyToMessage(ReplyToMessageRequest) returns (ReplyToMessageResponse);
-  rpc RecallMessage(RecallMessageRequest)   returns (RecallMessageResponse);
+  rpc SendMessage(SendMessageReq) returns (SendMessageResp);
+  rpc AckMessage(AckMessageReq)  returns (AckMessageResp);
 }

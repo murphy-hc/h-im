@@ -23,6 +23,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		service.ProviderSet,
 		biz.ProviderSet,
 		data.ProviderSet,
+		wire.Bind(new(biz.MessageClient), new(*data.MessageClient)),
 		newApp,
 	))
 }

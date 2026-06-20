@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: default
+  labels:
+    app: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: halei-acr-new-registry.eu-central-1.cr.aliyuncs.com/test/him-user:${VERSION}
+          ports:
+            - containerPort: 8101
+              name: http
+            - containerPort: 9101
+              name: grpc
+          env:
+            - name: LOG_LEVEL
+              value: info
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8101
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8101
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

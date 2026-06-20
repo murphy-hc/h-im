@@ -182,6 +182,40 @@ server → service → biz ← data
 - Wire DI: all services use `wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error)`
 - Config: every service loads from `configs/` directory via `-conf` flag
 
+## K8s Deployment
+
+All services deployed on Alibaba Cloud ACK, namespace `default`. Service discovery via K8s CoreDNS.
+
+### Service Addresses (gRPC Client Dial)
+
+All inter-service gRPC calls MUST use Kratos `transport/grpc` client with DNS resolver + round_robin:
+
+```go
+import "github.com/go-kratos/kratos/v2/transport/grpc"
+
+conn, _ := grpc.DialInsecure(
+    context.Background(),
+    grpc.WithEndpoint("discovery:///sequence.default.svc.cluster.local:9108"),
+)
+client := pb.NewSequenceClient(conn)
+```
+
+- `discovery:///` prefix enables Kratos client-side load balancing via DNS resolver
+- `grpc.DialInsecure` wraps Kratos middleware (tracing, recovery) automatically
+
+### Deploy Configuration
+
+Each service has `deploy/k8s/{service}/`:
+- `service.yaml` — ClusterIP service (gRPC + HTTP ports)
+- `deployment.yaml` — Deployment with liveness/readiness probes on `/ping`
+- `ingress.yaml` — ALB Ingress (gateway only, exposes `/ws` and `/metrics`)
+
+### Image Registry
+
+```
+halei-acr-new-registry.eu-central-1.cr.aliyuncs.com/test/him-{service}:{version}
+```
+
 ### Service Ports
 
 | Service | gRPC | HTTP (metrics) |
@@ -195,4 +229,4 @@ server → service → biz ← data
 | push | 9106 | 8106 |
 | media | 9107 | 8107 |
 | sequence | 9108 | 8108 |
-| gateway | — (WS 8080) | 8180 |
+| gateway | — (WS 8080, gRPC 9200) | 8180 |

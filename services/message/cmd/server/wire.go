@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/google/wire"
 	"go.opentelemetry.io/otel/metric"
+
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"github.com/murphy-hc/h-im/services/message/internal/conf"
 	"github.com/murphy-hc/h-im/services/message/internal/data"
@@ -21,6 +22,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		service.ProviderSet,
 		biz.ProviderSet,
 		data.ProviderSet,
+		server.NewSequenceClient,
 		newApp,
 	))
 }

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contact
+  namespace: default
+  labels:
+    app: contact
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contact
+  template:
+    metadata:
+      labels:
+        app: contact
+    spec:
+      containers:
+        - name: contact
+          image: halei-acr-new-registry.eu-central-1.cr.aliyuncs.com/test/him-contact:${VERSION}
+          ports:
+            - containerPort: 8103
+              name: http
+            - containerPort: 9103
+              name: grpc
+          env:
+            - name: LOG_LEVEL
+              value: info
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8103
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8103
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

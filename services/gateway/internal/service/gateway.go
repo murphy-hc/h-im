@@ -39,14 +39,12 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Upgrade first — avoid wasted DB work on failed upgrades.
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("websocket upgrade failed: %v", err)
 		return
 	}
 
-	// Verify app token after successful upgrade.
 	app, err := s.appRepo.FindByAppID(r.Context(), appID)
 	if err != nil {
 		conn.Close()
@@ -58,8 +56,10 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 
 	if !s.cfg.GetMultiDevice() {
-		for _, old := range s.cm.KickUser(userID) {
-			old.Close()
+		if conns, err := s.cm.KickUser(userID); err == nil {
+			for _, old := range conns {
+				old.Close()
+			}
 		}
 	}
 

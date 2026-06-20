@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: media
+  namespace: default
+  labels:
+    app: media
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 9107
+      targetPort: 9107
+    - name: http
+      port: 8107
+      targetPort: 8107
+  selector:
+    app: media

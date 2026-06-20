@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/murphy-hc/h-im/pkg/database"
 	"github.com/murphy-hc/h-im/pkg/redis"
@@ -14,14 +13,14 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewAppRepo)
+var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewAppRepo, NewMessageClient)
 
 // Data holds data source clients.
 type Data struct {
 	DB *gorm.DB
 }
 
-// NewData creates a Data instance using the shared database package.
+// NewData creates a Data instance from config.
 func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
 	pg := bc.GetData().GetDatabase().GetGateway()
 	db, cleanup, err := database.NewDB(&database.Config{
@@ -36,33 +35,18 @@ func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
 }
 
 // Migrate runs auto-migration.
-func (d *Data) Migrate() error {
-	if err := d.DB.AutoMigrate(&AppModel{}); err != nil {
-		return err
-	}
-	return nil
-}
+func (d *Data) Migrate() error { return d.DB.AutoMigrate(&AppModel{}) }
 
 // NewRedisClient creates a Redis client from config.
 func NewRedisClient(bc *conf.Bootstrap) (*goredis.Client, func(), error) {
 	cfg := bc.GetData().GetRedis()
 	addr := cfg.GetAddr()
-	if addr == "" {
-		addr = "localhost:6379"
-	}
+	if addr == "" { addr = "localhost:6379" }
 	rdb, err := redis.NewClient(context.Background(), redis.Config{
-		Host:     addr,
-		Password: cfg.GetPassword(),
+		Host: addr, Password: cfg.GetPassword(),
 	})
-	if err != nil {
-		return nil, nil, err
-	}
-	cleanup := func() {
-		if err := rdb.Close(); err != nil {
-			log.Errorf("redis close: %v", err)
-		}
-	}
-	return rdb, cleanup, nil
+	if err != nil { return nil, nil, err }
+	return rdb, func() { rdb.Close() }, nil
 }
 
 func NewConnManager(rdb *goredis.Client) biz.ConnManager { return newRedisConnManager(rdb) }

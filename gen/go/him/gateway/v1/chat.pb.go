@@ -22,15 +22,16 @@ const (
 )
 
 type ChatMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	SenderId      string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	Timestamp     int64                  `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	ReplyTo       string                 `protobuf:"bytes,5,opt,name=reply_to,json=replyTo,proto3" json:"reply_to,omitempty"`
-	MsgType       int32                  `protobuf:"varint,6,opt,name=msg_type,json=msgType,proto3" json:"msg_type,omitempty"` // text/image/voice/video/file
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MessageClientId string                 `protobuf:"bytes,1,opt,name=message_client_id,json=messageClientId,proto3" json:"message_client_id,omitempty"`
+	SenderId        string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	ReceiverId      string                 `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
+	Content         string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
+	Timestamp       int64                  `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	ReplyTo         string                 `protobuf:"bytes,6,opt,name=reply_to,json=replyTo,proto3" json:"reply_to,omitempty"`
+	MsgType         int32                  `protobuf:"varint,7,opt,name=msg_type,json=msgType,proto3" json:"msg_type,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ChatMessage) Reset() {
@@ -63,9 +64,9 @@ func (*ChatMessage) Descriptor() ([]byte, []int) {
 	return file_him_gateway_v1_chat_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ChatMessage) GetMessageId() string {
+func (x *ChatMessage) GetMessageClientId() string {
 	if x != nil {
-		return x.MessageId
+		return x.MessageClientId
 	}
 	return ""
 }
@@ -73,6 +74,13 @@ func (x *ChatMessage) GetMessageId() string {
 func (x *ChatMessage) GetSenderId() string {
 	if x != nil {
 		return x.SenderId
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetReceiverId() string {
+	if x != nil {
+		return x.ReceiverId
 	}
 	return ""
 }
@@ -169,15 +177,16 @@ var File_him_gateway_v1_chat_proto protoreflect.FileDescriptor
 
 const file_him_gateway_v1_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x19him/gateway/v1/chat.proto\x12\x0ehim.gateway.v1\"\xb7\x01\n" +
-	"\vChatMessage\x12\x1d\n" +
-	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1b\n" +
-	"\tsender_id\x18\x02 \x01(\tR\bsenderId\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1c\n" +
-	"\ttimestamp\x18\x04 \x01(\x03R\ttimestamp\x12\x19\n" +
-	"\breply_to\x18\x05 \x01(\tR\areplyTo\x12\x19\n" +
-	"\bmsg_type\x18\x06 \x01(\x05R\amsgType\"_\n" +
+	"\x19him/gateway/v1/chat.proto\x12\x0ehim.gateway.v1\"\xe5\x01\n" +
+	"\vChatMessage\x12*\n" +
+	"\x11message_client_id\x18\x01 \x01(\tR\x0fmessageClientId\x12\x1b\n" +
+	"\tsender_id\x18\x02 \x01(\tR\bsenderId\x12\x1f\n" +
+	"\vreceiver_id\x18\x03 \x01(\tR\n" +
+	"receiverId\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\x12\x1c\n" +
+	"\ttimestamp\x18\x05 \x01(\x03R\ttimestamp\x12\x19\n" +
+	"\breply_to\x18\x06 \x01(\tR\areplyTo\x12\x19\n" +
+	"\bmsg_type\x18\a \x01(\x05R\amsgType\"_\n" +
 	"\aChatAck\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x17\n" +

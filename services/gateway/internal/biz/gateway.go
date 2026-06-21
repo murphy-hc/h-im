@@ -56,6 +56,11 @@ func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserS
 	return uc
 }
 
+// ValidateToken validates a client token via the user service.
+func (uc *GatewayUseCase) ValidateToken(ctx context.Context, appID, userID, token string) (bool, error) {
+	return uc.userStatus.ValidateAppToken(ctx, appID, userID, token)
+}
+
 // sweepLoop periodically scans connections and closes those that have timed out.
 // It also reports disconnects to the user service.
 func (uc *GatewayUseCase) sweepLoop() {

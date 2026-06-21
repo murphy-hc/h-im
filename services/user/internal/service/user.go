@@ -10,15 +10,15 @@ import (
 // UserService implements the UserService gRPC server.
 type UserService struct {
 	pb.UnimplementedUserServiceServer
-	uc *biz.UserUseCase
+	uc     *biz.UserUseCase
+	authUC *biz.AuthUseCase
 }
 
 // NewUserService creates a UserService.
-func NewUserService(uc *biz.UserUseCase) *UserService {
-	return &UserService{uc: uc}
+func NewUserService(uc *biz.UserUseCase, authUC *biz.AuthUseCase) *UserService {
+	return &UserService{uc: uc, authUC: authUC}
 }
 
-// ReportHeartbeat records a successful heartbeat from a gateway.
 func (s *UserService) ReportHeartbeat(ctx context.Context, req *pb.ReportHeartbeatRequest) (*pb.ReportHeartbeatResponse, error) {
 	err := s.uc.ReportHeartbeat(ctx, req.UserId, req.DeviceId, req.GatewayAddr, req.Timestamp)
 	if err != nil {
@@ -27,7 +27,6 @@ func (s *UserService) ReportHeartbeat(ctx context.Context, req *pb.ReportHeartbe
 	return &pb.ReportHeartbeatResponse{}, nil
 }
 
-// ReportDisconnect records a device disconnection.
 func (s *UserService) ReportDisconnect(ctx context.Context, req *pb.ReportDisconnectRequest) (*pb.ReportDisconnectResponse, error) {
 	err := s.uc.ReportDisconnect(ctx, req.UserId, req.DeviceId)
 	if err != nil {
@@ -36,7 +35,6 @@ func (s *UserService) ReportDisconnect(ctx context.Context, req *pb.ReportDiscon
 	return &pb.ReportDisconnectResponse{}, nil
 }
 
-// GetUserOnline returns all online devices for a user.
 func (s *UserService) GetUserOnline(ctx context.Context, req *pb.GetUserOnlineRequest) (*pb.GetUserOnlineResponse, error) {
 	devices, err := s.uc.GetUserOnline(ctx, req.UserId)
 	if err != nil {
@@ -51,4 +49,12 @@ func (s *UserService) GetUserOnline(ctx context.Context, req *pb.GetUserOnlineRe
 		})
 	}
 	return &pb.GetUserOnlineResponse{Devices: pbDevices}, nil
+}
+
+func (s *UserService) ValidateAppToken(ctx context.Context, req *pb.ValidateAppTokenRequest) (*pb.ValidateAppTokenResponse, error) {
+	err := s.authUC.ValidateAppToken(ctx, req.AppId, req.UserId, req.Token)
+	if err != nil {
+		return &pb.ValidateAppTokenResponse{Valid: false}, nil
+	}
+	return &pb.ValidateAppTokenResponse{Valid: true}, nil
 }

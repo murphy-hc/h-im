@@ -128,3 +128,15 @@ func splitOnlineKey(key string) []string {
 }
 
 var _ redis.Cmdable = (*redis.Client)(nil)
+
+func (r *userRepo) FindAppByID(ctx context.Context, appID string) (*biz.App, error) {
+	var model AppModel
+	err := r.data.DB.WithContext(ctx).Where("app_id = ? AND enabled = true", appID).First(&model).Error
+	if err != nil {
+		return nil, fmt.Errorf("find app %s: %w", appID, err)
+	}
+	return &biz.App{
+		AppID: model.AppID, AppSecret: model.AppSecret,
+		AppName: model.AppName, Enabled: model.Enabled,
+	}, nil
+}

@@ -12,7 +12,6 @@ use (
 	./pkg/pagination
 	./pkg/redis
 	./pkg/tracing
-	./services/auth
 	./services/chatroom
 	./services/contact
 	./services/gateway

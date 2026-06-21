@@ -9,7 +9,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/murphy-hc/h-im/gen/go v0.0.0
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-00010101000000-000000000000
-	github.com/murphy-hc/h-im/pkg/gp v0.0.0-00010101000000-000000000000
+	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260621031301-3e0edc16723b
 	github.com/murphy-hc/h-im/pkg/kafka v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260621031301-3e0edc16723b
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260621031301-3e0edc16723b

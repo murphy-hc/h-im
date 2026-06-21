@@ -28,3 +28,6 @@ docker/volumes/
 
 # Build output
 **/bin/
+/server
+/services/*/server
+**/cmd/server/server

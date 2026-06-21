@@ -917,6 +917,110 @@ func (*ReportDisconnectResponse) Descriptor() ([]byte, []int) {
 	return file_him_user_v1_user_proto_rawDescGZIP(), []int{17}
 }
 
+type ValidateAppTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateAppTokenRequest) Reset() {
+	*x = ValidateAppTokenRequest{}
+	mi := &file_him_user_v1_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateAppTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateAppTokenRequest) ProtoMessage() {}
+
+func (x *ValidateAppTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_him_user_v1_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateAppTokenRequest.ProtoReflect.Descriptor instead.
+func (*ValidateAppTokenRequest) Descriptor() ([]byte, []int) {
+	return file_him_user_v1_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ValidateAppTokenRequest) GetAppId() string {
+	if x != nil {
+		return x.AppId
+	}
+	return ""
+}
+
+func (x *ValidateAppTokenRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ValidateAppTokenRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+type ValidateAppTokenResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateAppTokenResponse) Reset() {
+	*x = ValidateAppTokenResponse{}
+	mi := &file_him_user_v1_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateAppTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateAppTokenResponse) ProtoMessage() {}
+
+func (x *ValidateAppTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_him_user_v1_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateAppTokenResponse.ProtoReflect.Descriptor instead.
+func (*ValidateAppTokenResponse) Descriptor() ([]byte, []int) {
+	return file_him_user_v1_user_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ValidateAppTokenResponse) GetValid() bool {
+	if x != nil {
+		return x.Valid
+	}
+	return false
+}
+
 var File_him_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_him_user_v1_user_proto_rawDesc = "" +
@@ -973,7 +1077,13 @@ const file_him_user_v1_user_proto_rawDesc = "" +
 	"\x17ReportDisconnectRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\"\x1a\n" +
-	"\x18ReportDisconnectResponse2\xac\x05\n" +
+	"\x18ReportDisconnectResponse\"_\n" +
+	"\x17ValidateAppTokenRequest\x12\x15\n" +
+	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05token\x18\x03 \x01(\tR\x05token\"0\n" +
+	"\x18ValidateAppTokenResponse\x12\x14\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid2\x8d\x06\n" +
 	"\vUserService\x12G\n" +
 	"\bRegister\x12\x1c.him.user.v1.RegisterRequest\x1a\x1d.him.user.v1.RegisterResponse\x12>\n" +
 	"\x05Login\x12\x19.him.user.v1.LoginRequest\x1a\x1a.him.user.v1.LoginResponse\x12M\n" +
@@ -983,7 +1093,8 @@ const file_him_user_v1_user_proto_rawDesc = "" +
 	"\rBatchGetUsers\x12!.him.user.v1.BatchGetUsersRequest\x1a\".him.user.v1.BatchGetUsersResponse\x12\\\n" +
 	"\x0fReportHeartbeat\x12#.him.user.v1.ReportHeartbeatRequest\x1a$.him.user.v1.ReportHeartbeatResponse\x12_\n" +
 	"\x10ReportDisconnect\x12$.him.user.v1.ReportDisconnectRequest\x1a%.him.user.v1.ReportDisconnectResponse\x12V\n" +
-	"\rGetUserOnline\x12!.him.user.v1.GetUserOnlineRequest\x1a\".him.user.v1.GetUserOnlineResponseB5Z3github.com/murphy-hc/h-im/gen/go/him/user/v1;userv1b\x06proto3"
+	"\rGetUserOnline\x12!.him.user.v1.GetUserOnlineRequest\x1a\".him.user.v1.GetUserOnlineResponse\x12_\n" +
+	"\x10ValidateAppToken\x12$.him.user.v1.ValidateAppTokenRequest\x1a%.him.user.v1.ValidateAppTokenResponseB5Z3github.com/murphy-hc/h-im/gen/go/him/user/v1;userv1b\x06proto3"
 
 var (
 	file_him_user_v1_user_proto_rawDescOnce sync.Once
@@ -997,7 +1108,7 @@ func file_him_user_v1_user_proto_rawDescGZIP() []byte {
 	return file_him_user_v1_user_proto_rawDescData
 }
 
-var file_him_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_him_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_him_user_v1_user_proto_goTypes = []any{
 	(*User)(nil),                     // 0: him.user.v1.User
 	(*RegisterRequest)(nil),          // 1: him.user.v1.RegisterRequest
@@ -1017,6 +1128,8 @@ var file_him_user_v1_user_proto_goTypes = []any{
 	(*ReportHeartbeatResponse)(nil),  // 15: him.user.v1.ReportHeartbeatResponse
 	(*ReportDisconnectRequest)(nil),  // 16: him.user.v1.ReportDisconnectRequest
 	(*ReportDisconnectResponse)(nil), // 17: him.user.v1.ReportDisconnectResponse
+	(*ValidateAppTokenRequest)(nil),  // 18: him.user.v1.ValidateAppTokenRequest
+	(*ValidateAppTokenResponse)(nil), // 19: him.user.v1.ValidateAppTokenResponse
 }
 var file_him_user_v1_user_proto_depIdxs = []int32{
 	0,  // 0: him.user.v1.GetProfileResponse.user:type_name -> him.user.v1.User
@@ -1031,16 +1144,18 @@ var file_him_user_v1_user_proto_depIdxs = []int32{
 	14, // 9: him.user.v1.UserService.ReportHeartbeat:input_type -> him.user.v1.ReportHeartbeatRequest
 	16, // 10: him.user.v1.UserService.ReportDisconnect:input_type -> him.user.v1.ReportDisconnectRequest
 	12, // 11: him.user.v1.UserService.GetUserOnline:input_type -> him.user.v1.GetUserOnlineRequest
-	2,  // 12: him.user.v1.UserService.Register:output_type -> him.user.v1.RegisterResponse
-	4,  // 13: him.user.v1.UserService.Login:output_type -> him.user.v1.LoginResponse
-	6,  // 14: him.user.v1.UserService.GetProfile:output_type -> him.user.v1.GetProfileResponse
-	8,  // 15: him.user.v1.UserService.UpdateProfile:output_type -> him.user.v1.UpdateProfileResponse
-	10, // 16: him.user.v1.UserService.BatchGetUsers:output_type -> him.user.v1.BatchGetUsersResponse
-	15, // 17: him.user.v1.UserService.ReportHeartbeat:output_type -> him.user.v1.ReportHeartbeatResponse
-	17, // 18: him.user.v1.UserService.ReportDisconnect:output_type -> him.user.v1.ReportDisconnectResponse
-	13, // 19: him.user.v1.UserService.GetUserOnline:output_type -> him.user.v1.GetUserOnlineResponse
-	12, // [12:20] is the sub-list for method output_type
-	4,  // [4:12] is the sub-list for method input_type
+	18, // 12: him.user.v1.UserService.ValidateAppToken:input_type -> him.user.v1.ValidateAppTokenRequest
+	2,  // 13: him.user.v1.UserService.Register:output_type -> him.user.v1.RegisterResponse
+	4,  // 14: him.user.v1.UserService.Login:output_type -> him.user.v1.LoginResponse
+	6,  // 15: him.user.v1.UserService.GetProfile:output_type -> him.user.v1.GetProfileResponse
+	8,  // 16: him.user.v1.UserService.UpdateProfile:output_type -> him.user.v1.UpdateProfileResponse
+	10, // 17: him.user.v1.UserService.BatchGetUsers:output_type -> him.user.v1.BatchGetUsersResponse
+	15, // 18: him.user.v1.UserService.ReportHeartbeat:output_type -> him.user.v1.ReportHeartbeatResponse
+	17, // 19: him.user.v1.UserService.ReportDisconnect:output_type -> him.user.v1.ReportDisconnectResponse
+	13, // 20: him.user.v1.UserService.GetUserOnline:output_type -> him.user.v1.GetUserOnlineResponse
+	19, // 21: him.user.v1.UserService.ValidateAppToken:output_type -> him.user.v1.ValidateAppTokenResponse
+	13, // [13:22] is the sub-list for method output_type
+	4,  // [4:13] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -1057,7 +1172,7 @@ func file_him_user_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_user_v1_user_proto_rawDesc), len(file_him_user_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

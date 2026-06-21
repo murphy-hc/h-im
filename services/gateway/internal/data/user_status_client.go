@@ -40,3 +40,15 @@ func (c *UserStatusClient) ReportDisconnect(ctx context.Context, userID, deviceI
 	})
 	return err
 }
+
+func (c *UserStatusClient) ValidateAppToken(ctx context.Context, appID, userID, token string) (bool, error) {
+	resp, err := c.client.ValidateAppToken(ctx, &userpb.ValidateAppTokenRequest{
+		AppId:  appID,
+		UserId: userID,
+		Token:  token,
+	})
+	if err != nil {
+		return false, err
+	}
+	return resp.Valid, nil
+}

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewRedisClient)
+var ProviderSet = wire.NewSet(NewData, NewUserRepo, NewRedisClient, NewAppRepo)
 
 // Data holds data source clients.
 type Data struct {
@@ -60,6 +60,6 @@ func NewRedisClient(bc *conf.Bootstrap) (*goredis.Client, func(), error) {
 }
 
 // Migrate runs auto-migration.
-func (d *Data) Migrate() error { return d.DB.AutoMigrate() }
+func (d *Data) Migrate() error { return d.DB.AutoMigrate(&AppModel{}) }
 
 var _ biz.UserRepo = (*userRepo)(nil)

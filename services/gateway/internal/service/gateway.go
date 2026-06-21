@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
-	"github.com/murphy-hc/h-im/services/gateway/internal/data"
 )
 
 // GatewayService handles WebSocket connections.
@@ -16,12 +15,11 @@ type GatewayService struct {
 	cm       biz.ConnManager
 	upgrader websocket.Upgrader
 	cfg      *conf.User
-	appRepo  *data.AppRepo
 }
 
 // NewGatewayService creates a GatewayService.
-func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager, upgrader websocket.Upgrader, cfg *conf.User, appRepo *data.AppRepo) *GatewayService {
-	return &GatewayService{uc: uc, cm: cm, upgrader: upgrader, cfg: cfg, appRepo: appRepo}
+func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager, upgrader websocket.Upgrader, cfg *conf.User) *GatewayService {
+	return &GatewayService{uc: uc, cm: cm, upgrader: upgrader, cfg: cfg}
 }
 
 // HandleWebSocket handles a WebSocket upgrade request.
@@ -45,12 +43,9 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	app, err := s.appRepo.FindByAppID(r.Context(), appID)
-	if err != nil {
-		conn.Close()
-		return
-	}
-	if err := biz.VerifyAppToken(app.AppSecret, userID, token); err != nil {
+	valid, err := s.uc.ValidateToken(r.Context(), appID, userID, token)
+	if err != nil || !valid {
+		log.Printf("token validation failed: app=%s user=%s err=%v", appID, userID, err)
 		conn.Close()
 		return
 	}

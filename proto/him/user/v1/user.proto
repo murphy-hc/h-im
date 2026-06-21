@@ -72,6 +72,7 @@ service UserService {
   rpc ReportHeartbeat(ReportHeartbeatRequest)   returns (ReportHeartbeatResponse);
   rpc ReportDisconnect(ReportDisconnectRequest)  returns (ReportDisconnectResponse);
   rpc GetUserOnline(GetUserOnlineRequest) returns (GetUserOnlineResponse);
+  rpc ValidateAppToken(ValidateAppTokenRequest) returns (ValidateAppTokenResponse);
 }
 
 // ── Online Status ────────────────────────────────────────────────────────────
@@ -105,3 +106,15 @@ message ReportDisconnectRequest {
 }
 
 message ReportDisconnectResponse {}
+
+// ── Token Validation ────────────────────────────────────────────────────────
+
+message ValidateAppTokenRequest {
+  string app_id   = 1;
+  string user_id  = 2;
+  string token    = 3;
+}
+
+message ValidateAppTokenResponse {
+  bool valid = 1;
+}

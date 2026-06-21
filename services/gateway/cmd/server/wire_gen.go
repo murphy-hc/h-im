@@ -49,23 +49,13 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	string2 := data.GatewayAddr()
 	gatewayUseCase := biz.NewGatewayUseCase(connManager, kafkaMessageClient, userStatusClient, heartbeatConfig, string2)
 	user := bc.User
-	dataData, cleanup5, err := data.NewData(bc)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	appRepo := data.NewAppRepo(dataData)
-	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, upgrader, user, appRepo)
+	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, upgrader, user)
 	wsServer := server.NewWSServer(confServer, upgrader, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
 	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
 	app := newApp(wsServer, httpServer, grpcServer)
 	return app, func() {
-		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

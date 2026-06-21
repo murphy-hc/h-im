@@ -13,7 +13,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewAppRepo, NewUserStatusClient, GatewayAddr, NewGrpcMessageClient, NewKafkaMessageClient)
+var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewUserStatusClient, GatewayAddr, NewGrpcMessageClient, NewKafkaMessageClient)
 
 // GatewayAddr returns this gateway's gRPC address.
 func GatewayAddr() string { return gatewayAddr() }
@@ -38,7 +38,7 @@ func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
 }
 
 // Migrate runs auto-migration.
-func (d *Data) Migrate() error { return d.DB.AutoMigrate(&AppModel{}) }
+func (d *Data) Migrate() error { return nil }
 
 // NewRedisClient creates a Redis client from config.
 func NewRedisClient(bc *conf.Bootstrap) (*goredis.Client, func(), error) {

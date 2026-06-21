@@ -10,13 +10,13 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/murphy-hc/h-im/gen/go v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-00010101000000-000000000000
-	github.com/murphy-hc/h-im/pkg/gp v0.0.0-00010101000000-000000000000
+	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260621031301-3e0edc16723b
 	github.com/murphy-hc/h-im/pkg/kafka v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/redis v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/prometheus/client_golang v1.23.2
-	github.com/redis/go-redis/v9 v9.7.0
+	github.com/redis/go-redis/v9 v9.20.1
 	github.com/rs/xid v1.6.0
 	go.opentelemetry.io/otel/metric v1.38.0
 	google.golang.org/protobuf v1.36.8
@@ -28,7 +28,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -57,6 +56,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect

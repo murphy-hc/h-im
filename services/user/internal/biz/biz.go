@@ -6,7 +6,7 @@ import (
 )
 
 // ProviderSet is biz providers.
-var ProviderSet = wire.NewSet(NewUserUseCase, NewHeartbeatConfig)
+var ProviderSet = wire.NewSet(NewUserUseCase, NewHeartbeatConfig, NewAuthUseCase)
 
 // NewHeartbeatConfig extracts heartbeat configuration.
 func NewHeartbeatConfig(bc *conf.Bootstrap) HeartbeatConfig {

@@ -27,6 +27,7 @@ const (
 	UserService_ReportHeartbeat_FullMethodName  = "/him.user.v1.UserService/ReportHeartbeat"
 	UserService_ReportDisconnect_FullMethodName = "/him.user.v1.UserService/ReportDisconnect"
 	UserService_GetUserOnline_FullMethodName    = "/him.user.v1.UserService/GetUserOnline"
+	UserService_ValidateAppToken_FullMethodName = "/him.user.v1.UserService/ValidateAppToken"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -41,6 +42,7 @@ type UserServiceClient interface {
 	ReportHeartbeat(ctx context.Context, in *ReportHeartbeatRequest, opts ...grpc.CallOption) (*ReportHeartbeatResponse, error)
 	ReportDisconnect(ctx context.Context, in *ReportDisconnectRequest, opts ...grpc.CallOption) (*ReportDisconnectResponse, error)
 	GetUserOnline(ctx context.Context, in *GetUserOnlineRequest, opts ...grpc.CallOption) (*GetUserOnlineResponse, error)
+	ValidateAppToken(ctx context.Context, in *ValidateAppTokenRequest, opts ...grpc.CallOption) (*ValidateAppTokenResponse, error)
 }
 
 type userServiceClient struct {
@@ -131,6 +133,16 @@ func (c *userServiceClient) GetUserOnline(ctx context.Context, in *GetUserOnline
 	return out, nil
 }
 
+func (c *userServiceClient) ValidateAppToken(ctx context.Context, in *ValidateAppTokenRequest, opts ...grpc.CallOption) (*ValidateAppTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateAppTokenResponse)
+	err := c.cc.Invoke(ctx, UserService_ValidateAppToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -143,6 +155,7 @@ type UserServiceServer interface {
 	ReportHeartbeat(context.Context, *ReportHeartbeatRequest) (*ReportHeartbeatResponse, error)
 	ReportDisconnect(context.Context, *ReportDisconnectRequest) (*ReportDisconnectResponse, error)
 	GetUserOnline(context.Context, *GetUserOnlineRequest) (*GetUserOnlineResponse, error)
+	ValidateAppToken(context.Context, *ValidateAppTokenRequest) (*ValidateAppTokenResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -176,6 +189,9 @@ func (UnimplementedUserServiceServer) ReportDisconnect(context.Context, *ReportD
 }
 func (UnimplementedUserServiceServer) GetUserOnline(context.Context, *GetUserOnlineRequest) (*GetUserOnlineResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserOnline not implemented")
+}
+func (UnimplementedUserServiceServer) ValidateAppToken(context.Context, *ValidateAppTokenRequest) (*ValidateAppTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateAppToken not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -342,6 +358,24 @@ func _UserService_GetUserOnline_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ValidateAppToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateAppTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ValidateAppToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ValidateAppToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ValidateAppToken(ctx, req.(*ValidateAppTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -380,6 +414,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserOnline",
 			Handler:    _UserService_GetUserOnline_Handler,
+		},
+		{
+			MethodName: "ValidateAppToken",
+			Handler:    _UserService_ValidateAppToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

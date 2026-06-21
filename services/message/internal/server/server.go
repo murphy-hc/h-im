@@ -7,3 +7,4 @@ import (
 
 var GRPCProviderSet = wire.NewSet(NewGRPCServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
 var HTTPProviderSet = wire.NewSet(NewHTTPServer)
+var KafkaProviderSet = wire.NewSet(NewConsumerGroup)

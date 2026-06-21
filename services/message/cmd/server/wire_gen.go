@@ -46,7 +46,9 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	messageService := service.NewMessageService(sendUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, messageService)
 	httpServer := server.NewHTTPServer(bc, meter)
-	app := newApp(grpcServer, httpServer)
+	kafkaService := service.NewKafkaService(sendUseCase)
+	consumerGroup := server.NewConsumerGroup(bc, kafkaService)
+	app := newApp(grpcServer, httpServer, consumerGroup)
 	return app, func() {
 		cleanup4()
 		cleanup3()

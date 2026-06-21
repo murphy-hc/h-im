@@ -13,4 +13,5 @@ type Message struct {
 	CreateTime int64
 	IsDeleted  bool
 	IsRead     bool
+	Status     int32 // MessageStatus enum value
 }

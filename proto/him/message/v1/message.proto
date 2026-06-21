@@ -28,6 +28,14 @@ enum SendingState {
   FAILED    = 2;
 }
 
+enum MessageStatus {
+  MESSAGE_STATUS_UNSPECIFIED = 0;
+  MESSAGE_STATUS_SENT        = 1;
+  MESSAGE_STATUS_DELIVERED   = 2;
+  MESSAGE_STATUS_READ        = 3;
+  MESSAGE_STATUS_RECALLED    = 4;
+}
+
 enum AckStatus {
   ACK_UNKNOWN   = 0;
   ACK_SENT      = 1;

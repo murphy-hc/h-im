@@ -13,7 +13,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewAppRepo, NewMessageClient, NewUserStatusClient, GatewayAddr)
+var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewAppRepo, NewUserStatusClient, GatewayAddr, NewGrpcMessageClient, NewKafkaMessageClient)
 
 // GatewayAddr returns this gateway's gRPC address.
 func GatewayAddr() string { return gatewayAddr() }

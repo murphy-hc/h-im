@@ -154,6 +154,7 @@ type Data struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Database      *Database              `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
 	Redis         *Redis                 `protobuf:"bytes,2,opt,name=redis,proto3" json:"redis,omitempty"`
+	Kafka         *Kafka                 `protobuf:"bytes,3,opt,name=kafka,proto3" json:"kafka,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,6 +203,73 @@ func (x *Data) GetRedis() *Redis {
 	return nil
 }
 
+func (x *Data) GetKafka() *Kafka {
+	if x != nil {
+		return x.Kafka
+	}
+	return nil
+}
+
+type Kafka struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Brokers       []string               `protobuf:"bytes,1,rep,name=brokers,proto3" json:"brokers,omitempty"`
+	GroupId       string                 `protobuf:"bytes,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	Topic         string                 `protobuf:"bytes,3,opt,name=topic,proto3" json:"topic,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Kafka) Reset() {
+	*x = Kafka{}
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Kafka) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Kafka) ProtoMessage() {}
+
+func (x *Kafka) ProtoReflect() protoreflect.Message {
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Kafka.ProtoReflect.Descriptor instead.
+func (*Kafka) Descriptor() ([]byte, []int) {
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Kafka) GetBrokers() []string {
+	if x != nil {
+		return x.Brokers
+	}
+	return nil
+}
+
+func (x *Kafka) GetGroupId() string {
+	if x != nil {
+		return x.GroupId
+	}
+	return ""
+}
+
+func (x *Kafka) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
 type Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       *Database_MySQL        `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
@@ -211,7 +279,7 @@ type Database struct {
 
 func (x *Database) Reset() {
 	*x = Database{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +291,7 @@ func (x *Database) String() string {
 func (*Database) ProtoMessage() {}
 
 func (x *Database) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +304,7 @@ func (x *Database) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Database.ProtoReflect.Descriptor instead.
 func (*Database) Descriptor() ([]byte, []int) {
-	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Database) GetMessage() *Database_MySQL {
@@ -260,7 +328,7 @@ type Redis struct {
 
 func (x *Redis) Reset() {
 	*x = Redis{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -272,7 +340,7 @@ func (x *Redis) String() string {
 func (*Redis) ProtoMessage() {}
 
 func (x *Redis) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -285,7 +353,7 @@ func (x *Redis) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Redis.ProtoReflect.Descriptor instead.
 func (*Redis) Descriptor() ([]byte, []int) {
-	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{4}
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Redis) GetNetwork() string {
@@ -339,7 +407,7 @@ type Log struct {
 
 func (x *Log) Reset() {
 	*x = Log{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +419,7 @@ func (x *Log) String() string {
 func (*Log) ProtoMessage() {}
 
 func (x *Log) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +432,7 @@ func (x *Log) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Log.ProtoReflect.Descriptor instead.
 func (*Log) Descriptor() ([]byte, []int) {
-	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{5}
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Log) GetLevel() string {
@@ -389,7 +457,7 @@ type Otel struct {
 
 func (x *Otel) Reset() {
 	*x = Otel{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[6]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +469,7 @@ func (x *Otel) String() string {
 func (*Otel) ProtoMessage() {}
 
 func (x *Otel) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[6]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +482,7 @@ func (x *Otel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Otel.ProtoReflect.Descriptor instead.
 func (*Otel) Descriptor() ([]byte, []int) {
-	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{6}
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Otel) GetServiceName() string {
@@ -477,7 +545,7 @@ type Server_HTTP struct {
 
 func (x *Server_HTTP) Reset() {
 	*x = Server_HTTP{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +557,7 @@ func (x *Server_HTTP) String() string {
 func (*Server_HTTP) ProtoMessage() {}
 
 func (x *Server_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,7 +605,7 @@ type Server_GRPC struct {
 
 func (x *Server_GRPC) Reset() {
 	*x = Server_GRPC{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +617,7 @@ func (x *Server_GRPC) String() string {
 func (*Server_GRPC) ProtoMessage() {}
 
 func (x *Server_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -599,7 +667,7 @@ type Database_MySQL struct {
 
 func (x *Database_MySQL) Reset() {
 	*x = Database_MySQL{}
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +679,7 @@ func (x *Database_MySQL) String() string {
 func (*Database_MySQL) ProtoMessage() {}
 
 func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
-	mi := &file_services_message_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_message_internal_conf_conf_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +692,7 @@ func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Database_MySQL.ProtoReflect.Descriptor instead.
 func (*Database_MySQL) Descriptor() ([]byte, []int) {
-	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{3, 0}
+	return file_services_message_internal_conf_conf_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *Database_MySQL) GetMaxIdleConns() int32 {
@@ -683,10 +751,15 @@ const file_services_message_internal_conf_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"m\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x9c\x01\n" +
 	"\x04Data\x126\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x1a.him.message.conf.DatabaseR\bdatabase\x12-\n" +
-	"\x05redis\x18\x02 \x01(\v2\x17.him.message.conf.RedisR\x05redis\"\xbd\x02\n" +
+	"\x05redis\x18\x02 \x01(\v2\x17.him.message.conf.RedisR\x05redis\x12-\n" +
+	"\x05kafka\x18\x03 \x01(\v2\x17.him.message.conf.KafkaR\x05kafka\"R\n" +
+	"\x05Kafka\x12\x18\n" +
+	"\abrokers\x18\x01 \x03(\tR\abrokers\x12\x19\n" +
+	"\bgroup_id\x18\x02 \x01(\tR\agroupId\x12\x14\n" +
+	"\x05topic\x18\x03 \x01(\tR\x05topic\"\xbd\x02\n" +
 	"\bDatabase\x12:\n" +
 	"\amessage\x18\x01 \x01(\v2 .him.message.conf.Database.MySQLR\amessage\x1a\xf4\x01\n" +
 	"\x05MySQL\x12$\n" +
@@ -726,42 +799,44 @@ func file_services_message_internal_conf_conf_proto_rawDescGZIP() []byte {
 	return file_services_message_internal_conf_conf_proto_rawDescData
 }
 
-var file_services_message_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_services_message_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_services_message_internal_conf_conf_proto_goTypes = []any{
 	(*Bootstrap)(nil),           // 0: him.message.conf.Bootstrap
 	(*Server)(nil),              // 1: him.message.conf.Server
 	(*Data)(nil),                // 2: him.message.conf.Data
-	(*Database)(nil),            // 3: him.message.conf.Database
-	(*Redis)(nil),               // 4: him.message.conf.Redis
-	(*Log)(nil),                 // 5: him.message.conf.Log
-	(*Otel)(nil),                // 6: him.message.conf.Otel
-	(*Server_HTTP)(nil),         // 7: him.message.conf.Server.HTTP
-	(*Server_GRPC)(nil),         // 8: him.message.conf.Server.GRPC
-	(*Database_MySQL)(nil),      // 9: him.message.conf.Database.MySQL
-	(*durationpb.Duration)(nil), // 10: google.protobuf.Duration
+	(*Kafka)(nil),               // 3: him.message.conf.Kafka
+	(*Database)(nil),            // 4: him.message.conf.Database
+	(*Redis)(nil),               // 5: him.message.conf.Redis
+	(*Log)(nil),                 // 6: him.message.conf.Log
+	(*Otel)(nil),                // 7: him.message.conf.Otel
+	(*Server_HTTP)(nil),         // 8: him.message.conf.Server.HTTP
+	(*Server_GRPC)(nil),         // 9: him.message.conf.Server.GRPC
+	(*Database_MySQL)(nil),      // 10: him.message.conf.Database.MySQL
+	(*durationpb.Duration)(nil), // 11: google.protobuf.Duration
 }
 var file_services_message_internal_conf_conf_proto_depIdxs = []int32{
 	1,  // 0: him.message.conf.Bootstrap.server:type_name -> him.message.conf.Server
 	2,  // 1: him.message.conf.Bootstrap.data:type_name -> him.message.conf.Data
-	5,  // 2: him.message.conf.Bootstrap.log:type_name -> him.message.conf.Log
-	6,  // 3: him.message.conf.Bootstrap.otel:type_name -> him.message.conf.Otel
-	7,  // 4: him.message.conf.Server.http:type_name -> him.message.conf.Server.HTTP
-	8,  // 5: him.message.conf.Server.grpc:type_name -> him.message.conf.Server.GRPC
-	3,  // 6: him.message.conf.Data.database:type_name -> him.message.conf.Database
-	4,  // 7: him.message.conf.Data.redis:type_name -> him.message.conf.Redis
-	9,  // 8: him.message.conf.Database.message:type_name -> him.message.conf.Database.MySQL
-	10, // 9: him.message.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
-	10, // 10: him.message.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
-	10, // 11: him.message.conf.Otel.timeout:type_name -> google.protobuf.Duration
-	10, // 12: him.message.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	10, // 13: him.message.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	10, // 14: him.message.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
-	10, // 15: him.message.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	6,  // 2: him.message.conf.Bootstrap.log:type_name -> him.message.conf.Log
+	7,  // 3: him.message.conf.Bootstrap.otel:type_name -> him.message.conf.Otel
+	8,  // 4: him.message.conf.Server.http:type_name -> him.message.conf.Server.HTTP
+	9,  // 5: him.message.conf.Server.grpc:type_name -> him.message.conf.Server.GRPC
+	4,  // 6: him.message.conf.Data.database:type_name -> him.message.conf.Database
+	5,  // 7: him.message.conf.Data.redis:type_name -> him.message.conf.Redis
+	3,  // 8: him.message.conf.Data.kafka:type_name -> him.message.conf.Kafka
+	10, // 9: him.message.conf.Database.message:type_name -> him.message.conf.Database.MySQL
+	11, // 10: him.message.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
+	11, // 11: him.message.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
+	11, // 12: him.message.conf.Otel.timeout:type_name -> google.protobuf.Duration
+	11, // 13: him.message.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	11, // 14: him.message.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	11, // 15: him.message.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
+	11, // 16: him.message.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_services_message_internal_conf_conf_proto_init() }
@@ -775,7 +850,7 @@ func file_services_message_internal_conf_conf_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_message_internal_conf_conf_proto_rawDesc), len(file_services_message_internal_conf_conf_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

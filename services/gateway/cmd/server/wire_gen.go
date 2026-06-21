@@ -27,23 +27,31 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		return nil, nil, err
 	}
 	connManager := data.NewConnManager(client)
-	messageClient, cleanup2, err := data.NewMessageClient()
+	grpcMessageClient, cleanup2, err := data.NewGrpcMessageClient()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	userStatusClient, cleanup3, err := data.NewUserStatusClient()
+	kafkaMessageClient, cleanup3, err := data.NewKafkaMessageClient(grpcMessageClient)
 	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	userStatusClient, cleanup4, err := data.NewUserStatusClient()
+	if err != nil {
+		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	heartbeatConfig := biz.NewHeartbeatConfig(bc)
 	string2 := data.GatewayAddr()
-	gatewayUseCase := biz.NewGatewayUseCase(connManager, messageClient, userStatusClient, heartbeatConfig, string2)
+	gatewayUseCase := biz.NewGatewayUseCase(connManager, kafkaMessageClient, userStatusClient, heartbeatConfig, string2)
 	user := bc.User
-	dataData, cleanup4, err := data.NewData(bc)
+	dataData, cleanup5, err := data.NewData(bc)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
@@ -57,6 +65,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
 	app := newApp(wsServer, httpServer, grpcServer)
 	return app, func() {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

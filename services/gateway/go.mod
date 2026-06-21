@@ -11,6 +11,7 @@ require (
 	github.com/murphy-hc/h-im/gen/go v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/gp v0.0.0-00010101000000-000000000000
+	github.com/murphy-hc/h-im/pkg/kafka v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/redis v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260620170028-8f8ba2793bc5
@@ -39,10 +40,13 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
+	github.com/segmentio/kafka-go v0.4.47 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.32.0 // indirect
@@ -68,6 +72,7 @@ require (
 replace (
 	github.com/murphy-hc/h-im/pkg/gp => ../../pkg/gp
 	github.com/murphy-hc/h-im/pkg/jwt => ../../pkg/jwt
+	github.com/murphy-hc/h-im/pkg/kafka => ../../pkg/kafka
 	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 	github.com/murphy-hc/h-im/pkg/redis => ../../pkg/redis
 )

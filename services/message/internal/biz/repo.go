@@ -5,6 +5,7 @@ import "context"
 // MessageRepo defines the message repository interface.
 type MessageRepo interface {
 	Insert(ctx context.Context, m *Message) error
+	MarkDelivered(ctx context.Context, serverID int64) error
 	MarkRead(ctx context.Context, serverID int64) error
 	PullSince(ctx context.Context, userID string, sinceID int64, limit int32) ([]Message, error)
 }

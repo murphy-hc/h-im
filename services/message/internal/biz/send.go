@@ -110,6 +110,17 @@ func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receive
 	return serverID, nil
 }
 
+// ProcessMessage handles a message received via Kafka. The payload is a
+// serialized SendMessageReq proto.
+func (uc *SendUseCase) ProcessMessage(ctx context.Context, payload []byte) error {
+	var req msgpb.SendMessageReq
+	if err := proto.Unmarshal(payload, &req); err != nil {
+		return err
+	}
+	_, err := uc.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId)
+	return err
+}
+
 func (uc *SendUseCase) AckMessage(ctx context.Context, serverID int64, userID string) error {
 	return uc.repo.MarkRead(ctx, serverID)
 }
@@ -139,11 +150,13 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 		return
 	}
 
+	delivered := false
 	for _, device := range devices {
 		for i := 0; i < maxRetries; i++ {
 			err := uc.gw.SendToDevice(ctx, device.GatewayAddr, m.ReceiverID,
 				int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload)
 			if err == nil {
+				delivered = true
 				break
 			}
 			select {
@@ -152,5 +165,8 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 			case <-time.After(baseDelay * time.Duration(1<<i)):
 			}
 		}
+	}
+	if delivered {
+		uc.repo.MarkDelivered(ctx, m.ServerID)
 	}
 }

@@ -28,4 +28,3 @@ docker/volumes/
 
 # Build output
 **/bin/
-server

@@ -17,6 +17,7 @@ type MessageModel struct {
 	CreateTime      int64  `gorm:"column:create_time;not null;default:0"`
 	IsDeleted       bool   `gorm:"column:is_deleted;default:false"`
 	IsRemoteRead    bool   `gorm:"column:is_remote_read;default:false"`
+	Status          int32  `gorm:"column:status;default:0"`
 	CreatedAt       time.Time `gorm:"column:created_at;autoCreateTime"`
 }
 

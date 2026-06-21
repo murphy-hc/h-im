@@ -31,3 +31,8 @@ data:
     password: ""
     read_timeout: "1s"
     write_timeout: "1s"
+  kafka:
+    brokers:
+      - "localhost:9092"
+    group_id: "message-service"
+    topic: "him.private.message"

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
+	msgpb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,7 +21,7 @@ func NewMessageRepo(data *Data) *MessageRepo {
 	return &MessageRepo{db: data.DB}
 }
 
-// Insert inserts a message, silently skipping duplicates (idempotent via client_id UNIQUE).
+// Insert inserts a message with status SENT.
 func (r *MessageRepo) Insert(ctx context.Context, m *biz.Message) error {
 	model := &MessageModel{
 		MessageServerID: m.ServerID,
@@ -32,14 +33,26 @@ func (r *MessageRepo) Insert(ctx context.Context, m *biz.Message) error {
 		Text:            m.Text,
 		ServerTime:      m.ServerTime,
 		CreateTime:      m.CreateTime,
+		Status:          int32(msgpb.MessageStatus_MESSAGE_STATUS_SENT),
 	}
 	return r.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(model).Error
 }
 
-// MarkRead marks a message as remotely read.
+// MarkDelivered updates the message status to DELIVERED.
+func (r *MessageRepo) MarkDelivered(ctx context.Context, serverID int64) error {
+	return r.db.WithContext(ctx).Model(&MessageModel{}).
+		Where("message_server_id = ?", serverID).
+		Update("status", int32(msgpb.MessageStatus_MESSAGE_STATUS_DELIVERED)).Error
+}
+
+// MarkRead updates the message status to READ.
 func (r *MessageRepo) MarkRead(ctx context.Context, serverID int64) error {
 	return r.db.WithContext(ctx).Model(&MessageModel{}).
-		Where("message_server_id = ?", serverID).Update("is_remote_read", true).Error
+		Where("message_server_id = ?", serverID).
+		Updates(map[string]interface{}{
+			"is_remote_read": true,
+			"status":         int32(msgpb.MessageStatus_MESSAGE_STATUS_READ),
+		}).Error
 }
 
 // PullSince returns messages for a user with server ID greater than sinceID.
@@ -67,6 +80,7 @@ func (r *MessageRepo) PullSince(ctx context.Context, userID string, sinceID int6
 			CreateTime: m.CreateTime,
 			IsDeleted:  m.IsDeleted,
 			IsRead:     m.IsRemoteRead,
+			Status:     m.Status,
 		}
 	}
 	return msgs, nil

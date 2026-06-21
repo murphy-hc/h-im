@@ -53,6 +53,7 @@ require (
 replace (
 	github.com/murphy-hc/h-im/gen/go => ../../gen/go
 	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
+		github.com/murphy-hc/h-im/pkg/gp => ../../pkg/gp
 	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 	github.com/murphy-hc/h-im/pkg/pagination => ../../pkg/pagination
 	github.com/murphy-hc/h-im/pkg/redis => ../../pkg/redis

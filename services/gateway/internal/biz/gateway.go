@@ -7,36 +7,96 @@ import (
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
 	msgpb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/gorilla/websocket"
+	"github.com/murphy-hc/h-im/pkg/gp"
 	"google.golang.org/protobuf/proto"
 )
 
 const readTimeout = 60 * time.Second
 
-type GatewayUseCase struct {
-	cm        ConnManager
-	msgClient MessageClient
+// HeartbeatConfig holds heartbeat parameters.
+type HeartbeatConfig struct {
+	IntervalSeconds int32
+	TimeoutSeconds  int32
+	SweepInterval   int32
 }
 
-func NewGatewayUseCase(cm ConnManager, msgClient MessageClient) *GatewayUseCase {
-	return &GatewayUseCase{cm: cm, msgClient: msgClient}
+// Timeout returns the heartbeat timeout duration.
+func (c HeartbeatConfig) Timeout() time.Duration {
+	if c.TimeoutSeconds <= 0 {
+		return 180 * time.Second
+	}
+	return time.Duration(c.TimeoutSeconds) * time.Second
+}
+
+// SweepDuration returns the sweep interval duration.
+func (c HeartbeatConfig) SweepDuration() time.Duration {
+	if c.SweepInterval <= 0 {
+		return 10 * time.Second
+	}
+	return time.Duration(c.SweepInterval) * time.Second
+}
+
+type GatewayUseCase struct {
+	cm          ConnManager
+	msgClient   MessageClient
+	userStatus  UserStatusClient
+	hbCfg       HeartbeatConfig
+	gatewayAddr string
+}
+
+func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
+	uc := &GatewayUseCase{
+		cm:          cm,
+		msgClient:   msgClient,
+		userStatus:  userStatus,
+		hbCfg:       hbCfg,
+		gatewayAddr: gatewayAddr,
+	}
+	gp.SafeGo(context.Background(), func(_ context.Context) { uc.sweepLoop() })
+	return uc
+}
+
+// sweepLoop periodically scans connections and closes those that have timed out.
+// It also reports disconnects to the user service.
+func (uc *GatewayUseCase) sweepLoop() {
+	ticker := time.NewTicker(uc.hbCfg.SweepDuration())
+	defer ticker.Stop()
+	timeout := uc.hbCfg.Timeout()
+	for range ticker.C {
+		offline := uc.cm.SweepOffline(timeout)
+		for _, dev := range offline {
+			dev.Conn.Close()
+			// Report disconnect to user service (best-effort, don't block)
+			gp.SafeGo(context.Background(), func(_ context.Context) {
+				uc.userStatus.ReportDisconnect(context.Background(), dev.UserID, dev.DeviceID)
+			})
+		}
+	}
 }
 
 func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.Conn, userID, deviceID string) {
-	defer uc.cm.Remove(userID, deviceID)
+	defer func() {
+		uc.cm.Remove(userID, deviceID)
+		// Report disconnect to user service
+		gp.SafeGo(context.Background(), func(_ context.Context) {
+			uc.userStatus.ReportDisconnect(context.Background(), userID, deviceID)
+		})
+	}()
 
 	done := make(chan struct{})
 	defer close(done)
-	go func() {
+	gp.SafeGo(context.Background(), func(_ context.Context) {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 		for {
 			select {
-			case <-done: return
+			case <-done:
+				return
 			case <-ticker.C:
 				conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(5*time.Second))
 			}
 		}
-	}()
+	})
 
 	conn.SetPongHandler(func(string) error {
 		conn.SetReadDeadline(time.Now().Add(readTimeout))
@@ -46,7 +106,9 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 	for {
 		conn.SetReadDeadline(time.Now().Add(readTimeout))
 		_, raw, err := conn.ReadMessage()
-		if err != nil { break }
+		if err != nil {
+			break
+		}
 		version, ft, payload, err := Decode(raw)
 		if err != nil {
 			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
@@ -58,13 +120,21 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 		switch ft {
 		case gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT:
 			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT, nil)
-			conn.WriteMessage(websocket.BinaryMessage, frame)
+			if err := conn.WriteMessage(websocket.BinaryMessage, frame); err != nil {
+				uc.cm.MarkHeartbeatFail(userID, deviceID)
+			} else {
+				uc.cm.MarkHeartbeatSuccess(userID, deviceID)
+				// Forward successful heartbeat to user service
+				gp.SafeGo(context.Background(), func(_ context.Context) {
+					uc.userStatus.ReportHeartbeat(context.Background(), userID, deviceID, uc.gatewayAddr, time.Now().Unix())
+				})
+			}
 		case gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT:
 			uc.handlePrivateChat(ctx, conn, userID, payload)
 		case gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK:
 			var ack msgpb.PrivateAck
 			if err := proto.Unmarshal(payload, &ack); err == nil {
-				go uc.msgClient.AckMessage(ctx, ack.MsgServerId, userID)
+				gp.SafeGo(ctx, func(_ context.Context) { uc.msgClient.AckMessage(ctx, ack.MsgServerId, userID) })
 			}
 		}
 	}
@@ -72,7 +142,9 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 
 func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
 	var msg msgpb.Message
-	if err := proto.Unmarshal(payload, &msg); err != nil { return }
+	if err := proto.Unmarshal(payload, &msg); err != nil {
+		return
+	}
 	resp, err := uc.msgClient.SendMessage(ctx, &msgpb.SendMessageReq{
 		SenderId:        senderID,
 		ReceiverId:      msg.ReceiverId,
@@ -81,7 +153,9 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 		Text:            msg.Text,
 		MessageClientId: msg.MessageClientId,
 	})
-	if err != nil { return }
+	if err != nil {
+		return
+	}
 	ack := &msgpb.PrivateAck{
 		MsgServerId: resp.MessageServerId,
 		MsgClientId: msg.MessageClientId,

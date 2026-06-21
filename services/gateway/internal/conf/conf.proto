@@ -12,6 +12,7 @@ message Bootstrap {
   Log log = 3;
   Otel otel = 4;
   User user = 5;
+  Heartbeat heartbeat = 6;
 }
 
 message Server {
@@ -78,4 +79,10 @@ message Otel {
 
 message User {
   bool multi_device = 1; // allow multiple devices to connect simultaneously
+}
+
+message Heartbeat {
+  int32 interval_seconds = 1; // client heartbeat interval, default 10
+  int32 timeout_seconds  = 2; // offline after no successful heartbeat, default 180 (3min)
+  int32 sweep_interval   = 3; // background sweep interval, default 10
 }

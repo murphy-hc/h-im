@@ -69,4 +69,39 @@ service UserService {
   rpc GetProfile(GetProfileRequest)       returns (GetProfileResponse);
   rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
   rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+  rpc ReportHeartbeat(ReportHeartbeatRequest)   returns (ReportHeartbeatResponse);
+  rpc ReportDisconnect(ReportDisconnectRequest)  returns (ReportDisconnectResponse);
+  rpc GetUserOnline(GetUserOnlineRequest) returns (GetUserOnlineResponse);
 }
+
+// ── Online Status ────────────────────────────────────────────────────────────
+
+message DeviceOnlineInfo {
+  string device_id      = 1;
+  string gateway_addr   = 2;
+  int64  last_heartbeat = 3;
+}
+
+message GetUserOnlineRequest {
+  string user_id = 1;
+}
+
+message GetUserOnlineResponse {
+  repeated DeviceOnlineInfo devices = 1;
+}
+
+message ReportHeartbeatRequest {
+  string user_id       = 1;
+  string device_id     = 2;
+  string gateway_addr  = 3;
+  int64  timestamp     = 4;
+}
+
+message ReportHeartbeatResponse {}
+
+message ReportDisconnectRequest {
+  string user_id   = 1;
+  string device_id = 2;
+}
+
+message ReportDisconnectResponse {}

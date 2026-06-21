@@ -226,4 +226,15 @@ message AckMessageResp {
 service MessageService {
   rpc SendMessage(SendMessageReq) returns (SendMessageResp);
   rpc AckMessage(AckMessageReq)  returns (AckMessageResp);
+  rpc PullMessages(PullMessagesReq) returns (PullMessagesResp);
+}
+
+message PullMessagesReq {
+  string user_id          = 1;
+  int64  since_message_id = 2;
+  int32  limit            = 3;
+}
+
+message PullMessagesResp {
+  repeated Message messages = 1;
 }

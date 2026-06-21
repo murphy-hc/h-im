@@ -30,6 +30,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: GATEWAY_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           livenessProbe:
             httpGet:
               path: /ping

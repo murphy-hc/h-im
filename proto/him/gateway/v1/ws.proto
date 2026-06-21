@@ -12,6 +12,7 @@ enum FrameType {
   FRAME_TYPE_CHATROOM_ACK = 6;
   FRAME_TYPE_HEARTBEAT    = 7;
   FRAME_TYPE_ERROR        = 8;
+  FRAME_TYPE_SYNC         = 9;
 }
 
 message ErrorMessage { int32 code = 1; string message = 2; }

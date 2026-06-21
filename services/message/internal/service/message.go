@@ -30,3 +30,31 @@ func (s *MessageService) AckMessage(ctx context.Context, req *pb.AckMessageReq) 
 	}
 	return &pb.AckMessageResp{Success: true}, nil
 }
+
+func (s *MessageService) PullMessages(ctx context.Context, req *pb.PullMessagesReq) (*pb.PullMessagesResp, error) {
+	limit := req.Limit
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	msgs, err := s.sendUC.PullMessagesSince(ctx, req.UserId, req.SinceMessageId, limit)
+	if err != nil {
+		return nil, err
+	}
+	pbMsgs := make([]*pb.Message, 0, len(msgs))
+	for _, m := range msgs {
+		pbMsgs = append(pbMsgs, &pb.Message{
+			MessageServerId: m.MessageServerID,
+			MessageClientId: m.MessageClientID,
+			SenderId:        m.SenderID,
+			ReceiverId:      m.ReceiverID,
+			ConvType:        pb.ConversationType(m.ConvType),
+			MsgType:         pb.MessageType(m.MsgType),
+			Text:            m.Text,
+			ServerTime:      m.ServerTime,
+			CreateTime:      m.CreateTime,
+			IsDeleted:       m.IsDeleted,
+			IsRemoteRead:    m.IsRemoteRead,
+		})
+	}
+	return &pb.PullMessagesResp{Messages: pbMsgs}, nil
+}

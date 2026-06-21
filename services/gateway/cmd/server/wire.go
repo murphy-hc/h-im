@@ -24,6 +24,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		biz.ProviderSet,
 		data.ProviderSet,
 		wire.Bind(new(biz.MessageClient), new(*data.MessageClient)),
+		wire.Bind(new(biz.UserStatusClient), new(*data.UserStatusClient)),
 		newApp,
 	))
 }

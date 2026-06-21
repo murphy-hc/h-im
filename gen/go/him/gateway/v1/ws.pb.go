@@ -33,6 +33,7 @@ const (
 	FrameType_FRAME_TYPE_CHATROOM_ACK FrameType = 6
 	FrameType_FRAME_TYPE_HEARTBEAT    FrameType = 7
 	FrameType_FRAME_TYPE_ERROR        FrameType = 8
+	FrameType_FRAME_TYPE_SYNC         FrameType = 9
 )
 
 // Enum value maps for FrameType.
@@ -47,6 +48,7 @@ var (
 		6: "FRAME_TYPE_CHATROOM_ACK",
 		7: "FRAME_TYPE_HEARTBEAT",
 		8: "FRAME_TYPE_ERROR",
+		9: "FRAME_TYPE_SYNC",
 	}
 	FrameType_value = map[string]int32{
 		"FRAME_TYPE_UNSPECIFIED":  0,
@@ -58,6 +60,7 @@ var (
 		"FRAME_TYPE_CHATROOM_ACK": 6,
 		"FRAME_TYPE_HEARTBEAT":    7,
 		"FRAME_TYPE_ERROR":        8,
+		"FRAME_TYPE_SYNC":         9,
 	}
 )
 
@@ -147,7 +150,7 @@ const file_him_gateway_v1_ws_proto_rawDesc = "" +
 	"\x17him/gateway/v1/ws.proto\x12\x0ehim.gateway.v1\"<\n" +
 	"\fErrorMessage\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*\xff\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*\x94\x02\n" +
 	"\tFrameType\x12\x1a\n" +
 	"\x16FRAME_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17FRAME_TYPE_PRIVATE_CHAT\x10\x01\x12\x1a\n" +
@@ -157,7 +160,8 @@ const file_him_gateway_v1_ws_proto_rawDesc = "" +
 	"\x17FRAME_TYPE_CHATROOM_MSG\x10\x05\x12\x1b\n" +
 	"\x17FRAME_TYPE_CHATROOM_ACK\x10\x06\x12\x18\n" +
 	"\x14FRAME_TYPE_HEARTBEAT\x10\a\x12\x14\n" +
-	"\x10FRAME_TYPE_ERROR\x10\bB\xb2\x01\n" +
+	"\x10FRAME_TYPE_ERROR\x10\b\x12\x13\n" +
+	"\x0fFRAME_TYPE_SYNC\x10\tB\xb2\x01\n" +
 	"\x12com.him.gateway.v1B\aWsProtoP\x01Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1\xa2\x02\x03HGX\xaa\x02\x0eHim.Gateway.V1\xca\x02\x0eHim\\Gateway\\V1\xe2\x02\x1aHim\\Gateway\\V1\\GPBMetadata\xea\x02\x10Him::Gateway::V1b\x06proto3"
 
 var (

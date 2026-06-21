@@ -2041,6 +2041,110 @@ func (x *AckMessageResp) GetSuccess() bool {
 	return false
 }
 
+type PullMessagesReq struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SinceMessageId int64                  `protobuf:"varint,2,opt,name=since_message_id,json=sinceMessageId,proto3" json:"since_message_id,omitempty"`
+	Limit          int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PullMessagesReq) Reset() {
+	*x = PullMessagesReq{}
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PullMessagesReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PullMessagesReq) ProtoMessage() {}
+
+func (x *PullMessagesReq) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PullMessagesReq.ProtoReflect.Descriptor instead.
+func (*PullMessagesReq) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *PullMessagesReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PullMessagesReq) GetSinceMessageId() int64 {
+	if x != nil {
+		return x.SinceMessageId
+	}
+	return 0
+}
+
+func (x *PullMessagesReq) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type PullMessagesResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Messages      []*Message             `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PullMessagesResp) Reset() {
+	*x = PullMessagesResp{}
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PullMessagesResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PullMessagesResp) ProtoMessage() {}
+
+func (x *PullMessagesResp) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PullMessagesResp.ProtoReflect.Descriptor instead.
+func (*PullMessagesResp) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *PullMessagesResp) GetMessages() []*Message {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
 var File_him_message_v1_message_proto protoreflect.FileDescriptor
 
 const file_him_message_v1_message_proto_rawDesc = "" +
@@ -2192,7 +2296,13 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"*\n" +
 	"\x0eAckMessageResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*[\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"j\n" +
+	"\x0fPullMessagesReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12(\n" +
+	"\x10since_message_id\x18\x02 \x01(\x03R\x0esinceMessageId\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\"G\n" +
+	"\x10PullMessagesResp\x123\n" +
+	"\bmessages\x18\x01 \x03(\v2\x17.him.message.v1.MessageR\bmessages*[\n" +
 	"\x10ConversationType\x12\x18\n" +
 	"\x14CONVERSATION_PRIVATE\x10\x00\x12\x16\n" +
 	"\x12CONVERSATION_GROUP\x10\x01\x12\x15\n" +
@@ -2216,11 +2326,12 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\vACK_UNKNOWN\x10\x00\x12\f\n" +
 	"\bACK_SENT\x10\x01\x12\x11\n" +
 	"\rACK_DELIVERED\x10\x02\x12\f\n" +
-	"\bACK_READ\x10\x032\xad\x01\n" +
+	"\bACK_READ\x10\x032\x80\x02\n" +
 	"\x0eMessageService\x12N\n" +
 	"\vSendMessage\x12\x1e.him.message.v1.SendMessageReq\x1a\x1f.him.message.v1.SendMessageResp\x12K\n" +
 	"\n" +
-	"AckMessage\x12\x1d.him.message.v1.AckMessageReq\x1a\x1e.him.message.v1.AckMessageRespB\xb7\x01\n" +
+	"AckMessage\x12\x1d.him.message.v1.AckMessageReq\x1a\x1e.him.message.v1.AckMessageResp\x12Q\n" +
+	"\fPullMessages\x12\x1f.him.message.v1.PullMessagesReq\x1a .him.message.v1.PullMessagesRespB\xb7\x01\n" +
 	"\x12com.him.message.v1B\fMessageProtoP\x01Z9github.com/murphy-hc/h-im/gen/go/him/message/v1;messagev1\xa2\x02\x03HMX\xaa\x02\x0eHim.Message.V1\xca\x02\x0eHim\\Message\\V1\xe2\x02\x1aHim\\Message\\V1\\GPBMetadata\xea\x02\x10Him::Message::V1b\x06proto3"
 
 var (
@@ -2236,7 +2347,7 @@ func file_him_message_v1_message_proto_rawDescGZIP() []byte {
 }
 
 var file_him_message_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_him_message_v1_message_proto_goTypes = []any{
 	(ConversationType)(0),            // 0: him.message.v1.ConversationType
 	(MessageType)(0),                 // 1: him.message.v1.MessageType
@@ -2267,6 +2378,8 @@ var file_him_message_v1_message_proto_goTypes = []any{
 	(*SendMessageResp)(nil),          // 26: him.message.v1.SendMessageResp
 	(*AckMessageReq)(nil),            // 27: him.message.v1.AckMessageReq
 	(*AckMessageResp)(nil),           // 28: him.message.v1.AckMessageResp
+	(*PullMessagesReq)(nil),          // 29: him.message.v1.PullMessagesReq
+	(*PullMessagesResp)(nil),         // 30: him.message.v1.PullMessagesResp
 }
 var file_him_message_v1_message_proto_depIdxs = []int32{
 	6,  // 0: him.message.v1.Attachment.image:type_name -> him.message.v1.ImageAttachment
@@ -2289,15 +2402,18 @@ var file_him_message_v1_message_proto_depIdxs = []int32{
 	0,  // 17: him.message.v1.SendMessageReq.conv_type:type_name -> him.message.v1.ConversationType
 	1,  // 18: him.message.v1.SendMessageReq.msg_type:type_name -> him.message.v1.MessageType
 	5,  // 19: him.message.v1.SendMessageReq.attachment:type_name -> him.message.v1.Attachment
-	25, // 20: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
-	27, // 21: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
-	26, // 22: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
-	28, // 23: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
-	22, // [22:24] is the sub-list for method output_type
-	20, // [20:22] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	12, // 20: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
+	25, // 21: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
+	27, // 22: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
+	29, // 23: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
+	26, // 24: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
+	28, // 25: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
+	30, // 26: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
+	24, // [24:27] is the sub-list for method output_type
+	21, // [21:24] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_him_message_v1_message_proto_init() }
@@ -2318,7 +2434,7 @@ func file_him_message_v1_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_message_v1_message_proto_rawDesc), len(file_him_message_v1_message_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   25,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

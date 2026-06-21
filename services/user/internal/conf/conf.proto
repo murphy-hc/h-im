@@ -11,6 +11,7 @@ message Bootstrap {
   Data data = 2;
   Log log = 3;
   Otel otel = 4;
+  Heartbeat heartbeat = 5;
 }
 
 message Server {
@@ -56,6 +57,11 @@ message Redis {
 
 message Log {
   string level = 1;
+}
+
+message Heartbeat {
+  int32 timeout_seconds = 1; // offline timeout, default 180 (3min)
+  int32 sweep_interval  = 2; // sweep interval, default 10
 }
 
 message Otel {

@@ -39,5 +39,10 @@ otel:
 user:
   multi_device: true
 
+heartbeat:
+  interval_seconds: 10
+  timeout_seconds: 180
+  sweep_interval: 10
+
 log:
   level: "info"

@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MessageService_SendMessage_FullMethodName = "/him.message.v1.MessageService/SendMessage"
-	MessageService_AckMessage_FullMethodName  = "/him.message.v1.MessageService/AckMessage"
+	MessageService_SendMessage_FullMethodName  = "/him.message.v1.MessageService/SendMessage"
+	MessageService_AckMessage_FullMethodName   = "/him.message.v1.MessageService/AckMessage"
+	MessageService_PullMessages_FullMethodName = "/him.message.v1.MessageService/PullMessages"
 )
 
 // MessageServiceClient is the client API for MessageService service.
@@ -29,6 +30,7 @@ const (
 type MessageServiceClient interface {
 	SendMessage(ctx context.Context, in *SendMessageReq, opts ...grpc.CallOption) (*SendMessageResp, error)
 	AckMessage(ctx context.Context, in *AckMessageReq, opts ...grpc.CallOption) (*AckMessageResp, error)
+	PullMessages(ctx context.Context, in *PullMessagesReq, opts ...grpc.CallOption) (*PullMessagesResp, error)
 }
 
 type messageServiceClient struct {
@@ -59,12 +61,23 @@ func (c *messageServiceClient) AckMessage(ctx context.Context, in *AckMessageReq
 	return out, nil
 }
 
+func (c *messageServiceClient) PullMessages(ctx context.Context, in *PullMessagesReq, opts ...grpc.CallOption) (*PullMessagesResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PullMessagesResp)
+	err := c.cc.Invoke(ctx, MessageService_PullMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessageServiceServer is the server API for MessageService service.
 // All implementations must embed UnimplementedMessageServiceServer
 // for forward compatibility.
 type MessageServiceServer interface {
 	SendMessage(context.Context, *SendMessageReq) (*SendMessageResp, error)
 	AckMessage(context.Context, *AckMessageReq) (*AckMessageResp, error)
+	PullMessages(context.Context, *PullMessagesReq) (*PullMessagesResp, error)
 	mustEmbedUnimplementedMessageServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedMessageServiceServer) SendMessage(context.Context, *SendMessa
 }
 func (UnimplementedMessageServiceServer) AckMessage(context.Context, *AckMessageReq) (*AckMessageResp, error) {
 	return nil, status.Error(codes.Unimplemented, "method AckMessage not implemented")
+}
+func (UnimplementedMessageServiceServer) PullMessages(context.Context, *PullMessagesReq) (*PullMessagesResp, error) {
+	return nil, status.Error(codes.Unimplemented, "method PullMessages not implemented")
 }
 func (UnimplementedMessageServiceServer) mustEmbedUnimplementedMessageServiceServer() {}
 func (UnimplementedMessageServiceServer) testEmbeddedByValue()                        {}
@@ -138,6 +154,24 @@ func _MessageService_AckMessage_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MessageService_PullMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PullMessagesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessageServiceServer).PullMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MessageService_PullMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessageServiceServer).PullMessages(ctx, req.(*PullMessagesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MessageService_ServiceDesc is the grpc.ServiceDesc for MessageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var MessageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AckMessage",
 			Handler:    _MessageService_AckMessage_Handler,
+		},
+		{
+			MethodName: "PullMessages",
+			Handler:    _MessageService_PullMessages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

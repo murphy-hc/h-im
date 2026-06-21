@@ -3,9 +3,12 @@ package data
 import (
 	"context"
 
+	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+var _ biz.MessageRepo = (*MessageRepo)(nil)
 
 // MessageRepo provides message persistence.
 type MessageRepo struct {
@@ -18,23 +21,53 @@ func NewMessageRepo(data *Data) *MessageRepo {
 }
 
 // Insert inserts a message, silently skipping duplicates (idempotent via client_id UNIQUE).
-func (r *MessageRepo) Insert(ctx context.Context, m *MessageModel) error {
-	return r.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(m).Error
+func (r *MessageRepo) Insert(ctx context.Context, m *biz.Message) error {
+	model := &MessageModel{
+		MessageServerID: m.ServerID,
+		MessageClientID: m.ClientID,
+		SenderID:        m.SenderID,
+		ReceiverID:      m.ReceiverID,
+		ConvType:        m.ConvType,
+		MsgType:         m.MsgType,
+		Text:            m.Text,
+		ServerTime:      m.ServerTime,
+		CreateTime:      m.CreateTime,
+	}
+	return r.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(model).Error
 }
 
-// MarkRemoteRead marks a message as remotely read.
-func (r *MessageRepo) MarkRemoteRead(ctx context.Context, serverID int64) error {
+// MarkRead marks a message as remotely read.
+func (r *MessageRepo) MarkRead(ctx context.Context, serverID int64) error {
 	return r.db.WithContext(ctx).Model(&MessageModel{}).
 		Where("message_server_id = ?", serverID).Update("is_remote_read", true).Error
 }
 
-// PullMessagesSince returns messages for a user with server ID greater than sinceID.
-func (r *MessageRepo) PullMessagesSince(ctx context.Context, userID string, sinceID int64, limit int32) ([]MessageModel, error) {
-	var msgs []MessageModel
+// PullSince returns messages for a user with server ID greater than sinceID.
+func (r *MessageRepo) PullSince(ctx context.Context, userID string, sinceID int64, limit int32) ([]biz.Message, error) {
+	var models []MessageModel
 	err := r.db.WithContext(ctx).
 		Where("receiver_id = ? AND message_server_id > ? AND is_deleted = false", userID, sinceID).
 		Order("message_server_id ASC").
 		Limit(int(limit)).
-		Find(&msgs).Error
-	return msgs, err
+		Find(&models).Error
+	if err != nil {
+		return nil, err
+	}
+	msgs := make([]biz.Message, len(models))
+	for i, m := range models {
+		msgs[i] = biz.Message{
+			ServerID:   m.MessageServerID,
+			ClientID:   m.MessageClientID,
+			SenderID:   m.SenderID,
+			ReceiverID: m.ReceiverID,
+			ConvType:   m.ConvType,
+			MsgType:    m.MsgType,
+			Text:       m.Text,
+			ServerTime: m.ServerTime,
+			CreateTime: m.CreateTime,
+			IsDeleted:  m.IsDeleted,
+			IsRead:     m.IsRemoteRead,
+		}
+	}
+	return msgs, nil
 }

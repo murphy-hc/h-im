@@ -43,8 +43,8 @@ func (s *MessageService) PullMessages(ctx context.Context, req *pb.PullMessagesR
 	pbMsgs := make([]*pb.Message, 0, len(msgs))
 	for _, m := range msgs {
 		pbMsgs = append(pbMsgs, &pb.Message{
-			MessageServerId: m.MessageServerID,
-			MessageClientId: m.MessageClientID,
+			MessageServerId: m.ServerID,
+			MessageClientId: m.ClientID,
 			SenderId:        m.SenderID,
 			ReceiverId:      m.ReceiverID,
 			ConvType:        pb.ConversationType(m.ConvType),
@@ -53,7 +53,7 @@ func (s *MessageService) PullMessages(ctx context.Context, req *pb.PullMessagesR
 			ServerTime:      m.ServerTime,
 			CreateTime:      m.CreateTime,
 			IsDeleted:       m.IsDeleted,
-			IsRemoteRead:    m.IsRemoteRead,
+			IsRemoteRead:    m.IsRead,
 		})
 	}
 	return &pb.PullMessagesResp{Messages: pbMsgs}, nil

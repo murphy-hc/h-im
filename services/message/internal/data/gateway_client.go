@@ -6,8 +6,11 @@ import (
 
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	gwpb "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
+	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	ggrpc "google.golang.org/grpc"
 )
+
+var _ biz.MessageGateway = (*GatewayClient)(nil)
 
 // GatewayClient proxies calls to the Gateway service.
 type GatewayClient struct {
@@ -37,8 +40,8 @@ func NewGatewayClient() (*GatewayClient, func(), error) {
 	}, nil
 }
 
-// SendToUserDirect sends a message to a specific gateway instance.
-func (c *GatewayClient) SendToUserDirect(ctx context.Context, gatewayAddr string, userID string, frameType int32, payload []byte) error {
+// SendToDevice sends a message to a specific gateway instance.
+func (c *GatewayClient) SendToDevice(ctx context.Context, gatewayAddr, userID string, frameType int32, payload []byte) error {
 	cl, err := c.getOrDial(gatewayAddr)
 	if err != nil {
 		return err

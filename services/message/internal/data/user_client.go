@@ -5,7 +5,10 @@ import (
 
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	userpb "github.com/murphy-hc/h-im/gen/go/him/user/v1"
+	"github.com/murphy-hc/h-im/services/message/internal/biz"
 )
+
+var _ biz.UserStatusClient = (*UserClient)(nil)
 
 // UserClient queries the User service for online status.
 type UserClient struct {
@@ -24,6 +27,18 @@ func NewUserClient() (*UserClient, func(), error) {
 }
 
 // GetUserOnline returns all online devices for a user.
-func (c *UserClient) GetUserOnline(ctx context.Context, userID string) (*userpb.GetUserOnlineResponse, error) {
-	return c.client.GetUserOnline(ctx, &userpb.GetUserOnlineRequest{UserId: userID})
+func (c *UserClient) GetUserOnline(ctx context.Context, userID string) ([]biz.OnlineDevice, error) {
+	resp, err := c.client.GetUserOnline(ctx, &userpb.GetUserOnlineRequest{UserId: userID})
+	if err != nil {
+		return nil, err
+	}
+	devices := make([]biz.OnlineDevice, 0, len(resp.GetDevices()))
+	for _, d := range resp.GetDevices() {
+		devices = append(devices, biz.OnlineDevice{
+			DeviceID:      d.GetDeviceId(),
+			GatewayAddr:   d.GetGatewayAddr(),
+			LastHeartbeat: d.GetLastHeartbeat(),
+		})
+	}
+	return devices, nil
 }

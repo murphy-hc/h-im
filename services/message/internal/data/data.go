@@ -4,12 +4,21 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/murphy-hc/h-im/pkg/database"
+	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"github.com/murphy-hc/h-im/services/message/internal/conf"
 	"gorm.io/gorm"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewMessageRepo, NewGatewayClient, NewUserClient)
+var ProviderSet = wire.NewSet(
+	NewData,
+	NewMessageRepo,
+	NewGatewayClient,
+	NewUserClient,
+	wire.Bind(new(biz.MessageRepo), new(*MessageRepo)),
+	wire.Bind(new(biz.MessageGateway), new(*GatewayClient)),
+	wire.Bind(new(biz.UserStatusClient), new(*UserClient)),
+)
 
 // Data holds data source clients.
 type Data struct {

@@ -10,4 +10,5 @@ import (
 type MessageClient interface {
 	SendMessage(ctx context.Context, req *msgpb.SendMessageReq) (*msgpb.SendMessageResp, error)
 	AckMessage(ctx context.Context, serverID int64, userID string) error
+	RecallMessage(ctx context.Context, req *msgpb.RecallMessageReq) error
 }

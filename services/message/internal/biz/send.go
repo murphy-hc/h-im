@@ -110,15 +110,77 @@ func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receive
 	return serverID, nil
 }
 
-// ProcessMessage handles a message received via Kafka. The payload is a
-// serialized SendMessageReq proto.
+// ProcessMessage handles a message received via Kafka. It dispatches based
+// on the payload type: SendMessageReq for new messages, RecallMessageReq for
+// recalls.
 func (uc *SendUseCase) ProcessMessage(ctx context.Context, payload []byte) error {
-	var req msgpb.SendMessageReq
-	if err := proto.Unmarshal(payload, &req); err != nil {
+	// Try SendMessageReq first
+	var sendReq msgpb.SendMessageReq
+	if err := proto.Unmarshal(payload, &sendReq); err == nil && sendReq.SenderId != "" {
+		_, err := uc.SendPrivateMessage(ctx, sendReq.SenderId, sendReq.ReceiverId, int32(sendReq.MsgType), sendReq.Text, sendReq.MessageClientId)
 		return err
 	}
-	_, err := uc.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId)
-	return err
+	// Try RecallMessageReq
+	var recallReq msgpb.RecallMessageReq
+	if err := proto.Unmarshal(payload, &recallReq); err == nil && recallReq.MessageServerId != 0 {
+		return uc.RecallMessage(ctx, recallReq.MessageServerId, recallReq.SenderId)
+	}
+	return nil
+}
+
+// RecallMessage marks a message as recalled and pushes a recall notification
+// to the receiver. Validation is done atomically in the DB (sender, time limit,
+// not already recalled).
+func (uc *SendUseCase) RecallMessage(ctx context.Context, serverID int64, senderID string) error {
+	ok, err := uc.repo.MarkRecalled(ctx, serverID, senderID, time.Now().UnixMilli())
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("recall denied: message not found, not sender, time expired, or already recalled")
+	}
+	// Push recall notification to receiver
+	push, _ := proto.Marshal(&msgpb.RecallPush{
+		MessageServerId: serverID,
+		RecallTime:      time.Now().UnixMilli(),
+	})
+	gp.SafeGo(ctx, func(pushCtx context.Context) {
+		uc.pushToDevices(pushCtx, "", serverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_RECALL), push, nil, 0)
+	})
+	return nil
+}
+
+// pushToDevices delivers a payload to all online devices of a user. If
+// markDelivered is non-nil, it is called when at least one device receives
+// the message. Used by both pushToReceiver and RecallMessage.
+func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, serverID int64, frameType int32, payload []byte, markDelivered func(ctx context.Context, serverID int64) error, msgServerID int64) {
+	ctx, cancel := context.WithTimeout(ctx, pushTimeout)
+	defer cancel()
+	devices, err := uc.user.GetUserOnline(ctx, userID)
+	if err != nil || len(devices) == 0 {
+		return
+	}
+	pushSem <- struct{}{}
+	defer func() { <-pushSem }()
+
+	delivered := false
+	for _, device := range devices {
+		for i := 0; i < maxRetries; i++ {
+			err := uc.gw.SendToDevice(ctx, device.GatewayAddr, userID, frameType, payload)
+			if err == nil {
+				delivered = true
+				break
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(baseDelay * time.Duration(1<<i)):
+			}
+		}
+	}
+	if delivered && markDelivered != nil {
+		markDelivered(ctx, msgServerID)
+	}
 }
 
 func (uc *SendUseCase) AckMessage(ctx context.Context, serverID int64, userID string) error {

@@ -249,6 +249,7 @@ const (
 	AckStatus_ACK_SENT      AckStatus = 1
 	AckStatus_ACK_DELIVERED AckStatus = 2
 	AckStatus_ACK_READ      AckStatus = 3
+	AckStatus_ACK_RECALLED  AckStatus = 4
 )
 
 // Enum value maps for AckStatus.
@@ -258,12 +259,14 @@ var (
 		1: "ACK_SENT",
 		2: "ACK_DELIVERED",
 		3: "ACK_READ",
+		4: "ACK_RECALLED",
 	}
 	AckStatus_value = map[string]int32{
 		"ACK_UNKNOWN":   0,
 		"ACK_SENT":      1,
 		"ACK_DELIVERED": 2,
 		"ACK_READ":      3,
+		"ACK_RECALLED":  4,
 	}
 )
 
@@ -2096,6 +2099,162 @@ func (x *AckMessageResp) GetSuccess() bool {
 	return false
 }
 
+type RecallMessageReq struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MessageServerId int64                  `protobuf:"varint,1,opt,name=message_server_id,json=messageServerId,proto3" json:"message_server_id,omitempty"`
+	SenderId        string                 `protobuf:"bytes,2,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RecallMessageReq) Reset() {
+	*x = RecallMessageReq{}
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecallMessageReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecallMessageReq) ProtoMessage() {}
+
+func (x *RecallMessageReq) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecallMessageReq.ProtoReflect.Descriptor instead.
+func (*RecallMessageReq) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *RecallMessageReq) GetMessageServerId() int64 {
+	if x != nil {
+		return x.MessageServerId
+	}
+	return 0
+}
+
+func (x *RecallMessageReq) GetSenderId() string {
+	if x != nil {
+		return x.SenderId
+	}
+	return ""
+}
+
+type RecallMessageResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	ErrorMsg      string                 `protobuf:"bytes,2,opt,name=error_msg,json=errorMsg,proto3" json:"error_msg,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecallMessageResp) Reset() {
+	*x = RecallMessageResp{}
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecallMessageResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecallMessageResp) ProtoMessage() {}
+
+func (x *RecallMessageResp) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecallMessageResp.ProtoReflect.Descriptor instead.
+func (*RecallMessageResp) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *RecallMessageResp) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *RecallMessageResp) GetErrorMsg() string {
+	if x != nil {
+		return x.ErrorMsg
+	}
+	return ""
+}
+
+type RecallPush struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	MessageServerId int64                  `protobuf:"varint,1,opt,name=message_server_id,json=messageServerId,proto3" json:"message_server_id,omitempty"`
+	RecallTime      int64                  `protobuf:"varint,2,opt,name=recall_time,json=recallTime,proto3" json:"recall_time,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RecallPush) Reset() {
+	*x = RecallPush{}
+	mi := &file_him_message_v1_message_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecallPush) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecallPush) ProtoMessage() {}
+
+func (x *RecallPush) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecallPush.ProtoReflect.Descriptor instead.
+func (*RecallPush) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *RecallPush) GetMessageServerId() int64 {
+	if x != nil {
+		return x.MessageServerId
+	}
+	return 0
+}
+
+func (x *RecallPush) GetRecallTime() int64 {
+	if x != nil {
+		return x.RecallTime
+	}
+	return 0
+}
+
 type PullMessagesReq struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	UserId         string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -2107,7 +2266,7 @@ type PullMessagesReq struct {
 
 func (x *PullMessagesReq) Reset() {
 	*x = PullMessagesReq{}
-	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	mi := &file_him_message_v1_message_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2119,7 +2278,7 @@ func (x *PullMessagesReq) String() string {
 func (*PullMessagesReq) ProtoMessage() {}
 
 func (x *PullMessagesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	mi := &file_him_message_v1_message_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2132,7 +2291,7 @@ func (x *PullMessagesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullMessagesReq.ProtoReflect.Descriptor instead.
 func (*PullMessagesReq) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{25}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *PullMessagesReq) GetUserId() string {
@@ -2165,7 +2324,7 @@ type PullMessagesResp struct {
 
 func (x *PullMessagesResp) Reset() {
 	*x = PullMessagesResp{}
-	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	mi := &file_him_message_v1_message_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2177,7 +2336,7 @@ func (x *PullMessagesResp) String() string {
 func (*PullMessagesResp) ProtoMessage() {}
 
 func (x *PullMessagesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	mi := &file_him_message_v1_message_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2190,7 +2349,7 @@ func (x *PullMessagesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullMessagesResp.ProtoReflect.Descriptor instead.
 func (*PullMessagesResp) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{26}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *PullMessagesResp) GetMessages() []*Message {
@@ -2351,7 +2510,18 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"*\n" +
 	"\x0eAckMessageResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"j\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"[\n" +
+	"\x10RecallMessageReq\x12*\n" +
+	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x1b\n" +
+	"\tsender_id\x18\x02 \x01(\tR\bsenderId\"J\n" +
+	"\x11RecallMessageResp\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
+	"\terror_msg\x18\x02 \x01(\tR\berrorMsg\"Y\n" +
+	"\n" +
+	"RecallPush\x12*\n" +
+	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x1f\n" +
+	"\vrecall_time\x18\x02 \x01(\x03R\n" +
+	"recallTime\"j\n" +
 	"\x0fPullMessagesReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12(\n" +
 	"\x10since_message_id\x18\x02 \x01(\x03R\x0esinceMessageId\x12\x14\n" +
@@ -2382,17 +2552,19 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\x13MESSAGE_STATUS_SENT\x10\x01\x12\x1c\n" +
 	"\x18MESSAGE_STATUS_DELIVERED\x10\x02\x12\x17\n" +
 	"\x13MESSAGE_STATUS_READ\x10\x03\x12\x1b\n" +
-	"\x17MESSAGE_STATUS_RECALLED\x10\x04*K\n" +
+	"\x17MESSAGE_STATUS_RECALLED\x10\x04*]\n" +
 	"\tAckStatus\x12\x0f\n" +
 	"\vACK_UNKNOWN\x10\x00\x12\f\n" +
 	"\bACK_SENT\x10\x01\x12\x11\n" +
 	"\rACK_DELIVERED\x10\x02\x12\f\n" +
-	"\bACK_READ\x10\x032\x80\x02\n" +
+	"\bACK_READ\x10\x03\x12\x10\n" +
+	"\fACK_RECALLED\x10\x042\xd6\x02\n" +
 	"\x0eMessageService\x12N\n" +
 	"\vSendMessage\x12\x1e.him.message.v1.SendMessageReq\x1a\x1f.him.message.v1.SendMessageResp\x12K\n" +
 	"\n" +
 	"AckMessage\x12\x1d.him.message.v1.AckMessageReq\x1a\x1e.him.message.v1.AckMessageResp\x12Q\n" +
-	"\fPullMessages\x12\x1f.him.message.v1.PullMessagesReq\x1a .him.message.v1.PullMessagesRespB;Z9github.com/murphy-hc/h-im/gen/go/him/message/v1;messagev1b\x06proto3"
+	"\fPullMessages\x12\x1f.him.message.v1.PullMessagesReq\x1a .him.message.v1.PullMessagesResp\x12T\n" +
+	"\rRecallMessage\x12 .him.message.v1.RecallMessageReq\x1a!.him.message.v1.RecallMessageRespB;Z9github.com/murphy-hc/h-im/gen/go/him/message/v1;messagev1b\x06proto3"
 
 var (
 	file_him_message_v1_message_proto_rawDescOnce sync.Once
@@ -2407,7 +2579,7 @@ func file_him_message_v1_message_proto_rawDescGZIP() []byte {
 }
 
 var file_him_message_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_him_message_v1_message_proto_goTypes = []any{
 	(ConversationType)(0),            // 0: him.message.v1.ConversationType
 	(MessageType)(0),                 // 1: him.message.v1.MessageType
@@ -2439,8 +2611,11 @@ var file_him_message_v1_message_proto_goTypes = []any{
 	(*SendMessageResp)(nil),          // 27: him.message.v1.SendMessageResp
 	(*AckMessageReq)(nil),            // 28: him.message.v1.AckMessageReq
 	(*AckMessageResp)(nil),           // 29: him.message.v1.AckMessageResp
-	(*PullMessagesReq)(nil),          // 30: him.message.v1.PullMessagesReq
-	(*PullMessagesResp)(nil),         // 31: him.message.v1.PullMessagesResp
+	(*RecallMessageReq)(nil),         // 30: him.message.v1.RecallMessageReq
+	(*RecallMessageResp)(nil),        // 31: him.message.v1.RecallMessageResp
+	(*RecallPush)(nil),               // 32: him.message.v1.RecallPush
+	(*PullMessagesReq)(nil),          // 33: him.message.v1.PullMessagesReq
+	(*PullMessagesResp)(nil),         // 34: him.message.v1.PullMessagesResp
 }
 var file_him_message_v1_message_proto_depIdxs = []int32{
 	7,  // 0: him.message.v1.Attachment.image:type_name -> him.message.v1.ImageAttachment
@@ -2466,12 +2641,14 @@ var file_him_message_v1_message_proto_depIdxs = []int32{
 	13, // 20: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
 	26, // 21: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
 	28, // 22: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
-	30, // 23: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
-	27, // 24: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
-	29, // 25: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
-	31, // 26: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
-	24, // [24:27] is the sub-list for method output_type
-	21, // [21:24] is the sub-list for method input_type
+	33, // 23: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
+	30, // 24: him.message.v1.MessageService.RecallMessage:input_type -> him.message.v1.RecallMessageReq
+	27, // 25: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
+	29, // 26: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
+	34, // 27: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
+	31, // 28: him.message.v1.MessageService.RecallMessage:output_type -> him.message.v1.RecallMessageResp
+	25, // [25:29] is the sub-list for method output_type
+	21, // [21:25] is the sub-list for method input_type
 	21, // [21:21] is the sub-list for extension type_name
 	21, // [21:21] is the sub-list for extension extendee
 	0,  // [0:21] is the sub-list for field type_name
@@ -2495,7 +2672,7 @@ func file_him_message_v1_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_message_v1_message_proto_rawDesc), len(file_him_message_v1_message_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   27,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

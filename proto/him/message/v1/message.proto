@@ -41,6 +41,7 @@ enum AckStatus {
   ACK_SENT      = 1;
   ACK_DELIVERED = 2;
   ACK_READ      = 3;
+  ACK_RECALLED  = 4;
 }
 
 message Content {
@@ -235,6 +236,22 @@ service MessageService {
   rpc SendMessage(SendMessageReq) returns (SendMessageResp);
   rpc AckMessage(AckMessageReq)  returns (AckMessageResp);
   rpc PullMessages(PullMessagesReq) returns (PullMessagesResp);
+  rpc RecallMessage(RecallMessageReq) returns (RecallMessageResp);
+}
+
+message RecallMessageReq {
+  int64  message_server_id = 1;
+  string sender_id         = 2;
+}
+
+message RecallMessageResp {
+  bool   success   = 1;
+  string error_msg = 2;
+}
+
+message RecallPush {
+  int64 message_server_id = 1;
+  int64 recall_time       = 2;
 }
 
 message PullMessagesReq {

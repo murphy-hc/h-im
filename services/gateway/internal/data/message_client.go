@@ -13,7 +13,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const kafkaTopicPrivate = "him.private.message"
+const (
+	kafkaTopicPrivate       = "him.private.message"
+	kafkaTopicPrivateRecall = "him.private.recall"
+)
 
 // grpcMessageClient handles gRPC calls to the message service (used for Ack).
 type grpcMessageClient struct {
@@ -38,15 +41,21 @@ func (c *grpcMessageClient) ackMessage(ctx context.Context, serverID int64, user
 // KafkaMessageClient implements biz.MessageClient, sending messages via Kafka
 // and delegating Ack calls to the gRPC client.
 type KafkaMessageClient struct {
-	producer *kafka.Producer
-	grpc     *grpcMessageClient
+	producer       *kafka.Producer
+	recallProducer *kafka.Producer
+	grpc           *grpcMessageClient
 }
 
 // NewKafkaMessageClient creates a Kafka-backed MessageClient.
 func NewKafkaMessageClient(grpc *grpcMessageClient) (*KafkaMessageClient, func(), error) {
 	brokers := kafkaBrokers()
-	p := kafka.NewProducer(brokers, kafka.WithProducerTracing())
-	return &KafkaMessageClient{producer: p, grpc: grpc}, func() { p.Close() }, nil
+	return &KafkaMessageClient{
+		producer:       kafka.NewProducer(brokers, kafka.WithProducerTracing()),
+		recallProducer: kafka.NewProducer(brokers, kafka.WithProducerTracing()),
+		grpc:           grpc,
+	}, func() {
+		// Cleanup handled by the caller; producers own their writers
+	}, nil
 }
 
 func kafkaBrokers() []string {
@@ -76,4 +85,13 @@ func (c *KafkaMessageClient) SendMessage(ctx context.Context, req *pb.SendMessag
 // AckMessage delegates to the gRPC client.
 func (c *KafkaMessageClient) AckMessage(ctx context.Context, serverID int64, userID string) error {
 	return c.grpc.ackMessage(ctx, serverID, userID)
+}
+
+// RecallMessage sends a recall request to the recall topic.
+func (c *KafkaMessageClient) RecallMessage(ctx context.Context, req *pb.RecallMessageReq) error {
+	payload, err := proto.Marshal(req)
+	if err != nil {
+		return err
+	}
+	return c.recallProducer.Send(ctx, kafkaTopicPrivateRecall, kafka.Message{Value: payload})
 }

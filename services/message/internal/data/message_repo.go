@@ -21,6 +21,28 @@ func NewMessageRepo(data *Data) *MessageRepo {
 	return &MessageRepo{db: data.DB}
 }
 
+// GetReceiverID returns the receiver of a message (lightweight lookup).
+func (r *MessageRepo) GetReceiverID(ctx context.Context, serverID int64) (string, error) {
+	var m MessageModel
+	err := r.db.WithContext(ctx).Select("receiver_id").Where("message_server_id = ?", serverID).First(&m).Error
+	if err != nil {
+		return "", err
+	}
+	return m.ReceiverID, nil
+}
+
+// MarkRecalled atomically updates the message status to RECALLED if the
+// sender matches and the message is within the 2-minute window and not
+// already recalled. Returns true if the update was applied.
+func (r *MessageRepo) MarkRecalled(ctx context.Context, serverID int64, senderID string, serverTime int64) (bool, error) {
+	cutoff := serverTime - 2*60*1000 // 2 minutes ago
+	result := r.db.WithContext(ctx).Model(&MessageModel{}).
+		Where("message_server_id = ? AND sender_id = ? AND server_time >= ? AND status != ?",
+			serverID, senderID, cutoff, int32(msgpb.MessageStatus_MESSAGE_STATUS_RECALLED)).
+		Update("status", int32(msgpb.MessageStatus_MESSAGE_STATUS_RECALLED))
+	return result.RowsAffected > 0, result.Error
+}
+
 // Insert inserts a message with status SENT.
 func (r *MessageRepo) Insert(ctx context.Context, m *biz.Message) error {
 	model := &MessageModel{

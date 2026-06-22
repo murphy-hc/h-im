@@ -141,8 +141,35 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 			if err := proto.Unmarshal(payload, &ack); err == nil {
 				gp.SafeGo(ctx, func(_ context.Context) { uc.msgClient.AckMessage(ctx, ack.MsgServerId, userID) })
 			}
+		case gatewayv1.FrameType_FRAME_TYPE_PRIVATE_RECALL:
+			uc.handleRecallMsg(ctx, conn, userID, payload)
 		}
 	}
+}
+
+func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
+	var req msgpb.RecallMessageReq
+	if err := proto.Unmarshal(payload, &req); err != nil {
+		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
+			&gatewayv1.ErrorMessage{Code: 1, Message: "invalid recall request"})
+		conn.WriteMessage(websocket.BinaryMessage, frame)
+		return
+	}
+	req.SenderId = senderID
+
+	if err := uc.msgClient.RecallMessage(ctx, &req); err != nil {
+		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
+			&gatewayv1.ErrorMessage{Code: 2, Message: err.Error()})
+		conn.WriteMessage(websocket.BinaryMessage, frame)
+		return
+	}
+
+	ack := &msgpb.PrivateAck{
+		MsgServerId: req.MessageServerId,
+		Status:      msgpb.AckStatus_ACK_RECALLED,
+	}
+	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
+	conn.WriteMessage(websocket.BinaryMessage, frame)
 }
 
 func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {

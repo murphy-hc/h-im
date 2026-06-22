@@ -58,3 +58,10 @@ func (s *MessageService) PullMessages(ctx context.Context, req *pb.PullMessagesR
 	}
 	return &pb.PullMessagesResp{Messages: pbMsgs}, nil
 }
+
+func (s *MessageService) RecallMessage(ctx context.Context, req *pb.RecallMessageReq) (*pb.RecallMessageResp, error) {
+	if err := s.sendUC.RecallMessage(ctx, req.MessageServerId, req.SenderId); err != nil {
+		return &pb.RecallMessageResp{Success: false, ErrorMsg: err.Error()}, nil
+	}
+	return &pb.RecallMessageResp{Success: true}, nil
+}

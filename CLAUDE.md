@@ -5,6 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > **⚠️ 约束：禁止自动执行 `git add` 和 `git commit`。** 所有 git 操作需用户明确指示。
 >
 > **⚠️ 约束：services/ 下所有微服务必须遵循 Kratos DDD 分层**，目录结构统一为 `cmd/` `internal/{server,service,biz,data,conf}/`，依赖方向 `server → service → biz ← data`。
+>
+> **⚠️ 约束：编译必须使用 `make build`**，禁止直接执行 `go build`。如果编译过程在服务目录或 `cmd/server/` 下产生了临时二进制文件（如 `server`），必须在提交前清除。
 
 ## 项目概述
 

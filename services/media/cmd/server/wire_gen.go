@@ -19,15 +19,22 @@ import (
 // Injectors from wire.go:
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData()
+	dataData, cleanup, err := data.NewData(bc)
 	if err != nil {
 		return nil, nil, err
 	}
 	mediaRepo := data.NewMediaRepo(dataData)
-	mediaUseCase := biz.NewMediaUseCase(mediaRepo)
+	client, err := data.NewOssClient(bc)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	ossStorage := data.NewOSSStorage(client)
+	mediaUseCase := biz.NewMediaUseCase(mediaRepo, ossStorage)
 	mediaService := service.NewMediaService(mediaUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, mediaService)
-	httpServer := server.NewHTTPServer(bc, meter)
+	mediaHTTPHandler := service.NewMediaHTTPHandler(mediaUseCase)
+	httpServer := server.NewHTTPServer(bc, meter, mediaHTTPHandler)
 	app := newApp(grpcServer, httpServer)
 	return app, func() {
 		cleanup()

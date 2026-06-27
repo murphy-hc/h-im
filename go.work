@@ -9,6 +9,7 @@ use (
 	./pkg/kafka
 	./pkg/logger
 	./pkg/metrics
+	./pkg/oss
 	./pkg/pagination
 	./pkg/redis
 	./pkg/tracing

@@ -32,6 +32,14 @@ message Server {
 message Data {
   Database database = 1;
   Redis redis = 2;
+  Oss oss = 3;
+}
+
+message Oss {
+  string endpoint = 1;
+  string bucket_name = 2;
+  string access_key_id = 3;
+  string access_key_secret = 4;
 }
 
 message Database {

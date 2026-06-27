@@ -29,7 +29,7 @@ func (s *KafkaService) Handle(ctx context.Context, msg kafka.Message) error {
 	switch env.Type {
 	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_SEND:
 		req := env.GetSend()
-		_, err := s.uc.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId)
+		_, err := s.uc.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
 		return err
 	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL:
 		req := env.GetRecall()

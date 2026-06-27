@@ -9,9 +9,10 @@ type Message struct {
 	ConvType   int32
 	MsgType    int32
 	Text       string
+	Attachment []byte // serialized msgpb.Attachment proto
 	ServerTime int64
 	CreateTime int64
 	IsDeleted  bool
 	IsRead     bool
-	Status     int32 // MessageStatus enum value
+	Status     int32
 }

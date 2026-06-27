@@ -154,6 +154,7 @@ type Data struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Database      *Database              `protobuf:"bytes,1,opt,name=database,proto3" json:"database,omitempty"`
 	Redis         *Redis                 `protobuf:"bytes,2,opt,name=redis,proto3" json:"redis,omitempty"`
+	Oss           *Oss                   `protobuf:"bytes,3,opt,name=oss,proto3" json:"oss,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,6 +203,81 @@ func (x *Data) GetRedis() *Redis {
 	return nil
 }
 
+func (x *Data) GetOss() *Oss {
+	if x != nil {
+		return x.Oss
+	}
+	return nil
+}
+
+type Oss struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Endpoint        string                 `protobuf:"bytes,1,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	BucketName      string                 `protobuf:"bytes,2,opt,name=bucket_name,json=bucketName,proto3" json:"bucket_name,omitempty"`
+	AccessKeyId     string                 `protobuf:"bytes,3,opt,name=access_key_id,json=accessKeyId,proto3" json:"access_key_id,omitempty"`
+	AccessKeySecret string                 `protobuf:"bytes,4,opt,name=access_key_secret,json=accessKeySecret,proto3" json:"access_key_secret,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *Oss) Reset() {
+	*x = Oss{}
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Oss) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Oss) ProtoMessage() {}
+
+func (x *Oss) ProtoReflect() protoreflect.Message {
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Oss.ProtoReflect.Descriptor instead.
+func (*Oss) Descriptor() ([]byte, []int) {
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Oss) GetEndpoint() string {
+	if x != nil {
+		return x.Endpoint
+	}
+	return ""
+}
+
+func (x *Oss) GetBucketName() string {
+	if x != nil {
+		return x.BucketName
+	}
+	return ""
+}
+
+func (x *Oss) GetAccessKeyId() string {
+	if x != nil {
+		return x.AccessKeyId
+	}
+	return ""
+}
+
+func (x *Oss) GetAccessKeySecret() string {
+	if x != nil {
+		return x.AccessKeySecret
+	}
+	return ""
+}
+
 type Database struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Media         *Database_MySQL        `protobuf:"bytes,1,opt,name=media,proto3" json:"media,omitempty"`
@@ -211,7 +287,7 @@ type Database struct {
 
 func (x *Database) Reset() {
 	*x = Database{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +299,7 @@ func (x *Database) String() string {
 func (*Database) ProtoMessage() {}
 
 func (x *Database) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[3]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +312,7 @@ func (x *Database) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Database.ProtoReflect.Descriptor instead.
 func (*Database) Descriptor() ([]byte, []int) {
-	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{3}
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Database) GetMedia() *Database_MySQL {
@@ -260,7 +336,7 @@ type Redis struct {
 
 func (x *Redis) Reset() {
 	*x = Redis{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -272,7 +348,7 @@ func (x *Redis) String() string {
 func (*Redis) ProtoMessage() {}
 
 func (x *Redis) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[4]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -285,7 +361,7 @@ func (x *Redis) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Redis.ProtoReflect.Descriptor instead.
 func (*Redis) Descriptor() ([]byte, []int) {
-	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{4}
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Redis) GetNetwork() string {
@@ -339,7 +415,7 @@ type Log struct {
 
 func (x *Log) Reset() {
 	*x = Log{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -351,7 +427,7 @@ func (x *Log) String() string {
 func (*Log) ProtoMessage() {}
 
 func (x *Log) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[5]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +440,7 @@ func (x *Log) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Log.ProtoReflect.Descriptor instead.
 func (*Log) Descriptor() ([]byte, []int) {
-	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{5}
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Log) GetLevel() string {
@@ -389,7 +465,7 @@ type Otel struct {
 
 func (x *Otel) Reset() {
 	*x = Otel{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[6]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +477,7 @@ func (x *Otel) String() string {
 func (*Otel) ProtoMessage() {}
 
 func (x *Otel) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[6]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +490,7 @@ func (x *Otel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Otel.ProtoReflect.Descriptor instead.
 func (*Otel) Descriptor() ([]byte, []int) {
-	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{6}
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Otel) GetServiceName() string {
@@ -477,7 +553,7 @@ type Server_HTTP struct {
 
 func (x *Server_HTTP) Reset() {
 	*x = Server_HTTP{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +565,7 @@ func (x *Server_HTTP) String() string {
 func (*Server_HTTP) ProtoMessage() {}
 
 func (x *Server_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,7 +613,7 @@ type Server_GRPC struct {
 
 func (x *Server_GRPC) Reset() {
 	*x = Server_GRPC{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +625,7 @@ func (x *Server_GRPC) String() string {
 func (*Server_GRPC) ProtoMessage() {}
 
 func (x *Server_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -599,7 +675,7 @@ type Database_MySQL struct {
 
 func (x *Database_MySQL) Reset() {
 	*x = Database_MySQL{}
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +687,7 @@ func (x *Database_MySQL) String() string {
 func (*Database_MySQL) ProtoMessage() {}
 
 func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
-	mi := &file_services_media_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_media_internal_conf_conf_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +700,7 @@ func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Database_MySQL.ProtoReflect.Descriptor instead.
 func (*Database_MySQL) Descriptor() ([]byte, []int) {
-	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{3, 0}
+	return file_services_media_internal_conf_conf_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *Database_MySQL) GetMaxIdleConns() int32 {
@@ -683,10 +759,17 @@ const file_services_media_internal_conf_conf_proto_rawDesc = "" +
 	"\x04GRPC\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +
-	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"i\n" +
+	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\"\x90\x01\n" +
 	"\x04Data\x124\n" +
 	"\bdatabase\x18\x01 \x01(\v2\x18.him.media.conf.DatabaseR\bdatabase\x12+\n" +
-	"\x05redis\x18\x02 \x01(\v2\x15.him.media.conf.RedisR\x05redis\"\xb7\x02\n" +
+	"\x05redis\x18\x02 \x01(\v2\x15.him.media.conf.RedisR\x05redis\x12%\n" +
+	"\x03oss\x18\x03 \x01(\v2\x13.him.media.conf.OssR\x03oss\"\x92\x01\n" +
+	"\x03Oss\x12\x1a\n" +
+	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x1f\n" +
+	"\vbucket_name\x18\x02 \x01(\tR\n" +
+	"bucketName\x12\"\n" +
+	"\raccess_key_id\x18\x03 \x01(\tR\vaccessKeyId\x12*\n" +
+	"\x11access_key_secret\x18\x04 \x01(\tR\x0faccessKeySecret\"\xb7\x02\n" +
 	"\bDatabase\x124\n" +
 	"\x05media\x18\x01 \x01(\v2\x1e.him.media.conf.Database.MySQLR\x05media\x1a\xf4\x01\n" +
 	"\x05MySQL\x12$\n" +
@@ -726,42 +809,44 @@ func file_services_media_internal_conf_conf_proto_rawDescGZIP() []byte {
 	return file_services_media_internal_conf_conf_proto_rawDescData
 }
 
-var file_services_media_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_services_media_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_services_media_internal_conf_conf_proto_goTypes = []any{
 	(*Bootstrap)(nil),           // 0: him.media.conf.Bootstrap
 	(*Server)(nil),              // 1: him.media.conf.Server
 	(*Data)(nil),                // 2: him.media.conf.Data
-	(*Database)(nil),            // 3: him.media.conf.Database
-	(*Redis)(nil),               // 4: him.media.conf.Redis
-	(*Log)(nil),                 // 5: him.media.conf.Log
-	(*Otel)(nil),                // 6: him.media.conf.Otel
-	(*Server_HTTP)(nil),         // 7: him.media.conf.Server.HTTP
-	(*Server_GRPC)(nil),         // 8: him.media.conf.Server.GRPC
-	(*Database_MySQL)(nil),      // 9: him.media.conf.Database.MySQL
-	(*durationpb.Duration)(nil), // 10: google.protobuf.Duration
+	(*Oss)(nil),                 // 3: him.media.conf.Oss
+	(*Database)(nil),            // 4: him.media.conf.Database
+	(*Redis)(nil),               // 5: him.media.conf.Redis
+	(*Log)(nil),                 // 6: him.media.conf.Log
+	(*Otel)(nil),                // 7: him.media.conf.Otel
+	(*Server_HTTP)(nil),         // 8: him.media.conf.Server.HTTP
+	(*Server_GRPC)(nil),         // 9: him.media.conf.Server.GRPC
+	(*Database_MySQL)(nil),      // 10: him.media.conf.Database.MySQL
+	(*durationpb.Duration)(nil), // 11: google.protobuf.Duration
 }
 var file_services_media_internal_conf_conf_proto_depIdxs = []int32{
 	1,  // 0: him.media.conf.Bootstrap.server:type_name -> him.media.conf.Server
 	2,  // 1: him.media.conf.Bootstrap.data:type_name -> him.media.conf.Data
-	5,  // 2: him.media.conf.Bootstrap.log:type_name -> him.media.conf.Log
-	6,  // 3: him.media.conf.Bootstrap.otel:type_name -> him.media.conf.Otel
-	7,  // 4: him.media.conf.Server.http:type_name -> him.media.conf.Server.HTTP
-	8,  // 5: him.media.conf.Server.grpc:type_name -> him.media.conf.Server.GRPC
-	3,  // 6: him.media.conf.Data.database:type_name -> him.media.conf.Database
-	4,  // 7: him.media.conf.Data.redis:type_name -> him.media.conf.Redis
-	9,  // 8: him.media.conf.Database.media:type_name -> him.media.conf.Database.MySQL
-	10, // 9: him.media.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
-	10, // 10: him.media.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
-	10, // 11: him.media.conf.Otel.timeout:type_name -> google.protobuf.Duration
-	10, // 12: him.media.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	10, // 13: him.media.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	10, // 14: him.media.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
-	10, // 15: him.media.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	6,  // 2: him.media.conf.Bootstrap.log:type_name -> him.media.conf.Log
+	7,  // 3: him.media.conf.Bootstrap.otel:type_name -> him.media.conf.Otel
+	8,  // 4: him.media.conf.Server.http:type_name -> him.media.conf.Server.HTTP
+	9,  // 5: him.media.conf.Server.grpc:type_name -> him.media.conf.Server.GRPC
+	4,  // 6: him.media.conf.Data.database:type_name -> him.media.conf.Database
+	5,  // 7: him.media.conf.Data.redis:type_name -> him.media.conf.Redis
+	3,  // 8: him.media.conf.Data.oss:type_name -> him.media.conf.Oss
+	10, // 9: him.media.conf.Database.media:type_name -> him.media.conf.Database.MySQL
+	11, // 10: him.media.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
+	11, // 11: him.media.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
+	11, // 12: him.media.conf.Otel.timeout:type_name -> google.protobuf.Duration
+	11, // 13: him.media.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	11, // 14: him.media.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	11, // 15: him.media.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
+	11, // 16: him.media.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_services_media_internal_conf_conf_proto_init() }
@@ -775,7 +860,7 @@ func file_services_media_internal_conf_conf_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_media_internal_conf_conf_proto_rawDesc), len(file_services_media_internal_conf_conf_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

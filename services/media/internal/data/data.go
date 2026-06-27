@@ -1,25 +1,66 @@
 package data
 
 import (
+	"context"
+
 	"github.com/google/wire"
+	"github.com/murphy-hc/h-im/pkg/database"
+	"github.com/murphy-hc/h-im/pkg/oss"
+	"github.com/murphy-hc/h-im/pkg/redis"
 	"github.com/murphy-hc/h-im/services/media/internal/biz"
+	"github.com/murphy-hc/h-im/services/media/internal/conf"
+	goredis "github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
-// ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewMediaRepo)
+var ProviderSet = wire.NewSet(NewData, NewMediaRepo, NewOssClient, NewOSSStorage, wire.Bind(new(biz.Storage), new(*ossStorage)))
 
-// Data holds all data source clients.
+// Data holds data source clients.
 type Data struct {
-	// TODO: add db, redis, mq clients
+	DB  *gorm.DB
+	RDB *goredis.Client
 }
 
-// NewData creates a Data instance.
-func NewData() (*Data, func(), error) {
-	d := &Data{}
-	cleanup := func() {
-		// TODO: close connections
+// NewData creates a Data instance from config.
+func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
+	pg := bc.GetData().GetDatabase().GetMedia()
+	db, dbCleanup, err := database.NewDB(&database.Config{
+		DSN:          pg.GetDsn(),
+		MaxIdleConns: int(pg.GetMaxIdleConns()),
+		MaxOpenConns: int(pg.GetMaxOpenConns()),
+	})
+	if err != nil {
+		return nil, nil, err
 	}
-	return d, cleanup, nil
+	rdbCfg := bc.GetData().GetRedis()
+	addr := rdbCfg.GetAddr()
+	if addr == "" {
+		addr = "localhost:6379"
+	}
+	rdb, err := redis.NewClient(context.Background(), redis.Config{
+		Host:     addr,
+		Password: rdbCfg.GetPassword(),
+	})
+	if err != nil {
+		dbCleanup()
+		return nil, nil, err
+	}
+	return &Data{DB: db, RDB: rdb}, func() {
+		dbCleanup()
+		rdb.Close()
+	}, nil
 }
 
-var _ biz.MediaRepo = (*mediaRepo)(nil)
+// Migrate runs auto-migration.
+func (d *Data) Migrate() error { return d.DB.AutoMigrate(&MediaModel{}) }
+
+// NewOssClient creates an OSS client from config.
+func NewOssClient(bc *conf.Bootstrap) (*oss.Client, error) {
+	oc := bc.GetData().GetOss()
+	return oss.NewClient(oss.Config{
+		Endpoint:        oc.GetEndpoint(),
+		AccessKeyID:     oc.GetAccessKeyId(),
+		AccessKeySecret: oc.GetAccessKeySecret(),
+		BucketName:      oc.GetBucketName(),
+	})
+}

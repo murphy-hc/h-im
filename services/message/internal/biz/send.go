@@ -83,7 +83,7 @@ func NewSendUseCase(repo MessageRepo, gw MessageGateway, user UserStatusClient, 
 	return &SendUseCase{repo: repo, gw: gw, user: user, id: newIDAllocator(seq)}
 }
 
-func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receiverID string, msgType int32, text, clientID string) (int64, error) {
+func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receiverID string, msgType int32, text, clientID string, attachment []byte) (int64, error) {
 	serverID, err := uc.id.NextID(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("get sequence: %w", err)
@@ -96,6 +96,7 @@ func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receive
 		ReceiverID: receiverID,
 		MsgType:    msgType,
 		Text:       text,
+		Attachment: attachment,
 		ServerTime: now,
 		CreateTime: now,
 	}
@@ -176,7 +177,7 @@ func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, frameTy
 }
 
 func (uc *SendUseCase) pushToReceiver(m *Message) {
-	payload, _ := proto.Marshal(&msgpb.Message{
+	pushMsg := &msgpb.Message{
 		MessageClientId: m.ClientID,
 		MessageServerId: m.ServerID,
 		SenderId:        m.SenderID,
@@ -185,6 +186,13 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 		ServerTime:      m.ServerTime,
 		MsgType:         msgpb.MessageType(m.MsgType),
 		ConvType:        msgpb.ConversationType_CONVERSATION_PRIVATE,
-	})
+	}
+	if len(m.Attachment) > 0 {
+		var att msgpb.Attachment
+		if err := proto.Unmarshal(m.Attachment, &att); err == nil {
+			pushMsg.Attachment = &att
+		}
+	}
+	payload, _ := proto.Marshal(pushMsg)
 	uc.pushToDevices(context.Background(), m.ReceiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload, uc.repo.MarkDelivered, m.ServerID)
 }

@@ -184,6 +184,7 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 		MsgType:         msg.MsgType,
 		Text:            msg.Text,
 		MessageClientId: msg.MessageClientId,
+		Attachment:      msg.Attachment,
 	})
 	if err != nil {
 		return

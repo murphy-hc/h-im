@@ -5,7 +5,25 @@ import (
 
 	pb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
+	"google.golang.org/protobuf/proto"
 )
+
+func attachmentBytes(a *pb.Attachment) []byte {
+	if a == nil {
+		return nil
+	}
+	b, _ := proto.Marshal(a)
+	return b
+}
+
+func unmarshalAttachment(b []byte) *pb.Attachment {
+	if len(b) == 0 {
+		return nil
+	}
+	var a pb.Attachment
+	_ = proto.Unmarshal(b, &a)
+	return &a
+}
 
 type MessageService struct {
 	pb.UnimplementedMessageServiceServer
@@ -17,7 +35,7 @@ func NewMessageService(sendUC *biz.SendUseCase) *MessageService {
 }
 
 func (s *MessageService) SendMessage(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
-	serverID, err := s.sendUC.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId)
+	serverID, err := s.sendUC.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
 	if err != nil {
 		return nil, err
 	}
@@ -50,6 +68,7 @@ func (s *MessageService) PullMessages(ctx context.Context, req *pb.PullMessagesR
 			ConvType:        pb.ConversationType(m.ConvType),
 			MsgType:         pb.MessageType(m.MsgType),
 			Text:            m.Text,
+			Attachment:      unmarshalAttachment(m.Attachment),
 			ServerTime:      m.ServerTime,
 			CreateTime:      m.CreateTime,
 			IsDeleted:       m.IsDeleted,

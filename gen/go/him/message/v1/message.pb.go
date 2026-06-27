@@ -297,6 +297,55 @@ func (AckStatus) EnumDescriptor() ([]byte, []int) {
 	return file_him_message_v1_message_proto_rawDescGZIP(), []int{4}
 }
 
+type MessagePayloadType int32
+
+const (
+	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_UNSPECIFIED MessagePayloadType = 0
+	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_SEND        MessagePayloadType = 1
+	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL      MessagePayloadType = 2
+)
+
+// Enum value maps for MessagePayloadType.
+var (
+	MessagePayloadType_name = map[int32]string{
+		0: "MESSAGE_PAYLOAD_TYPE_UNSPECIFIED",
+		1: "MESSAGE_PAYLOAD_TYPE_SEND",
+		2: "MESSAGE_PAYLOAD_TYPE_RECALL",
+	}
+	MessagePayloadType_value = map[string]int32{
+		"MESSAGE_PAYLOAD_TYPE_UNSPECIFIED": 0,
+		"MESSAGE_PAYLOAD_TYPE_SEND":        1,
+		"MESSAGE_PAYLOAD_TYPE_RECALL":      2,
+	}
+)
+
+func (x MessagePayloadType) Enum() *MessagePayloadType {
+	p := new(MessagePayloadType)
+	*p = x
+	return p
+}
+
+func (x MessagePayloadType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MessagePayloadType) Descriptor() protoreflect.EnumDescriptor {
+	return file_him_message_v1_message_proto_enumTypes[5].Descriptor()
+}
+
+func (MessagePayloadType) Type() protoreflect.EnumType {
+	return &file_him_message_v1_message_proto_enumTypes[5]
+}
+
+func (x MessagePayloadType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MessagePayloadType.Descriptor instead.
+func (MessagePayloadType) EnumDescriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{5}
+}
+
 type Content struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -2099,6 +2148,96 @@ func (x *AckMessageResp) GetSuccess() bool {
 	return false
 }
 
+type MessageEnvelope struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Type  MessagePayloadType     `protobuf:"varint,1,opt,name=type,proto3,enum=him.message.v1.MessagePayloadType" json:"type,omitempty"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*MessageEnvelope_Send
+	//	*MessageEnvelope_Recall
+	Payload       isMessageEnvelope_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageEnvelope) Reset() {
+	*x = MessageEnvelope{}
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageEnvelope) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageEnvelope) ProtoMessage() {}
+
+func (x *MessageEnvelope) ProtoReflect() protoreflect.Message {
+	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageEnvelope.ProtoReflect.Descriptor instead.
+func (*MessageEnvelope) Descriptor() ([]byte, []int) {
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *MessageEnvelope) GetType() MessagePayloadType {
+	if x != nil {
+		return x.Type
+	}
+	return MessagePayloadType_MESSAGE_PAYLOAD_TYPE_UNSPECIFIED
+}
+
+func (x *MessageEnvelope) GetPayload() isMessageEnvelope_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *MessageEnvelope) GetSend() *SendMessageReq {
+	if x != nil {
+		if x, ok := x.Payload.(*MessageEnvelope_Send); ok {
+			return x.Send
+		}
+	}
+	return nil
+}
+
+func (x *MessageEnvelope) GetRecall() *RecallMessageReq {
+	if x != nil {
+		if x, ok := x.Payload.(*MessageEnvelope_Recall); ok {
+			return x.Recall
+		}
+	}
+	return nil
+}
+
+type isMessageEnvelope_Payload interface {
+	isMessageEnvelope_Payload()
+}
+
+type MessageEnvelope_Send struct {
+	Send *SendMessageReq `protobuf:"bytes,2,opt,name=send,proto3,oneof"`
+}
+
+type MessageEnvelope_Recall struct {
+	Recall *RecallMessageReq `protobuf:"bytes,3,opt,name=recall,proto3,oneof"`
+}
+
+func (*MessageEnvelope_Send) isMessageEnvelope_Payload() {}
+
+func (*MessageEnvelope_Recall) isMessageEnvelope_Payload() {}
+
 type RecallMessageReq struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	MessageServerId int64                  `protobuf:"varint,1,opt,name=message_server_id,json=messageServerId,proto3" json:"message_server_id,omitempty"`
@@ -2109,7 +2248,7 @@ type RecallMessageReq struct {
 
 func (x *RecallMessageReq) Reset() {
 	*x = RecallMessageReq{}
-	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2121,7 +2260,7 @@ func (x *RecallMessageReq) String() string {
 func (*RecallMessageReq) ProtoMessage() {}
 
 func (x *RecallMessageReq) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[25]
+	mi := &file_him_message_v1_message_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2134,7 +2273,7 @@ func (x *RecallMessageReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecallMessageReq.ProtoReflect.Descriptor instead.
 func (*RecallMessageReq) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{25}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RecallMessageReq) GetMessageServerId() int64 {
@@ -2161,7 +2300,7 @@ type RecallMessageResp struct {
 
 func (x *RecallMessageResp) Reset() {
 	*x = RecallMessageResp{}
-	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	mi := &file_him_message_v1_message_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2173,7 +2312,7 @@ func (x *RecallMessageResp) String() string {
 func (*RecallMessageResp) ProtoMessage() {}
 
 func (x *RecallMessageResp) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[26]
+	mi := &file_him_message_v1_message_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2186,7 +2325,7 @@ func (x *RecallMessageResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecallMessageResp.ProtoReflect.Descriptor instead.
 func (*RecallMessageResp) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{26}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *RecallMessageResp) GetSuccess() bool {
@@ -2213,7 +2352,7 @@ type RecallPush struct {
 
 func (x *RecallPush) Reset() {
 	*x = RecallPush{}
-	mi := &file_him_message_v1_message_proto_msgTypes[27]
+	mi := &file_him_message_v1_message_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2225,7 +2364,7 @@ func (x *RecallPush) String() string {
 func (*RecallPush) ProtoMessage() {}
 
 func (x *RecallPush) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[27]
+	mi := &file_him_message_v1_message_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2238,7 +2377,7 @@ func (x *RecallPush) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecallPush.ProtoReflect.Descriptor instead.
 func (*RecallPush) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{27}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *RecallPush) GetMessageServerId() int64 {
@@ -2266,7 +2405,7 @@ type PullMessagesReq struct {
 
 func (x *PullMessagesReq) Reset() {
 	*x = PullMessagesReq{}
-	mi := &file_him_message_v1_message_proto_msgTypes[28]
+	mi := &file_him_message_v1_message_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2278,7 +2417,7 @@ func (x *PullMessagesReq) String() string {
 func (*PullMessagesReq) ProtoMessage() {}
 
 func (x *PullMessagesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[28]
+	mi := &file_him_message_v1_message_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2291,7 +2430,7 @@ func (x *PullMessagesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullMessagesReq.ProtoReflect.Descriptor instead.
 func (*PullMessagesReq) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{28}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *PullMessagesReq) GetUserId() string {
@@ -2324,7 +2463,7 @@ type PullMessagesResp struct {
 
 func (x *PullMessagesResp) Reset() {
 	*x = PullMessagesResp{}
-	mi := &file_him_message_v1_message_proto_msgTypes[29]
+	mi := &file_him_message_v1_message_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2336,7 +2475,7 @@ func (x *PullMessagesResp) String() string {
 func (*PullMessagesResp) ProtoMessage() {}
 
 func (x *PullMessagesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_him_message_v1_message_proto_msgTypes[29]
+	mi := &file_him_message_v1_message_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2349,7 +2488,7 @@ func (x *PullMessagesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PullMessagesResp.ProtoReflect.Descriptor instead.
 func (*PullMessagesResp) Descriptor() ([]byte, []int) {
-	return file_him_message_v1_message_proto_rawDescGZIP(), []int{29}
+	return file_him_message_v1_message_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *PullMessagesResp) GetMessages() []*Message {
@@ -2510,7 +2649,12 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"*\n" +
 	"\x0eAckMessageResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"[\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xc6\x01\n" +
+	"\x0fMessageEnvelope\x126\n" +
+	"\x04type\x18\x01 \x01(\x0e2\".him.message.v1.MessagePayloadTypeR\x04type\x124\n" +
+	"\x04send\x18\x02 \x01(\v2\x1e.him.message.v1.SendMessageReqH\x00R\x04send\x12:\n" +
+	"\x06recall\x18\x03 \x01(\v2 .him.message.v1.RecallMessageReqH\x00R\x06recallB\t\n" +
+	"\apayload\"[\n" +
 	"\x10RecallMessageReq\x12*\n" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x1b\n" +
 	"\tsender_id\x18\x02 \x01(\tR\bsenderId\"J\n" +
@@ -2558,7 +2702,11 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\bACK_SENT\x10\x01\x12\x11\n" +
 	"\rACK_DELIVERED\x10\x02\x12\f\n" +
 	"\bACK_READ\x10\x03\x12\x10\n" +
-	"\fACK_RECALLED\x10\x042\xd6\x02\n" +
+	"\fACK_RECALLED\x10\x04*z\n" +
+	"\x12MessagePayloadType\x12$\n" +
+	" MESSAGE_PAYLOAD_TYPE_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19MESSAGE_PAYLOAD_TYPE_SEND\x10\x01\x12\x1f\n" +
+	"\x1bMESSAGE_PAYLOAD_TYPE_RECALL\x10\x022\xd6\x02\n" +
 	"\x0eMessageService\x12N\n" +
 	"\vSendMessage\x12\x1e.him.message.v1.SendMessageReq\x1a\x1f.him.message.v1.SendMessageResp\x12K\n" +
 	"\n" +
@@ -2578,80 +2726,85 @@ func file_him_message_v1_message_proto_rawDescGZIP() []byte {
 	return file_him_message_v1_message_proto_rawDescData
 }
 
-var file_him_message_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_him_message_v1_message_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_him_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_him_message_v1_message_proto_goTypes = []any{
 	(ConversationType)(0),            // 0: him.message.v1.ConversationType
 	(MessageType)(0),                 // 1: him.message.v1.MessageType
 	(SendingState)(0),                // 2: him.message.v1.SendingState
 	(MessageStatus)(0),               // 3: him.message.v1.MessageStatus
 	(AckStatus)(0),                   // 4: him.message.v1.AckStatus
-	(*Content)(nil),                  // 5: him.message.v1.Content
-	(*Attachment)(nil),               // 6: him.message.v1.Attachment
-	(*ImageAttachment)(nil),          // 7: him.message.v1.ImageAttachment
-	(*AudioAttachment)(nil),          // 8: him.message.v1.AudioAttachment
-	(*VideoAttachment)(nil),          // 9: him.message.v1.VideoAttachment
-	(*FileAttachment)(nil),           // 10: him.message.v1.FileAttachment
-	(*LocationAttachment)(nil),       // 11: him.message.v1.LocationAttachment
-	(*ThreadReply)(nil),              // 12: him.message.v1.ThreadReply
-	(*Message)(nil),                  // 13: him.message.v1.Message
-	(*PrivateSend)(nil),              // 14: him.message.v1.PrivateSend
-	(*PrivatePush)(nil),              // 15: him.message.v1.PrivatePush
-	(*PrivateAck)(nil),               // 16: him.message.v1.PrivateAck
-	(*OfflineSync)(nil),              // 17: him.message.v1.OfflineSync
-	(*StateSync)(nil),                // 18: him.message.v1.StateSync
-	(*Conversation)(nil),             // 19: him.message.v1.Conversation
-	(*ConversationListReq)(nil),      // 20: him.message.v1.ConversationListReq
-	(*ConversationListResp)(nil),     // 21: him.message.v1.ConversationListResp
-	(*ConversationMessagesReq)(nil),  // 22: him.message.v1.ConversationMessagesReq
-	(*ConversationMessagesResp)(nil), // 23: him.message.v1.ConversationMessagesResp
-	(*ListConversationsResp)(nil),    // 24: him.message.v1.ListConversationsResp
-	(*ConversationPush)(nil),         // 25: him.message.v1.ConversationPush
-	(*SendMessageReq)(nil),           // 26: him.message.v1.SendMessageReq
-	(*SendMessageResp)(nil),          // 27: him.message.v1.SendMessageResp
-	(*AckMessageReq)(nil),            // 28: him.message.v1.AckMessageReq
-	(*AckMessageResp)(nil),           // 29: him.message.v1.AckMessageResp
-	(*RecallMessageReq)(nil),         // 30: him.message.v1.RecallMessageReq
-	(*RecallMessageResp)(nil),        // 31: him.message.v1.RecallMessageResp
-	(*RecallPush)(nil),               // 32: him.message.v1.RecallPush
-	(*PullMessagesReq)(nil),          // 33: him.message.v1.PullMessagesReq
-	(*PullMessagesResp)(nil),         // 34: him.message.v1.PullMessagesResp
+	(MessagePayloadType)(0),          // 5: him.message.v1.MessagePayloadType
+	(*Content)(nil),                  // 6: him.message.v1.Content
+	(*Attachment)(nil),               // 7: him.message.v1.Attachment
+	(*ImageAttachment)(nil),          // 8: him.message.v1.ImageAttachment
+	(*AudioAttachment)(nil),          // 9: him.message.v1.AudioAttachment
+	(*VideoAttachment)(nil),          // 10: him.message.v1.VideoAttachment
+	(*FileAttachment)(nil),           // 11: him.message.v1.FileAttachment
+	(*LocationAttachment)(nil),       // 12: him.message.v1.LocationAttachment
+	(*ThreadReply)(nil),              // 13: him.message.v1.ThreadReply
+	(*Message)(nil),                  // 14: him.message.v1.Message
+	(*PrivateSend)(nil),              // 15: him.message.v1.PrivateSend
+	(*PrivatePush)(nil),              // 16: him.message.v1.PrivatePush
+	(*PrivateAck)(nil),               // 17: him.message.v1.PrivateAck
+	(*OfflineSync)(nil),              // 18: him.message.v1.OfflineSync
+	(*StateSync)(nil),                // 19: him.message.v1.StateSync
+	(*Conversation)(nil),             // 20: him.message.v1.Conversation
+	(*ConversationListReq)(nil),      // 21: him.message.v1.ConversationListReq
+	(*ConversationListResp)(nil),     // 22: him.message.v1.ConversationListResp
+	(*ConversationMessagesReq)(nil),  // 23: him.message.v1.ConversationMessagesReq
+	(*ConversationMessagesResp)(nil), // 24: him.message.v1.ConversationMessagesResp
+	(*ListConversationsResp)(nil),    // 25: him.message.v1.ListConversationsResp
+	(*ConversationPush)(nil),         // 26: him.message.v1.ConversationPush
+	(*SendMessageReq)(nil),           // 27: him.message.v1.SendMessageReq
+	(*SendMessageResp)(nil),          // 28: him.message.v1.SendMessageResp
+	(*AckMessageReq)(nil),            // 29: him.message.v1.AckMessageReq
+	(*AckMessageResp)(nil),           // 30: him.message.v1.AckMessageResp
+	(*MessageEnvelope)(nil),          // 31: him.message.v1.MessageEnvelope
+	(*RecallMessageReq)(nil),         // 32: him.message.v1.RecallMessageReq
+	(*RecallMessageResp)(nil),        // 33: him.message.v1.RecallMessageResp
+	(*RecallPush)(nil),               // 34: him.message.v1.RecallPush
+	(*PullMessagesReq)(nil),          // 35: him.message.v1.PullMessagesReq
+	(*PullMessagesResp)(nil),         // 36: him.message.v1.PullMessagesResp
 }
 var file_him_message_v1_message_proto_depIdxs = []int32{
-	7,  // 0: him.message.v1.Attachment.image:type_name -> him.message.v1.ImageAttachment
-	8,  // 1: him.message.v1.Attachment.audio:type_name -> him.message.v1.AudioAttachment
-	9,  // 2: him.message.v1.Attachment.video:type_name -> him.message.v1.VideoAttachment
-	10, // 3: him.message.v1.Attachment.file:type_name -> him.message.v1.FileAttachment
-	11, // 4: him.message.v1.Attachment.location:type_name -> him.message.v1.LocationAttachment
+	8,  // 0: him.message.v1.Attachment.image:type_name -> him.message.v1.ImageAttachment
+	9,  // 1: him.message.v1.Attachment.audio:type_name -> him.message.v1.AudioAttachment
+	10, // 2: him.message.v1.Attachment.video:type_name -> him.message.v1.VideoAttachment
+	11, // 3: him.message.v1.Attachment.file:type_name -> him.message.v1.FileAttachment
+	12, // 4: him.message.v1.Attachment.location:type_name -> him.message.v1.LocationAttachment
 	0,  // 5: him.message.v1.Message.conv_type:type_name -> him.message.v1.ConversationType
 	1,  // 6: him.message.v1.Message.msg_type:type_name -> him.message.v1.MessageType
-	6,  // 7: him.message.v1.Message.attachment:type_name -> him.message.v1.Attachment
+	7,  // 7: him.message.v1.Message.attachment:type_name -> him.message.v1.Attachment
 	2,  // 8: him.message.v1.Message.sending_state:type_name -> him.message.v1.SendingState
-	12, // 9: him.message.v1.Message.thread_reply:type_name -> him.message.v1.ThreadReply
-	5,  // 10: him.message.v1.PrivateSend.content:type_name -> him.message.v1.Content
-	13, // 11: him.message.v1.PrivatePush.message:type_name -> him.message.v1.Message
+	13, // 9: him.message.v1.Message.thread_reply:type_name -> him.message.v1.ThreadReply
+	6,  // 10: him.message.v1.PrivateSend.content:type_name -> him.message.v1.Content
+	14, // 11: him.message.v1.PrivatePush.message:type_name -> him.message.v1.Message
 	4,  // 12: him.message.v1.PrivateAck.status:type_name -> him.message.v1.AckStatus
-	13, // 13: him.message.v1.OfflineSync.messages:type_name -> him.message.v1.Message
-	19, // 14: him.message.v1.ConversationListResp.conversations:type_name -> him.message.v1.Conversation
-	13, // 15: him.message.v1.ConversationMessagesResp.messages:type_name -> him.message.v1.Message
-	19, // 16: him.message.v1.ListConversationsResp.conversations:type_name -> him.message.v1.Conversation
+	14, // 13: him.message.v1.OfflineSync.messages:type_name -> him.message.v1.Message
+	20, // 14: him.message.v1.ConversationListResp.conversations:type_name -> him.message.v1.Conversation
+	14, // 15: him.message.v1.ConversationMessagesResp.messages:type_name -> him.message.v1.Message
+	20, // 16: him.message.v1.ListConversationsResp.conversations:type_name -> him.message.v1.Conversation
 	0,  // 17: him.message.v1.SendMessageReq.conv_type:type_name -> him.message.v1.ConversationType
 	1,  // 18: him.message.v1.SendMessageReq.msg_type:type_name -> him.message.v1.MessageType
-	6,  // 19: him.message.v1.SendMessageReq.attachment:type_name -> him.message.v1.Attachment
-	13, // 20: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
-	26, // 21: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
-	28, // 22: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
-	33, // 23: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
-	30, // 24: him.message.v1.MessageService.RecallMessage:input_type -> him.message.v1.RecallMessageReq
-	27, // 25: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
-	29, // 26: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
-	34, // 27: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
-	31, // 28: him.message.v1.MessageService.RecallMessage:output_type -> him.message.v1.RecallMessageResp
-	25, // [25:29] is the sub-list for method output_type
-	21, // [21:25] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	7,  // 19: him.message.v1.SendMessageReq.attachment:type_name -> him.message.v1.Attachment
+	5,  // 20: him.message.v1.MessageEnvelope.type:type_name -> him.message.v1.MessagePayloadType
+	27, // 21: him.message.v1.MessageEnvelope.send:type_name -> him.message.v1.SendMessageReq
+	32, // 22: him.message.v1.MessageEnvelope.recall:type_name -> him.message.v1.RecallMessageReq
+	14, // 23: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
+	27, // 24: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
+	29, // 25: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
+	35, // 26: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
+	32, // 27: him.message.v1.MessageService.RecallMessage:input_type -> him.message.v1.RecallMessageReq
+	28, // 28: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
+	30, // 29: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
+	36, // 30: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
+	33, // 31: him.message.v1.MessageService.RecallMessage:output_type -> him.message.v1.RecallMessageResp
+	28, // [28:32] is the sub-list for method output_type
+	24, // [24:28] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_him_message_v1_message_proto_init() }
@@ -2666,13 +2819,17 @@ func file_him_message_v1_message_proto_init() {
 		(*Attachment_File)(nil),
 		(*Attachment_Location)(nil),
 	}
+	file_him_message_v1_message_proto_msgTypes[25].OneofWrappers = []any{
+		(*MessageEnvelope_Send)(nil),
+		(*MessageEnvelope_Recall)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_message_v1_message_proto_rawDesc), len(file_him_message_v1_message_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   30,
+			NumEnums:      6,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

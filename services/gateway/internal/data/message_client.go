@@ -13,10 +13,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const (
-	kafkaTopicPrivate       = "him.private.message"
-	kafkaTopicPrivateRecall = "him.private.recall"
-)
+const kafkaTopicPrivate = "him.private.message"
 
 // grpcMessageClient handles gRPC calls to the message service (used for Ack).
 type grpcMessageClient struct {
@@ -38,24 +35,20 @@ func (c *grpcMessageClient) ackMessage(ctx context.Context, serverID int64, user
 	return err
 }
 
-// KafkaMessageClient implements biz.MessageClient, sending messages via Kafka
-// and delegating Ack calls to the gRPC client.
+// KafkaMessageClient implements biz.MessageClient, sending messages via Kafka.
 type KafkaMessageClient struct {
-	producer       *kafka.Producer
-	recallProducer *kafka.Producer
-	grpc           *grpcMessageClient
+	producer *kafka.Producer
+	grpc     *grpcMessageClient
 }
 
 // NewKafkaMessageClient creates a Kafka-backed MessageClient.
 func NewKafkaMessageClient(grpc *grpcMessageClient) (*KafkaMessageClient, func(), error) {
 	brokers := kafkaBrokers()
+	producer := kafka.NewProducer(brokers, kafka.WithProducerTracing())
 	return &KafkaMessageClient{
-		producer:       kafka.NewProducer(brokers, kafka.WithProducerTracing()),
-		recallProducer: kafka.NewProducer(brokers, kafka.WithProducerTracing()),
-		grpc:           grpc,
-	}, func() {
-		// Cleanup handled by the caller; producers own their writers
-	}, nil
+		producer: producer,
+		grpc:     grpc,
+	}, func() { producer.Close() }, nil
 }
 
 func kafkaBrokers() []string {
@@ -65,18 +58,29 @@ func kafkaBrokers() []string {
 	return []string{"localhost:9092"}
 }
 
-// SendMessage produces the message to Kafka and returns immediately.
-func (c *KafkaMessageClient) SendMessage(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
-	payload, err := proto.Marshal(req)
+func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, key string, envelope *pb.MessageEnvelope) error {
+	data, err := proto.Marshal(envelope)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	err = c.producer.Send(ctx, kafkaTopicPrivate, kafka.Message{
-		Key:   []byte(req.MessageClientId),
-		Value: payload,
+	msg := kafka.Message{Value: data}
+	if key != "" {
+		msg.Key = []byte(key)
+	}
+	if err := c.producer.Send(ctx, kafkaTopicPrivate, msg); err != nil {
+		log.Context(ctx).Errorf("kafka send: %v", err)
+		return err
+	}
+	return nil
+}
+
+// SendMessage wraps the request in a MessageEnvelope and produces to Kafka.
+func (c *KafkaMessageClient) SendMessage(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
+	err := c.sendEnvelope(ctx, req.MessageClientId, &pb.MessageEnvelope{
+		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_SEND,
+		Payload: &pb.MessageEnvelope_Send{Send: req},
 	})
 	if err != nil {
-		log.Context(ctx).Errorf("kafka send: %v", err)
 		return nil, err
 	}
 	return &pb.SendMessageResp{ServerTime: time.Now().UnixMilli()}, nil
@@ -87,11 +91,10 @@ func (c *KafkaMessageClient) AckMessage(ctx context.Context, serverID int64, use
 	return c.grpc.ackMessage(ctx, serverID, userID)
 }
 
-// RecallMessage sends a recall request to the recall topic.
+// RecallMessage wraps the request in a MessageEnvelope and produces to Kafka.
 func (c *KafkaMessageClient) RecallMessage(ctx context.Context, req *pb.RecallMessageReq) error {
-	payload, err := proto.Marshal(req)
-	if err != nil {
-		return err
-	}
-	return c.recallProducer.Send(ctx, kafkaTopicPrivateRecall, kafka.Message{Value: payload})
+	return c.sendEnvelope(ctx, "", &pb.MessageEnvelope{
+		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL,
+		Payload: &pb.MessageEnvelope_Recall{Recall: req},
+	})
 }

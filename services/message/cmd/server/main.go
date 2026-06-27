@@ -12,7 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/murphy-hc/h-im/services/message/internal/server"
+	"github.com/murphy-hc/h-im/pkg/kafka"
 	pkgmetrics "github.com/murphy-hc/h-im/pkg/metrics"
 	pkgtracing "github.com/murphy-hc/h-im/pkg/tracing"
 	"github.com/rs/xid"
@@ -30,10 +30,10 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(gs *grpc.Server, hs *http.Server, ks *server.KafkaServers) *kratos.App {
+func newApp(gs *grpc.Server, hs *http.Server, kg *kafka.ConsumerGroup) *kratos.App {
 	id := xid.New().String()
 	return kratos.New(
-		kratos.Server(gs, hs, ks),
+		kratos.Server(gs, hs, kg),
 		kratos.ID(id),
 		kratos.Name(Name),
 		kratos.Version(Version),

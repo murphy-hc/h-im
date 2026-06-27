@@ -232,6 +232,24 @@ message AckMessageResp {
   bool success = 1;
 }
 
+// ── Kafka Envelope ──────────────────────────────────────────────────────────
+
+enum MessagePayloadType {
+  MESSAGE_PAYLOAD_TYPE_UNSPECIFIED = 0;
+  MESSAGE_PAYLOAD_TYPE_SEND        = 1;
+  MESSAGE_PAYLOAD_TYPE_RECALL      = 2;
+}
+
+message MessageEnvelope {
+  MessagePayloadType type = 1;
+  oneof payload {
+    SendMessageReq   send   = 2;
+    RecallMessageReq recall = 3;
+  }
+}
+
+// ── Service ─────────────────────────────────────────────────────────────────
+
 service MessageService {
   rpc SendMessage(SendMessageReq) returns (SendMessageResp);
   rpc AckMessage(AckMessageReq)  returns (AckMessageResp);

@@ -110,50 +110,42 @@ func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receive
 	return serverID, nil
 }
 
-// ProcessMessage handles a message received via Kafka. It dispatches based
-// on the payload type: SendMessageReq for new messages, RecallMessageReq for
-// recalls.
-func (uc *SendUseCase) ProcessMessage(ctx context.Context, payload []byte) error {
-	// Try SendMessageReq first
-	var sendReq msgpb.SendMessageReq
-	if err := proto.Unmarshal(payload, &sendReq); err == nil && sendReq.SenderId != "" {
-		_, err := uc.SendPrivateMessage(ctx, sendReq.SenderId, sendReq.ReceiverId, int32(sendReq.MsgType), sendReq.Text, sendReq.MessageClientId)
-		return err
-	}
-	// Try RecallMessageReq
-	var recallReq msgpb.RecallMessageReq
-	if err := proto.Unmarshal(payload, &recallReq); err == nil && recallReq.MessageServerId != 0 {
-		return uc.RecallMessage(ctx, recallReq.MessageServerId, recallReq.SenderId)
-	}
-	return nil
-}
-
-// RecallMessage marks a message as recalled and pushes a recall notification
-// to the receiver. Validation is done atomically in the DB (sender, time limit,
-// not already recalled).
+// RecallMessage marks a message as recalled and pushes a recall notification.
 func (uc *SendUseCase) RecallMessage(ctx context.Context, serverID int64, senderID string) error {
 	ok, err := uc.repo.MarkRecalled(ctx, serverID, senderID, time.Now().UnixMilli())
 	if err != nil {
 		return err
 	}
 	if !ok {
-		return fmt.Errorf("recall denied: message not found, not sender, time expired, or already recalled")
+		return fmt.Errorf("recall denied")
 	}
-	// Push recall notification to receiver
+
+	receiverID, err := uc.repo.GetReceiverID(ctx, serverID)
+	if err != nil {
+		return err
+	}
+
 	push, _ := proto.Marshal(&msgpb.RecallPush{
 		MessageServerId: serverID,
 		RecallTime:      time.Now().UnixMilli(),
 	})
 	gp.SafeGo(ctx, func(pushCtx context.Context) {
-		uc.pushToDevices(pushCtx, "", serverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_RECALL), push, nil, 0)
+		uc.pushToDevices(pushCtx, receiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_RECALL), push, nil, 0)
 	})
 	return nil
 }
 
-// pushToDevices delivers a payload to all online devices of a user. If
-// markDelivered is non-nil, it is called when at least one device receives
-// the message. Used by both pushToReceiver and RecallMessage.
-func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, serverID int64, frameType int32, payload []byte, markDelivered func(ctx context.Context, serverID int64) error, msgServerID int64) {
+func (uc *SendUseCase) AckMessage(ctx context.Context, serverID int64, userID string) error {
+	return uc.repo.MarkRead(ctx, serverID)
+}
+
+// PullMessagesSince returns messages for a user since a given message ID.
+func (uc *SendUseCase) PullMessagesSince(ctx context.Context, userID string, sinceID int64, limit int32) ([]Message, error) {
+	return uc.repo.PullSince(ctx, userID, sinceID, limit)
+}
+
+// pushToDevices delivers a payload to all online devices of a user.
+func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, frameType int32, payload []byte, markDelivered func(ctx context.Context, serverID int64) error, msgServerID int64) {
 	ctx, cancel := context.WithTimeout(ctx, pushTimeout)
 	defer cancel()
 	devices, err := uc.user.GetUserOnline(ctx, userID)
@@ -183,15 +175,6 @@ func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, serverI
 	}
 }
 
-func (uc *SendUseCase) AckMessage(ctx context.Context, serverID int64, userID string) error {
-	return uc.repo.MarkRead(ctx, serverID)
-}
-
-// PullMessagesSince returns messages for a user since a given message ID.
-func (uc *SendUseCase) PullMessagesSince(ctx context.Context, userID string, sinceID int64, limit int32) ([]Message, error) {
-	return uc.repo.PullSince(ctx, userID, sinceID, limit)
-}
-
 func (uc *SendUseCase) pushToReceiver(m *Message) {
 	payload, _ := proto.Marshal(&msgpb.Message{
 		MessageClientId: m.ClientID,
@@ -203,32 +186,5 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 		MsgType:         msgpb.MessageType(m.MsgType),
 		ConvType:        msgpb.ConversationType_CONVERSATION_PRIVATE,
 	})
-
-	ctx, cancel := context.WithTimeout(context.Background(), pushTimeout)
-	defer cancel()
-
-	devices, err := uc.user.GetUserOnline(ctx, m.ReceiverID)
-	if err != nil || len(devices) == 0 {
-		return
-	}
-
-	delivered := false
-	for _, device := range devices {
-		for i := 0; i < maxRetries; i++ {
-			err := uc.gw.SendToDevice(ctx, device.GatewayAddr, m.ReceiverID,
-				int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload)
-			if err == nil {
-				delivered = true
-				break
-			}
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(baseDelay * time.Duration(1<<i)):
-			}
-		}
-	}
-	if delivered {
-		uc.repo.MarkDelivered(ctx, m.ServerID)
-	}
+	uc.pushToDevices(context.Background(), m.ReceiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload, uc.repo.MarkDelivered, m.ServerID)
 }

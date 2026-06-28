@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/redis/go-redis/v9"
 )
@@ -100,7 +100,6 @@ func (cm *redisConnManager) KickUser(userID string) ([]*websocket.Conn, error) {
 	conns := make([]*websocket.Conn, 0, len(devs))
 	ctx := context.Background()
 	for deviceID, cs := range devs {
-		cs.Conn.Close()
 		conns = append(conns, cs.Conn)
 		cm.rdb.Del(ctx, connKey(userID, deviceID))
 	}

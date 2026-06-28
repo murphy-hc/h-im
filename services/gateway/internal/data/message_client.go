@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
+	"github.com/murphy-hc/h-im/pkg/logger"
 	pb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/murphy-hc/h-im/pkg/kafka"
 	"google.golang.org/protobuf/proto"
@@ -68,7 +68,7 @@ func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, key string, envel
 		msg.Key = []byte(key)
 	}
 	if err := c.producer.Send(ctx, kafkaTopicPrivate, msg); err != nil {
-		log.Context(ctx).Errorf("kafka send: %v", err)
+		logger.ContextErrorf(ctx, "kafka send: %v", err)
 		return err
 	}
 	return nil

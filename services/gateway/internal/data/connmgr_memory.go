@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 )
 

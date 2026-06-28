@@ -8,7 +8,6 @@ import (
 
 var WSServerProviderSet = wire.NewSet(
 	NewWSServer,
-	NewUpgrader,
 	wire.FieldsOf(new(*conf.Bootstrap), "Server", "User"),
 	wire.FieldsOf(new(*conf.Server), "Ws"),
 )

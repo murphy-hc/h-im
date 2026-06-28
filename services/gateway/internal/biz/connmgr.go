@@ -3,7 +3,14 @@ package biz
 import (
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
+)
+
+// WebSocket close reasons.
+const (
+	CloseReasonAuthFailed      = "auth failed"
+	CloseReasonKicked          = "kicked"
+	CloseReasonHeartbeatTimeout = "heartbeat timeout"
 )
 
 // ConnState tracks per-connection heartbeat state.

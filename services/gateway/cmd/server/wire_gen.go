@@ -20,8 +20,6 @@ import (
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
 	confServer := bc.Server
-	server_WS := confServer.Ws
-	upgrader := server.NewUpgrader(server_WS)
 	client, cleanup, err := data.NewRedisClient(bc)
 	if err != nil {
 		return nil, nil, err
@@ -49,8 +47,9 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	string2 := data.GatewayAddr()
 	gatewayUseCase := biz.NewGatewayUseCase(connManager, kafkaMessageClient, userStatusClient, heartbeatConfig, string2)
 	user := bc.User
-	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, upgrader, user)
-	wsServer := server.NewWSServer(confServer, upgrader, gatewayService)
+	server_WS := confServer.Ws
+	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, user, server_WS)
+	wsServer := server.NewWSServer(confServer, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
 	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)

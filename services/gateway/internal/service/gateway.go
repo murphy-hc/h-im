@@ -1,25 +1,29 @@
 package service
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
+	"github.com/murphy-hc/h-im/pkg/logger"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
 )
 
 // GatewayService handles WebSocket connections.
 type GatewayService struct {
-	uc       *biz.GatewayUseCase
-	cm       biz.ConnManager
-	upgrader websocket.Upgrader
-	cfg      *conf.User
+	uc      *biz.GatewayUseCase
+	cm      biz.ConnManager
+	cfg     *conf.User
+	acceptOpts *websocket.AcceptOptions
 }
 
 // NewGatewayService creates a GatewayService.
-func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager, upgrader websocket.Upgrader, cfg *conf.User) *GatewayService {
-	return &GatewayService{uc: uc, cm: cm, upgrader: upgrader, cfg: cfg}
+func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager, cfg *conf.User, wsCfg *conf.Server_WS) *GatewayService {
+	opts := &websocket.AcceptOptions{}
+	if wsCfg.GetEnableCompression() {
+		opts.CompressionMode = websocket.CompressionNoContextTakeover
+	}
+	return &GatewayService{uc: uc, cm: cm, cfg: cfg, acceptOpts: opts}
 }
 
 // HandleWebSocket handles a WebSocket upgrade request.
@@ -37,23 +41,23 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	conn, err := s.upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("websocket upgrade failed: %v", err)
+	valid, err := s.uc.ValidateToken(r.Context(), appID, userID, token)
+	if err != nil || !valid {
+		logger.Errorf("token validation failed: app=%s user=%s err=%v", appID, userID, err)
+		http.Error(w, "invalid token", http.StatusUnauthorized)
 		return
 	}
 
-	valid, err := s.uc.ValidateToken(r.Context(), appID, userID, token)
-	if err != nil || !valid {
-		log.Printf("token validation failed: app=%s user=%s err=%v", appID, userID, err)
-		conn.Close()
+	conn, err := websocket.Accept(w, r, s.acceptOpts)
+	if err != nil {
+		logger.Errorf("websocket upgrade failed: %v", err)
 		return
 	}
 
 	if !s.cfg.GetMultiDevice() {
 		if conns, err := s.cm.KickUser(userID); err == nil {
 			for _, old := range conns {
-				old.Close()
+				old.Close(websocket.StatusNormalClosure, biz.CloseReasonKicked)
 			}
 		}
 	}

@@ -6,21 +6,23 @@ import (
 
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
 	msgpb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 	"github.com/murphy-hc/h-im/pkg/gp"
 	"google.golang.org/protobuf/proto"
 )
 
-const readTimeout = 60 * time.Second
+const (
+	readTimeout  = 60 * time.Second
+	writeTimeout = 5 * time.Second
+	pingTimeout  = 5 * time.Second
+)
 
-// HeartbeatConfig holds heartbeat parameters.
 type HeartbeatConfig struct {
 	IntervalSeconds int32
 	TimeoutSeconds  int32
 	SweepInterval   int32
 }
 
-// Timeout returns the heartbeat timeout duration.
 func (c HeartbeatConfig) Timeout() time.Duration {
 	if c.TimeoutSeconds <= 0 {
 		return 180 * time.Second
@@ -28,7 +30,6 @@ func (c HeartbeatConfig) Timeout() time.Duration {
 	return time.Duration(c.TimeoutSeconds) * time.Second
 }
 
-// SweepDuration returns the sweep interval duration.
 func (c HeartbeatConfig) SweepDuration() time.Duration {
 	if c.SweepInterval <= 0 {
 		return 10 * time.Second
@@ -46,23 +47,21 @@ type GatewayUseCase struct {
 
 func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
 	uc := &GatewayUseCase{
-		cm:          cm,
-		msgClient:   msgClient,
-		userStatus:  userStatus,
-		hbCfg:       hbCfg,
-		gatewayAddr: gatewayAddr,
+		cm: cm, msgClient: msgClient, userStatus: userStatus,
+		hbCfg: hbCfg, gatewayAddr: gatewayAddr,
 	}
 	gp.SafeGo(context.Background(), func(_ context.Context) { uc.sweepLoop() })
 	return uc
 }
 
-// ValidateToken validates a client token via the user service.
+func writeCtx() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), writeTimeout)
+}
+
 func (uc *GatewayUseCase) ValidateToken(ctx context.Context, appID, userID, token string) (bool, error) {
 	return uc.userStatus.ValidateAppToken(ctx, appID, userID, token)
 }
 
-// sweepLoop periodically scans connections and closes those that have timed out.
-// It also reports disconnects to the user service.
 func (uc *GatewayUseCase) sweepLoop() {
 	ticker := time.NewTicker(uc.hbCfg.SweepDuration())
 	defer ticker.Stop()
@@ -70,8 +69,7 @@ func (uc *GatewayUseCase) sweepLoop() {
 	for range ticker.C {
 		offline := uc.cm.SweepOffline(timeout)
 		for _, dev := range offline {
-			dev.Conn.Close()
-			// Report disconnect to user service (best-effort, don't block)
+			dev.Conn.Close(websocket.StatusNormalClosure, CloseReasonHeartbeatTimeout)
 			gp.SafeGo(context.Background(), func(_ context.Context) {
 				uc.userStatus.ReportDisconnect(context.Background(), dev.UserID, dev.DeviceID)
 			})
@@ -82,7 +80,6 @@ func (uc *GatewayUseCase) sweepLoop() {
 func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.Conn, userID, deviceID string) {
 	defer func() {
 		uc.cm.Remove(userID, deviceID)
-		// Report disconnect to user service
 		gp.SafeGo(context.Background(), func(_ context.Context) {
 			uc.userStatus.ReportDisconnect(context.Background(), userID, deviceID)
 		})
@@ -98,19 +95,17 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 			case <-done:
 				return
 			case <-ticker.C:
-				conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(5*time.Second))
+				pingCtx, cancel := context.WithTimeout(context.Background(), pingTimeout)
+				conn.Ping(pingCtx)
+				cancel()
 			}
 		}
 	})
 
-	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(readTimeout))
-		return nil
-	})
-
 	for {
-		conn.SetReadDeadline(time.Now().Add(readTimeout))
-		_, raw, err := conn.ReadMessage()
+		readCtx, cancel := context.WithTimeout(ctx, readTimeout)
+		_, raw, err := conn.Read(readCtx)
+		cancel()
 		if err != nil {
 			break
 		}
@@ -118,18 +113,22 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 		if err != nil {
 			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 				&gatewayv1.ErrorMessage{Code: 1, Message: err.Error()})
-			conn.WriteMessage(websocket.BinaryMessage, frame)
+			wc, wcCancel := writeCtx()
+			conn.Write(wc, websocket.MessageBinary, frame)
+			wcCancel()
 			continue
 		}
 		_ = version
 		switch ft {
 		case gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT:
 			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT, nil)
-			if err := conn.WriteMessage(websocket.BinaryMessage, frame); err != nil {
+			wc, wcCancel := writeCtx()
+			err := conn.Write(wc, websocket.MessageBinary, frame)
+			wcCancel()
+			if err != nil {
 				uc.cm.MarkHeartbeatFail(userID, deviceID)
 			} else {
 				uc.cm.MarkHeartbeatSuccess(userID, deviceID)
-				// Forward successful heartbeat to user service
 				gp.SafeGo(context.Background(), func(_ context.Context) {
 					uc.userStatus.ReportHeartbeat(context.Background(), userID, deviceID, uc.gatewayAddr, time.Now().Unix())
 				})
@@ -152,7 +151,9 @@ func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.C
 	if err := proto.Unmarshal(payload, &req); err != nil {
 		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 			&gatewayv1.ErrorMessage{Code: 1, Message: "invalid recall request"})
-		conn.WriteMessage(websocket.BinaryMessage, frame)
+		wc, wcCancel := writeCtx()
+		conn.Write(wc, websocket.MessageBinary, frame)
+		wcCancel()
 		return
 	}
 	req.SenderId = senderID
@@ -160,7 +161,9 @@ func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.C
 	if err := uc.msgClient.RecallMessage(ctx, &req); err != nil {
 		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 			&gatewayv1.ErrorMessage{Code: 2, Message: err.Error()})
-		conn.WriteMessage(websocket.BinaryMessage, frame)
+		wc, wcCancel := writeCtx()
+		conn.Write(wc, websocket.MessageBinary, frame)
+		wcCancel()
 		return
 	}
 
@@ -169,7 +172,9 @@ func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.C
 		Status:      msgpb.AckStatus_ACK_RECALLED,
 	}
 	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
-	conn.WriteMessage(websocket.BinaryMessage, frame)
+	wc, wcCancel := writeCtx()
+	conn.Write(wc, websocket.MessageBinary, frame)
+	wcCancel()
 }
 
 func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
@@ -195,5 +200,7 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 		Status:      msgpb.AckStatus_ACK_SENT,
 	}
 	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
-	conn.WriteMessage(websocket.BinaryMessage, frame)
+	wc, wcCancel := writeCtx()
+	conn.Write(wc, websocket.MessageBinary, frame)
+	wcCancel()
 }

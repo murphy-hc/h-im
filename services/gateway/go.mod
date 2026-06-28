@@ -5,9 +5,9 @@ go 1.24.6
 toolchain go1.24.13
 
 require (
+	github.com/coder/websocket v1.8.15
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.7.0
-	github.com/gorilla/websocket v1.5.3
 	github.com/murphy-hc/h-im/gen/go v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260622162121-360627438658

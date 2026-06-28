@@ -5,6 +5,7 @@ import "context"
 // MessageRepo defines the message repository interface.
 type MessageRepo interface {
 	Insert(ctx context.Context, m *Message) error
+	InsertChatroom(ctx context.Context, serverID int64, clientID, roomID, senderID string, msgType int32, text, attachment string, serverTime int64) error
 	GetReceiverID(ctx context.Context, serverID int64) (string, error)
 	MarkDelivered(ctx context.Context, serverID int64) error
 	MarkRead(ctx context.Context, serverID int64) error
@@ -15,6 +16,7 @@ type MessageRepo interface {
 // MessageGateway sends messages to users via the gateway service.
 type MessageGateway interface {
 	SendToDevice(ctx context.Context, gatewayAddr, userID string, frameType int32, payload []byte) error
+	BroadcastToRoom(ctx context.Context, roomID string, frameType int32, payload []byte) (int32, error)
 }
 
 // UserStatusClient queries user online status.

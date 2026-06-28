@@ -34,7 +34,8 @@ message ChatroomMessage {
 // ── RPCs ────────────────────────────────────────────────────────────────────
 
 message CreateRoomRequest {
-  string name = 1;
+  string name     = 1;
+  string owner_id = 2;
 }
 
 message CreateRoomResponse {

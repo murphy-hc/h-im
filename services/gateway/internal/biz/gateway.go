@@ -41,13 +41,14 @@ type GatewayUseCase struct {
 	cm          ConnManager
 	msgClient   MessageClient
 	userStatus  UserStatusClient
+	chatroomSvc ChatroomClient
 	hbCfg       HeartbeatConfig
 	gatewayAddr string
 }
 
-func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
+func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, chatroomSvc ChatroomClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
 	uc := &GatewayUseCase{
-		cm: cm, msgClient: msgClient, userStatus: userStatus,
+		cm: cm, msgClient: msgClient, userStatus: userStatus, chatroomSvc: chatroomSvc,
 		hbCfg: hbCfg, gatewayAddr: gatewayAddr,
 	}
 	gp.SafeGo(context.Background(), func(_ context.Context) { uc.sweepLoop() })
@@ -142,8 +143,47 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 			}
 		case gatewayv1.FrameType_FRAME_TYPE_PRIVATE_RECALL:
 			uc.handleRecallMsg(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_CHATROOM_MSG:
+			uc.handleChatroomMsg(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_CHATROOM_ACK:
+			var ack msgpb.PrivateAck
+			if err := proto.Unmarshal(payload, &ack); err == nil {
+				gp.SafeGo(ctx, func(_ context.Context) { uc.msgClient.AckMessage(ctx, ack.MsgServerId, userID) })
+			}
+		case gatewayv1.FrameType_FRAME_TYPE_CHATROOM_JOIN:
+			uc.handleChatroomJoin(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_CHATROOM_LEAVE:
+			uc.handleChatroomLeave(ctx, conn, userID, payload)
 		}
 	}
+}
+
+func (uc *GatewayUseCase) handleChatroomMsg(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
+	var msg msgpb.Message
+	if err := proto.Unmarshal(payload, &msg); err != nil {
+		return
+	}
+	resp, err := uc.msgClient.SendMessage(ctx, &msgpb.SendMessageReq{
+		SenderId:        senderID,
+		ReceiverId:      msg.ReceiverId,
+		ConvType:        msgpb.ConversationType_CONVERSATION_ROOM,
+		MsgType:         msg.MsgType,
+		Text:            msg.Text,
+		MessageClientId: msg.MessageClientId,
+		Attachment:      msg.Attachment,
+	})
+	if err != nil {
+		return
+	}
+	ack := &msgpb.PrivateAck{
+		MsgServerId: resp.MessageServerId,
+		MsgClientId: msg.MessageClientId,
+		Status:      msgpb.AckStatus_ACK_SENT,
+	}
+	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_CHATROOM_ACK, ack)
+	wc, wcCancel := writeCtx()
+	conn.Write(wc, websocket.MessageBinary, frame)
+	wcCancel()
 }
 
 func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
@@ -203,4 +243,26 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 	wc, wcCancel := writeCtx()
 	conn.Write(wc, websocket.MessageBinary, frame)
 	wcCancel()
+}
+
+func (uc *GatewayUseCase) handleChatroomJoin(ctx context.Context, conn *websocket.Conn, userID string, payload []byte) {
+	roomID := string(payload)
+	if roomID == "" {
+		return
+	}
+	if err := uc.chatroomSvc.JoinRoom(ctx, roomID, userID); err != nil {
+		return
+	}
+	uc.cm.JoinRoom(roomID, userID)
+}
+
+func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, conn *websocket.Conn, userID string, payload []byte) {
+	roomID := string(payload)
+	if roomID == "" {
+		return
+	}
+	if err := uc.chatroomSvc.LeaveRoom(ctx, roomID, userID); err != nil {
+		return
+	}
+	uc.cm.LeaveRoom(roomID, userID)
 }

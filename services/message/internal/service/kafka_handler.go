@@ -4,8 +4,8 @@ import (
 	"context"
 
 	pb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/murphy-hc/h-im/pkg/kafka"
+	"github.com/murphy-hc/h-im/pkg/logger"
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"google.golang.org/protobuf/proto"
 )
@@ -20,7 +20,7 @@ func NewKafkaService(uc *biz.SendUseCase) *KafkaService {
 	return &KafkaService{uc: uc}
 }
 
-// Handle unmarshals a MessageEnvelope and dispatches by type.
+// Handle dispatches by envelope type.
 func (s *KafkaService) Handle(ctx context.Context, msg kafka.Message) error {
 	var env pb.MessageEnvelope
 	if err := proto.Unmarshal(msg.Value, &env); err != nil {
@@ -31,11 +31,15 @@ func (s *KafkaService) Handle(ctx context.Context, msg kafka.Message) error {
 		req := env.GetSend()
 		_, err := s.uc.SendPrivateMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
 		return err
+	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND:
+		req := env.GetChatroomSend()
+		_, err := s.uc.SendChatroomMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
+		return err
 	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL:
 		req := env.GetRecall()
 		return s.uc.RecallMessage(ctx, req.MessageServerId, req.SenderId)
 	default:
-		log.Context(ctx).Warnf("unknown message payload type: %v, key=%s", env.Type, string(msg.Key))
+		logger.ContextWarnf(ctx, "unknown message payload type: %v", env.Type)
 		return nil
 	}
 }

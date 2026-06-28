@@ -62,6 +62,22 @@ func (s *GatewayGrpcService) BroadcastToChatroom(ctx context.Context, req *gatew
 	return &gatewayv1.BroadcastToChatroomResponse{DeliveredCount: delivered}, nil
 }
 
+func (s *GatewayGrpcService) JoinChatroom(ctx context.Context, req *gatewayv1.JoinChatroomRequest) (*gatewayv1.JoinChatroomResponse, error) {
+	err := s.cm.JoinRoom(req.RoomId, req.UserId)
+	if err != nil {
+		return &gatewayv1.JoinChatroomResponse{Success: false}, nil
+	}
+	return &gatewayv1.JoinChatroomResponse{Success: true}, nil
+}
+
+func (s *GatewayGrpcService) LeaveChatroom(ctx context.Context, req *gatewayv1.LeaveChatroomRequest) (*gatewayv1.LeaveChatroomResponse, error) {
+	err := s.cm.LeaveRoom(req.RoomId, req.UserId)
+	if err != nil {
+		return &gatewayv1.LeaveChatroomResponse{Success: false}, nil
+	}
+	return &gatewayv1.LeaveChatroomResponse{Success: true}, nil
+}
+
 func (s *GatewayGrpcService) SendCommand(ctx context.Context, req *gatewayv1.SendCommandRequest) (*gatewayv1.SendCommandResponse, error) {
 	conns, _ := s.cm.KickUser(req.UserId)
 	for _, c := range conns {

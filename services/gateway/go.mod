@@ -12,6 +12,7 @@ require (
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/kafka v0.0.0-20260622162121-360627438658
+	github.com/murphy-hc/h-im/pkg/logger v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/redis v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260620170028-8f8ba2793bc5

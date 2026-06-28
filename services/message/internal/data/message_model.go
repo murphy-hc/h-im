@@ -22,3 +22,20 @@ type MessageModel struct {
 }
 
 func (MessageModel) TableName() string { return "private_messages" }
+
+// ChatroomMessageModel is the GORM model for chatroom messages.
+type ChatroomMessageModel struct {
+	MessageServerID int64     `gorm:"column:message_server_id;primaryKey"`
+	MessageClientID string    `gorm:"column:message_client_id;uniqueIndex;size:64;not null"`
+	RoomID          string    `gorm:"column:room_id;size:64;not null;index:idx_room"`
+	SenderID        string    `gorm:"column:sender_id;size:64;not null;index:idx_sender"`
+	MsgType         int32     `gorm:"column:msg_type;not null;default:0"`
+	Text            string    `gorm:"column:text"`
+	Attachment      string    `gorm:"column:attachment;type:jsonb"`
+	Priority        int32     `gorm:"column:priority;default:0"`
+	ServerTime      int64     `gorm:"column:server_time;not null"`
+	Status          int32     `gorm:"column:status;default:0"`
+	CreatedAt       time.Time `gorm:"column:created_at;autoCreateTime"`
+}
+
+func (ChatroomMessageModel) TableName() string { return "chatroom_messages" }

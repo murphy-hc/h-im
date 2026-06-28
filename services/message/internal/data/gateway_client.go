@@ -54,6 +54,19 @@ func (c *GatewayClient) SendToDevice(ctx context.Context, gatewayAddr, userID st
 	return err
 }
 
+// BroadcastToRoom sends a message to all members of a chatroom via the gateway.
+func (c *GatewayClient) BroadcastToRoom(ctx context.Context, roomID string, frameType int32, payload []byte) (int32, error) {
+	resp, err := c.client.BroadcastToChatroom(ctx, &gwpb.BroadcastToChatroomRequest{
+		RoomId:    roomID,
+		FrameType: frameType,
+		Payload:   payload,
+	})
+	if err != nil {
+		return 0, err
+	}
+	return resp.DeliveredCount, nil
+}
+
 // getOrDial returns a cached gRPC client for the given gateway address, or dials a new one.
 func (c *GatewayClient) getOrDial(addr string) (gwpb.GatewayServiceClient, error) {
 	c.mu.RLock()

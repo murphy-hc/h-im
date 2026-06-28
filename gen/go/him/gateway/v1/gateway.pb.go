@@ -453,6 +453,198 @@ func (x *SendCommandResponse) GetSuccess() bool {
 	return false
 }
 
+type JoinChatroomRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JoinChatroomRequest) Reset() {
+	*x = JoinChatroomRequest{}
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JoinChatroomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JoinChatroomRequest) ProtoMessage() {}
+
+func (x *JoinChatroomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JoinChatroomRequest.ProtoReflect.Descriptor instead.
+func (*JoinChatroomRequest) Descriptor() ([]byte, []int) {
+	return file_him_gateway_v1_gateway_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *JoinChatroomRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *JoinChatroomRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type JoinChatroomResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JoinChatroomResponse) Reset() {
+	*x = JoinChatroomResponse{}
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JoinChatroomResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JoinChatroomResponse) ProtoMessage() {}
+
+func (x *JoinChatroomResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JoinChatroomResponse.ProtoReflect.Descriptor instead.
+func (*JoinChatroomResponse) Descriptor() ([]byte, []int) {
+	return file_him_gateway_v1_gateway_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *JoinChatroomResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type LeaveChatroomRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaveChatroomRequest) Reset() {
+	*x = LeaveChatroomRequest{}
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaveChatroomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaveChatroomRequest) ProtoMessage() {}
+
+func (x *LeaveChatroomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaveChatroomRequest.ProtoReflect.Descriptor instead.
+func (*LeaveChatroomRequest) Descriptor() ([]byte, []int) {
+	return file_him_gateway_v1_gateway_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *LeaveChatroomRequest) GetRoomId() string {
+	if x != nil {
+		return x.RoomId
+	}
+	return ""
+}
+
+func (x *LeaveChatroomRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type LeaveChatroomResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaveChatroomResponse) Reset() {
+	*x = LeaveChatroomResponse{}
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaveChatroomResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaveChatroomResponse) ProtoMessage() {}
+
+func (x *LeaveChatroomResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_him_gateway_v1_gateway_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaveChatroomResponse.ProtoReflect.Descriptor instead.
+func (*LeaveChatroomResponse) Descriptor() ([]byte, []int) {
+	return file_him_gateway_v1_gateway_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *LeaveChatroomResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_him_gateway_v1_gateway_proto protoreflect.FileDescriptor
 
 const file_him_gateway_v1_gateway_proto_rawDesc = "" +
@@ -486,13 +678,25 @@ const file_him_gateway_v1_gateway_proto_rawDesc = "" +
 	"\acommand\x18\x02 \x01(\tR\acommand\x12\x1b\n" +
 	"\ttarget_id\x18\x03 \x01(\tR\btargetId\"/\n" +
 	"\x13SendCommandResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\x94\x03\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"G\n" +
+	"\x13JoinChatroomRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"0\n" +
+	"\x14JoinChatroomResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"H\n" +
+	"\x14LeaveChatroomRequest\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\"1\n" +
+	"\x15LeaveChatroomResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess2\xcd\x04\n" +
 	"\x0eGatewayService\x12S\n" +
 	"\n" +
 	"SendToUser\x12!.him.gateway.v1.SendToUserRequest\x1a\".him.gateway.v1.SendToUserResponse\x12e\n" +
 	"\x10BroadcastToGroup\x12'.him.gateway.v1.BroadcastToGroupRequest\x1a(.him.gateway.v1.BroadcastToGroupResponse\x12n\n" +
 	"\x13BroadcastToChatroom\x12*.him.gateway.v1.BroadcastToChatroomRequest\x1a+.him.gateway.v1.BroadcastToChatroomResponse\x12V\n" +
-	"\vSendCommand\x12\".him.gateway.v1.SendCommandRequest\x1a#.him.gateway.v1.SendCommandResponseB;Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1b\x06proto3"
+	"\vSendCommand\x12\".him.gateway.v1.SendCommandRequest\x1a#.him.gateway.v1.SendCommandResponse\x12Y\n" +
+	"\fJoinChatroom\x12#.him.gateway.v1.JoinChatroomRequest\x1a$.him.gateway.v1.JoinChatroomResponse\x12\\\n" +
+	"\rLeaveChatroom\x12$.him.gateway.v1.LeaveChatroomRequest\x1a%.him.gateway.v1.LeaveChatroomResponseB;Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1b\x06proto3"
 
 var (
 	file_him_gateway_v1_gateway_proto_rawDescOnce sync.Once
@@ -506,7 +710,7 @@ func file_him_gateway_v1_gateway_proto_rawDescGZIP() []byte {
 	return file_him_gateway_v1_gateway_proto_rawDescData
 }
 
-var file_him_gateway_v1_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_him_gateway_v1_gateway_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_him_gateway_v1_gateway_proto_goTypes = []any{
 	(*SendToUserRequest)(nil),           // 0: him.gateway.v1.SendToUserRequest
 	(*SendToUserResponse)(nil),          // 1: him.gateway.v1.SendToUserResponse
@@ -516,21 +720,29 @@ var file_him_gateway_v1_gateway_proto_goTypes = []any{
 	(*BroadcastToChatroomResponse)(nil), // 5: him.gateway.v1.BroadcastToChatroomResponse
 	(*SendCommandRequest)(nil),          // 6: him.gateway.v1.SendCommandRequest
 	(*SendCommandResponse)(nil),         // 7: him.gateway.v1.SendCommandResponse
+	(*JoinChatroomRequest)(nil),         // 8: him.gateway.v1.JoinChatroomRequest
+	(*JoinChatroomResponse)(nil),        // 9: him.gateway.v1.JoinChatroomResponse
+	(*LeaveChatroomRequest)(nil),        // 10: him.gateway.v1.LeaveChatroomRequest
+	(*LeaveChatroomResponse)(nil),       // 11: him.gateway.v1.LeaveChatroomResponse
 }
 var file_him_gateway_v1_gateway_proto_depIdxs = []int32{
-	0, // 0: him.gateway.v1.GatewayService.SendToUser:input_type -> him.gateway.v1.SendToUserRequest
-	2, // 1: him.gateway.v1.GatewayService.BroadcastToGroup:input_type -> him.gateway.v1.BroadcastToGroupRequest
-	4, // 2: him.gateway.v1.GatewayService.BroadcastToChatroom:input_type -> him.gateway.v1.BroadcastToChatroomRequest
-	6, // 3: him.gateway.v1.GatewayService.SendCommand:input_type -> him.gateway.v1.SendCommandRequest
-	1, // 4: him.gateway.v1.GatewayService.SendToUser:output_type -> him.gateway.v1.SendToUserResponse
-	3, // 5: him.gateway.v1.GatewayService.BroadcastToGroup:output_type -> him.gateway.v1.BroadcastToGroupResponse
-	5, // 6: him.gateway.v1.GatewayService.BroadcastToChatroom:output_type -> him.gateway.v1.BroadcastToChatroomResponse
-	7, // 7: him.gateway.v1.GatewayService.SendCommand:output_type -> him.gateway.v1.SendCommandResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: him.gateway.v1.GatewayService.SendToUser:input_type -> him.gateway.v1.SendToUserRequest
+	2,  // 1: him.gateway.v1.GatewayService.BroadcastToGroup:input_type -> him.gateway.v1.BroadcastToGroupRequest
+	4,  // 2: him.gateway.v1.GatewayService.BroadcastToChatroom:input_type -> him.gateway.v1.BroadcastToChatroomRequest
+	6,  // 3: him.gateway.v1.GatewayService.SendCommand:input_type -> him.gateway.v1.SendCommandRequest
+	8,  // 4: him.gateway.v1.GatewayService.JoinChatroom:input_type -> him.gateway.v1.JoinChatroomRequest
+	10, // 5: him.gateway.v1.GatewayService.LeaveChatroom:input_type -> him.gateway.v1.LeaveChatroomRequest
+	1,  // 6: him.gateway.v1.GatewayService.SendToUser:output_type -> him.gateway.v1.SendToUserResponse
+	3,  // 7: him.gateway.v1.GatewayService.BroadcastToGroup:output_type -> him.gateway.v1.BroadcastToGroupResponse
+	5,  // 8: him.gateway.v1.GatewayService.BroadcastToChatroom:output_type -> him.gateway.v1.BroadcastToChatroomResponse
+	7,  // 9: him.gateway.v1.GatewayService.SendCommand:output_type -> him.gateway.v1.SendCommandResponse
+	9,  // 10: him.gateway.v1.GatewayService.JoinChatroom:output_type -> him.gateway.v1.JoinChatroomResponse
+	11, // 11: him.gateway.v1.GatewayService.LeaveChatroom:output_type -> him.gateway.v1.LeaveChatroomResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_him_gateway_v1_gateway_proto_init() }
@@ -544,7 +756,7 @@ func file_him_gateway_v1_gateway_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_him_gateway_v1_gateway_proto_rawDesc), len(file_him_gateway_v1_gateway_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

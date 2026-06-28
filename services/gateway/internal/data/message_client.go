@@ -13,7 +13,10 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const kafkaTopicPrivate = "him.private.message"
+const (
+	kafkaTopicPrivate  = "him.private.message"
+	kafkaTopicChatroom = "him.chatroom.message"
+)
 
 // grpcMessageClient handles gRPC calls to the message service (used for Ack).
 type grpcMessageClient struct {
@@ -58,7 +61,7 @@ func kafkaBrokers() []string {
 	return []string{"localhost:9092"}
 }
 
-func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, key string, envelope *pb.MessageEnvelope) error {
+func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, topic, key string, envelope *pb.MessageEnvelope) error {
 	data, err := proto.Marshal(envelope)
 	if err != nil {
 		return err
@@ -67,18 +70,43 @@ func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, key string, envel
 	if key != "" {
 		msg.Key = []byte(key)
 	}
-	if err := c.producer.Send(ctx, kafkaTopicPrivate, msg); err != nil {
+	if err := c.producer.Send(ctx, topic, msg); err != nil {
 		logger.ContextErrorf(ctx, "kafka send: %v", err)
 		return err
 	}
 	return nil
 }
 
+func (c *KafkaMessageClient) topicFor(convType pb.ConversationType) string {
+	if convType == pb.ConversationType_CONVERSATION_ROOM {
+		return kafkaTopicChatroom
+	}
+	return kafkaTopicPrivate
+}
+
 // SendMessage wraps the request in a MessageEnvelope and produces to Kafka.
 func (c *KafkaMessageClient) SendMessage(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
-	err := c.sendEnvelope(ctx, req.MessageClientId, &pb.MessageEnvelope{
+	if req.ConvType == pb.ConversationType_CONVERSATION_ROOM {
+		return c.sendChatroom(ctx, req)
+	}
+	return c.sendPrivate(ctx, req)
+}
+
+func (c *KafkaMessageClient) sendPrivate(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
+	err := c.sendEnvelope(ctx, c.topicFor(req.ConvType), req.MessageClientId, &pb.MessageEnvelope{
 		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_SEND,
 		Payload: &pb.MessageEnvelope_Send{Send: req},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.SendMessageResp{ServerTime: time.Now().UnixMilli()}, nil
+}
+
+func (c *KafkaMessageClient) sendChatroom(ctx context.Context, req *pb.SendMessageReq) (*pb.SendMessageResp, error) {
+	err := c.sendEnvelope(ctx, c.topicFor(req.ConvType), req.MessageClientId, &pb.MessageEnvelope{
+		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND,
+		Payload: &pb.MessageEnvelope_ChatroomSend{ChatroomSend: req},
 	})
 	if err != nil {
 		return nil, err
@@ -93,7 +121,7 @@ func (c *KafkaMessageClient) AckMessage(ctx context.Context, serverID int64, use
 
 // RecallMessage wraps the request in a MessageEnvelope and produces to Kafka.
 func (c *KafkaMessageClient) RecallMessage(ctx context.Context, req *pb.RecallMessageReq) error {
-	return c.sendEnvelope(ctx, "", &pb.MessageEnvelope{
+	return c.sendEnvelope(ctx, kafkaTopicPrivate, "", &pb.MessageEnvelope{
 		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL,
 		Payload: &pb.MessageEnvelope_Recall{Recall: req},
 	})

@@ -42,5 +42,5 @@ func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
 
 // Migrate runs auto-migration.
 func (d *Data) Migrate() error {
-	return d.DB.AutoMigrate(&MessageModel{})
+	return d.DB.AutoMigrate(&MessageModel{}, &ChatroomMessageModel{})
 }

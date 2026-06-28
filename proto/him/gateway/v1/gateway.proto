@@ -7,6 +7,8 @@ service GatewayService {
   rpc BroadcastToGroup(BroadcastToGroupRequest) returns (BroadcastToGroupResponse);
   rpc BroadcastToChatroom(BroadcastToChatroomRequest) returns (BroadcastToChatroomResponse);
   rpc SendCommand(SendCommandRequest)         returns (SendCommandResponse);
+  rpc JoinChatroom(JoinChatroomRequest)       returns (JoinChatroomResponse);
+  rpc LeaveChatroom(LeaveChatroomRequest)      returns (LeaveChatroomResponse);
 }
 
 message SendToUserRequest {
@@ -38,3 +40,15 @@ message SendCommandRequest {
   string target_id = 3;
 }
 message SendCommandResponse { bool success = 1; }
+
+message JoinChatroomRequest {
+  string room_id = 1;
+  string user_id = 2;
+}
+message JoinChatroomResponse { bool success = 1; }
+
+message LeaveChatroomRequest {
+  string room_id = 1;
+  string user_id = 2;
+}
+message LeaveChatroomResponse { bool success = 1; }

@@ -11,6 +11,7 @@ require (
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/kafka v0.0.0-20260622162121-360627438658
+	github.com/murphy-hc/h-im/pkg/logger v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260621031301-3e0edc16723b
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260621031301-3e0edc16723b
 	github.com/prometheus/client_golang v1.23.2

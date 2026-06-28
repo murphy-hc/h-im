@@ -23,6 +23,8 @@ const (
 	GatewayService_BroadcastToGroup_FullMethodName    = "/him.gateway.v1.GatewayService/BroadcastToGroup"
 	GatewayService_BroadcastToChatroom_FullMethodName = "/him.gateway.v1.GatewayService/BroadcastToChatroom"
 	GatewayService_SendCommand_FullMethodName         = "/him.gateway.v1.GatewayService/SendCommand"
+	GatewayService_JoinChatroom_FullMethodName        = "/him.gateway.v1.GatewayService/JoinChatroom"
+	GatewayService_LeaveChatroom_FullMethodName       = "/him.gateway.v1.GatewayService/LeaveChatroom"
 )
 
 // GatewayServiceClient is the client API for GatewayService service.
@@ -33,6 +35,8 @@ type GatewayServiceClient interface {
 	BroadcastToGroup(ctx context.Context, in *BroadcastToGroupRequest, opts ...grpc.CallOption) (*BroadcastToGroupResponse, error)
 	BroadcastToChatroom(ctx context.Context, in *BroadcastToChatroomRequest, opts ...grpc.CallOption) (*BroadcastToChatroomResponse, error)
 	SendCommand(ctx context.Context, in *SendCommandRequest, opts ...grpc.CallOption) (*SendCommandResponse, error)
+	JoinChatroom(ctx context.Context, in *JoinChatroomRequest, opts ...grpc.CallOption) (*JoinChatroomResponse, error)
+	LeaveChatroom(ctx context.Context, in *LeaveChatroomRequest, opts ...grpc.CallOption) (*LeaveChatroomResponse, error)
 }
 
 type gatewayServiceClient struct {
@@ -83,6 +87,26 @@ func (c *gatewayServiceClient) SendCommand(ctx context.Context, in *SendCommandR
 	return out, nil
 }
 
+func (c *gatewayServiceClient) JoinChatroom(ctx context.Context, in *JoinChatroomRequest, opts ...grpc.CallOption) (*JoinChatroomResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinChatroomResponse)
+	err := c.cc.Invoke(ctx, GatewayService_JoinChatroom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayServiceClient) LeaveChatroom(ctx context.Context, in *LeaveChatroomRequest, opts ...grpc.CallOption) (*LeaveChatroomResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaveChatroomResponse)
+	err := c.cc.Invoke(ctx, GatewayService_LeaveChatroom_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServiceServer is the server API for GatewayService service.
 // All implementations must embed UnimplementedGatewayServiceServer
 // for forward compatibility.
@@ -91,6 +115,8 @@ type GatewayServiceServer interface {
 	BroadcastToGroup(context.Context, *BroadcastToGroupRequest) (*BroadcastToGroupResponse, error)
 	BroadcastToChatroom(context.Context, *BroadcastToChatroomRequest) (*BroadcastToChatroomResponse, error)
 	SendCommand(context.Context, *SendCommandRequest) (*SendCommandResponse, error)
+	JoinChatroom(context.Context, *JoinChatroomRequest) (*JoinChatroomResponse, error)
+	LeaveChatroom(context.Context, *LeaveChatroomRequest) (*LeaveChatroomResponse, error)
 	mustEmbedUnimplementedGatewayServiceServer()
 }
 
@@ -112,6 +138,12 @@ func (UnimplementedGatewayServiceServer) BroadcastToChatroom(context.Context, *B
 }
 func (UnimplementedGatewayServiceServer) SendCommand(context.Context, *SendCommandRequest) (*SendCommandResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCommand not implemented")
+}
+func (UnimplementedGatewayServiceServer) JoinChatroom(context.Context, *JoinChatroomRequest) (*JoinChatroomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinChatroom not implemented")
+}
+func (UnimplementedGatewayServiceServer) LeaveChatroom(context.Context, *LeaveChatroomRequest) (*LeaveChatroomResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaveChatroom not implemented")
 }
 func (UnimplementedGatewayServiceServer) mustEmbedUnimplementedGatewayServiceServer() {}
 func (UnimplementedGatewayServiceServer) testEmbeddedByValue()                        {}
@@ -206,6 +238,42 @@ func _GatewayService_SendCommand_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GatewayService_JoinChatroom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinChatroomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).JoinChatroom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayService_JoinChatroom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).JoinChatroom(ctx, req.(*JoinChatroomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayService_LeaveChatroom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveChatroomRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).LeaveChatroom(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayService_LeaveChatroom_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).LeaveChatroom(ctx, req.(*LeaveChatroomRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GatewayService_ServiceDesc is the grpc.ServiceDesc for GatewayService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -228,6 +296,14 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendCommand",
 			Handler:    _GatewayService_SendCommand_Handler,
+		},
+		{
+			MethodName: "JoinChatroom",
+			Handler:    _GatewayService_JoinChatroom_Handler,
+		},
+		{
+			MethodName: "LeaveChatroom",
+			Handler:    _GatewayService_LeaveChatroom_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

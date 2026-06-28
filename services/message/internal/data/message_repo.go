@@ -30,6 +30,15 @@ func (r *MessageRepo) InsertChatroom(ctx context.Context, serverID int64, client
 	}).Error
 }
 
+// InsertGroup inserts a group message.
+func (r *MessageRepo) InsertGroup(ctx context.Context, serverID int64, clientID, groupID, senderID string, msgType int32, text, attachment string, serverTime int64) error {
+	return r.db.WithContext(ctx).Create(&GroupMessageModel{
+		MessageServerID: serverID, MessageClientID: clientID, GroupID: groupID,
+		SenderID: senderID, MsgType: msgType, Text: text, Attachment: attachment,
+		ServerTime: serverTime, Status: 1,
+	}).Error
+}
+
 // GetReceiverID returns the receiver of a message (lightweight lookup).
 func (r *MessageRepo) GetReceiverID(ctx context.Context, serverID int64) (string, error) {
 	var m MessageModel

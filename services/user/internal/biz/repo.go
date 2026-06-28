@@ -10,6 +10,14 @@ type App struct {
 	Enabled   bool
 }
 
+// User is the domain entity for a user profile.
+type User struct {
+	UserID   string
+	Username string
+	Nickname string
+	Avatar   string
+}
+
 // OnlineDevice holds online status for a single device.
 type OnlineDevice struct {
 	DeviceID      string
@@ -26,6 +34,9 @@ type UserRepo interface {
 	FindAppByID(ctx context.Context, appID string) (*App, error)
 	Register(ctx context.Context, userID, username, passwordHash string) error
 	FindByUsername(ctx context.Context, username string) (userID, passwordHash string, err error)
+	FindByUserID(ctx context.Context, userID string) (*User, error)
+	BatchGetUsers(ctx context.Context, userIDs []string) ([]*User, error)
+	UpdateProfile(ctx context.Context, userID, nickname, avatar string) error
 }
 
 type OfflinePair struct {

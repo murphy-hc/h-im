@@ -29,6 +29,7 @@ message Server {
     int32 write_buffer_size = 6;
     google.protobuf.Duration handshake_timeout = 7;
     bool enable_compression = 8;
+    repeated string origin_patterns = 9;
   }
   message HTTP {
     string network = 1;

@@ -45,5 +45,10 @@ func NewAllConsumers(bc *conf.Bootstrap, svc *service.KafkaService) *KafkaServer
 			&kafka.DLQConfig{GroupID: kc.GetGroupId() + "-chatroom-dlq"},
 			kafka.WithConsumerTracing(),
 		),
+		// Group messages
+		kafka.NewConsumerGroup(brokers, kc.GetGroupId()+"-group", "him.group.message", svc.Handle,
+			&kafka.DLQConfig{GroupID: kc.GetGroupId() + "-group-dlq"},
+			kafka.WithConsumerTracing(),
+		),
 	}}
 }

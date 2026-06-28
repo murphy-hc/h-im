@@ -39,3 +39,7 @@ func (uc *ChatroomUseCase) LeaveRoom(ctx context.Context, roomID, userID string)
 func (uc *ChatroomUseCase) GetMembers(ctx context.Context, roomID string) ([]string, error) {
 	return uc.repo.GetMembers(ctx, roomID)
 }
+
+func (uc *ChatroomUseCase) GetMessages(ctx context.Context, roomID string, offset, limit int32) ([]*ChatroomMessage, int64, error) {
+	return uc.repo.GetMessages(ctx, roomID, offset, limit)
+}

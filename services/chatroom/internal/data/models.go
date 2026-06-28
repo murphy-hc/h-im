@@ -23,3 +23,17 @@ type RoomMemberModel struct {
 }
 
 func (RoomMemberModel) TableName() string { return "room_members" }
+
+// ChatroomMessageModel reads from chatroom_messages table (shared with message service).
+type ChatroomMessageModel struct {
+	ID         int64  `gorm:"primaryKey;autoIncrement"`
+	ServerID   string `gorm:"column:server_id;size:64;not null"`
+	RoomID     string `gorm:"column:room_id;size:64;not null;index"`
+	SenderID   string `gorm:"column:sender_id;size:64;not null"`
+	MsgType    int32  `gorm:"column:msg_type"`
+	Text       string `gorm:"column:text"`
+	Attachment []byte `gorm:"column:attachment"`
+	CreateTime int64  `gorm:"column:create_time"`
+}
+
+func (ChatroomMessageModel) TableName() string { return "chatroom_messages" }

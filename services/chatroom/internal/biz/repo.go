@@ -11,6 +11,17 @@ type Room struct {
 	CreatedAt   int64
 }
 
+// ChatroomMessage is a chatroom message entity.
+type ChatroomMessage struct {
+	ServerID   string
+	RoomID     string
+	SenderID   string
+	MsgType    int32
+	Text       string
+	Attachment []byte
+	CreateTime int64
+}
+
 // ChatroomRepo defines the chatroom repository interface.
 type ChatroomRepo interface {
 	CreateRoom(ctx context.Context, roomID, name, ownerID string) error
@@ -18,4 +29,5 @@ type ChatroomRepo interface {
 	JoinRoom(ctx context.Context, roomID, userID string) error
 	LeaveRoom(ctx context.Context, roomID, userID string) error
 	GetMembers(ctx context.Context, roomID string) ([]string, error)
+	GetMessages(ctx context.Context, roomID string, offset, limit int32) ([]*ChatroomMessage, int64, error)
 }

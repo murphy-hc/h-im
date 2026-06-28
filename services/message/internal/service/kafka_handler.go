@@ -35,6 +35,10 @@ func (s *KafkaService) Handle(ctx context.Context, msg kafka.Message) error {
 		req := env.GetChatroomSend()
 		_, err := s.uc.SendChatroomMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
 		return err
+	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_GROUP_SEND:
+		req := env.GetGroupSend()
+		_, err := s.uc.SendGroupMessage(ctx, req.SenderId, req.ReceiverId, int32(req.MsgType), req.Text, req.MessageClientId, attachmentBytes(req.Attachment))
+		return err
 	case pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL:
 		req := env.GetRecall()
 		return s.uc.RecallMessage(ctx, req.MessageServerId, req.SenderId)

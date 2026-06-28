@@ -33,7 +33,8 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	mediaUseCase := biz.NewMediaUseCase(mediaRepo, ossStorage)
 	mediaService := service.NewMediaService(mediaUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, mediaService)
-	mediaHTTPHandler := service.NewMediaHTTPHandler(mediaUseCase)
+	string2 := service.NewMediaSecret(bc)
+	mediaHTTPHandler := service.NewMediaHTTPHandler(mediaUseCase, string2)
 	httpServer := server.NewHTTPServer(bc, meter, mediaHTTPHandler)
 	app := newApp(grpcServer, httpServer)
 	return app, func() {

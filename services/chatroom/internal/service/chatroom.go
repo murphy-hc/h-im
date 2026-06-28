@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pb "github.com/murphy-hc/h-im/gen/go/him/chatroom/v1"
+	commonv1 "github.com/murphy-hc/h-im/gen/go/him/common/v1"
 	"github.com/murphy-hc/h-im/services/chatroom/internal/biz"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -47,5 +48,41 @@ func (s *ChatroomService) SendMessage(ctx context.Context, req *pb.SendMessageRe
 }
 
 func (s *ChatroomService) GetMessages(ctx context.Context, req *pb.GetMessagesRequest) (*pb.GetMessagesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "not yet implemented")
+	page := int32(1)
+	pageSize := int32(20)
+	if req.Pagination != nil {
+		if req.Pagination.Page > 0 {
+			page = req.Pagination.Page
+		}
+		if req.Pagination.PageSize > 0 {
+			pageSize = req.Pagination.PageSize
+		}
+	}
+	offset := (page - 1) * pageSize
+	msgs, total, err := s.uc.GetMessages(ctx, req.RoomId, offset, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	pbMsgs := make([]*pb.ChatroomMessage, 0, len(msgs))
+	for _, m := range msgs {
+		pbMsgs = append(pbMsgs, &pb.ChatroomMessage{
+			MessageId: m.ServerID,
+			RoomId:    m.RoomID,
+			SenderId:  m.SenderID,
+			CreatedAt: m.CreateTime,
+		})
+	}
+	totalPage := int32(0)
+	if pageSize > 0 {
+		totalPage = int32(total) / pageSize
+		if int32(total)%pageSize > 0 {
+			totalPage++
+		}
+	}
+	return &pb.GetMessagesResponse{
+		Messages: pbMsgs,
+		Pagination: &commonv1.PaginationResponse{
+			Page: page, PageSize: pageSize, Total: total, TotalPage: totalPage,
+		},
+	}, nil
 }

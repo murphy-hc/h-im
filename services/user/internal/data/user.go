@@ -143,6 +143,48 @@ func (r *userRepo) FindByUsername(ctx context.Context, username string) (string,
 	return m.UserID, m.PasswordHash, nil
 }
 
+func (r *userRepo) FindByUserID(ctx context.Context, userID string) (*biz.User, error) {
+	var m UserModel
+	if err := r.data.DB.WithContext(ctx).Where("user_id = ?", userID).First(&m).Error; err != nil {
+		return nil, err
+	}
+	return &biz.User{
+		UserID: m.UserID, Username: m.Username, Nickname: m.Nickname, Avatar: m.Avatar,
+	}, nil
+}
+
+func (r *userRepo) BatchGetUsers(ctx context.Context, userIDs []string) ([]*biz.User, error) {
+	if len(userIDs) == 0 {
+		return nil, nil
+	}
+	var models []UserModel
+	if err := r.data.DB.WithContext(ctx).Where("user_id IN ?", userIDs).Find(&models).Error; err != nil {
+		return nil, err
+	}
+	result := make([]*biz.User, 0, len(models))
+	for i := range models {
+		result = append(result, &biz.User{
+			UserID: models[i].UserID, Username: models[i].Username,
+			Nickname: models[i].Nickname, Avatar: models[i].Avatar,
+		})
+	}
+	return result, nil
+}
+
+func (r *userRepo) UpdateProfile(ctx context.Context, userID, nickname, avatar string) error {
+	updates := map[string]any{}
+	if nickname != "" {
+		updates["nickname"] = nickname
+	}
+	if avatar != "" {
+		updates["avatar"] = avatar
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.data.DB.WithContext(ctx).Model(&UserModel{}).Where("user_id = ?", userID).Updates(updates).Error
+}
+
 func (r *userRepo) FindAppByID(ctx context.Context, appID string) (*biz.App, error) {
 	var model AppModel
 	err := r.data.DB.WithContext(ctx).Where("app_id = ? AND enabled = true", appID).First(&model).Error

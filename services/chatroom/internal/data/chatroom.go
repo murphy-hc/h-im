@@ -49,6 +49,26 @@ func (r *chatroomRepo) LeaveRoom(ctx context.Context, roomID, userID string) err
 	})
 }
 
+func (r *chatroomRepo) GetMessages(ctx context.Context, roomID string, offset, limit int32) ([]*biz.ChatroomMessage, int64, error) {
+	var total int64
+	if err := r.data.DB.WithContext(ctx).Model(&ChatroomMessageModel{}).Where("room_id = ?", roomID).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var models []ChatroomMessageModel
+	if err := r.data.DB.WithContext(ctx).Where("room_id = ?", roomID).Order("create_time DESC").Offset(int(offset)).Limit(int(limit)).Find(&models).Error; err != nil {
+		return nil, 0, err
+	}
+	result := make([]*biz.ChatroomMessage, 0, len(models))
+	for i := range models {
+		result = append(result, &biz.ChatroomMessage{
+			ServerID: models[i].ServerID, RoomID: models[i].RoomID, SenderID: models[i].SenderID,
+			MsgType: models[i].MsgType, Text: models[i].Text, Attachment: models[i].Attachment,
+			CreateTime: models[i].CreateTime,
+		})
+	}
+	return result, total, nil
+}
+
 func (r *chatroomRepo) GetMembers(ctx context.Context, roomID string) ([]string, error) {
 	var members []RoomMemberModel
 	if err := r.data.DB.WithContext(ctx).Where("room_id = ?", roomID).Find(&members).Error; err != nil {

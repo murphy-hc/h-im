@@ -2,11 +2,12 @@ package biz
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"time"
 
+	"github.com/murphy-hc/h-im/pkg/jwt"
 	"github.com/rs/xid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // HeartbeatConfig holds heartbeat parameters for the user service.
@@ -17,13 +18,14 @@ type HeartbeatConfig struct {
 
 // UserUseCase handles user business logic.
 type UserUseCase struct {
-	repo  UserRepo
-	hbCfg HeartbeatConfig
+	repo       UserRepo
+	hbCfg      HeartbeatConfig
+	jwtManager *jwt.Manager
 }
 
 // NewUserUseCase creates a UserUseCase.
-func NewUserUseCase(repo UserRepo, hbCfg HeartbeatConfig) *UserUseCase {
-	uc := &UserUseCase{repo: repo, hbCfg: hbCfg}
+func NewUserUseCase(repo UserRepo, hbCfg HeartbeatConfig, jwtManager *jwt.Manager) *UserUseCase {
+	uc := &UserUseCase{repo: repo, hbCfg: hbCfg, jwtManager: jwtManager}
 	go uc.sweepLoop()
 	return uc
 }
@@ -75,7 +77,47 @@ func (uc *UserUseCase) Register(ctx context.Context, username, password string) 
 	return userID, nil
 }
 
+// Login authenticates a user with username and password, returning JWT tokens.
+func (uc *UserUseCase) Login(ctx context.Context, username, password string) (accessToken, refreshToken string, expiresAt int64, err error) {
+	userID, hash, err := uc.repo.FindByUsername(ctx, username)
+	if err != nil {
+		return "", "", 0, fmt.Errorf("user not found")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
+		return "", "", 0, fmt.Errorf("invalid password: %w", err)
+	}
+	accessToken, err = uc.jwtManager.IssueAccessToken(userID)
+	if err != nil {
+		return "", "", 0, fmt.Errorf("issue access token: %w", err)
+	}
+	refreshToken, err = uc.jwtManager.IssueRefreshToken(userID)
+	if err != nil {
+		return "", "", 0, fmt.Errorf("issue refresh token: %w", err)
+	}
+	expiresAt = time.Now().Add(uc.jwtManager.AccessTTL()).Unix()
+	return accessToken, refreshToken, expiresAt, nil
+}
+
+// GetProfile returns a user's profile by ID.
+func (uc *UserUseCase) GetProfile(ctx context.Context, userID string) (*User, error) {
+	return uc.repo.FindByUserID(ctx, userID)
+}
+
+// UpdateProfile updates a user's nickname and/or avatar.
+func (uc *UserUseCase) UpdateProfile(ctx context.Context, userID, nickname, avatar string) error {
+	return uc.repo.UpdateProfile(ctx, userID, nickname, avatar)
+}
+
+// BatchGetUsers returns profiles for multiple user IDs.
+func (uc *UserUseCase) BatchGetUsers(ctx context.Context, userIDs []string) ([]*User, error) {
+	return uc.repo.BatchGetUsers(ctx, userIDs)
+}
+
+
 func hashPassword(pw string) string {
-	h := sha256.Sum256([]byte(pw))
-	return fmt.Sprintf("%x", h)
+	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+	if err != nil {
+		panic("bcrypt: " + err.Error())
+	}
+	return string(hash)
 }

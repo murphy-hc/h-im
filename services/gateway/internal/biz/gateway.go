@@ -82,14 +82,14 @@ func (uc *GatewayUseCase) sweepLoop() {
 func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.Conn, userID, deviceID string) {
 	defer func() {
 		uc.cm.Remove(userID, deviceID)
-		gp.SafeGo(context.Background(), func(_ context.Context) {
+		gp.SafeGo(ctx, func(_ context.Context) {
 			uc.userStatus.ReportDisconnect(context.Background(), userID, deviceID)
 		})
 	}()
 
 	done := make(chan struct{})
 	defer close(done)
-	gp.SafeGo(context.Background(), func(_ context.Context) {
+	gp.SafeGo(ctx, func(_ context.Context) {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 		for {
@@ -131,7 +131,7 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 				uc.cm.MarkHeartbeatFail(userID, deviceID)
 			} else {
 				uc.cm.MarkHeartbeatSuccess(userID, deviceID)
-				gp.SafeGo(context.Background(), func(_ context.Context) {
+				gp.SafeGo(ctx, func(_ context.Context) {
 					uc.userStatus.ReportHeartbeat(context.Background(), userID, deviceID, uc.gatewayAddr, time.Now().Unix())
 				})
 			}

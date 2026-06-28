@@ -2,7 +2,8 @@ package biz
 
 import (
 	"context"
-	"crypto/sha1"
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -62,5 +63,7 @@ func verifyAppToken(appSecret, userID, token string) error {
 }
 
 func sign(appSecret, userID string, curTime, ttl int64) string {
-	return fmt.Sprintf("%x", sha1.Sum([]byte(fmt.Sprintf("%s%s%d%d", appSecret, userID, curTime, ttl))))
+	mac := hmac.New(sha256.New, []byte(appSecret))
+	mac.Write([]byte(fmt.Sprintf("%s%d%d", userID, curTime, ttl)))
+	return fmt.Sprintf("%x", mac.Sum(nil))
 }

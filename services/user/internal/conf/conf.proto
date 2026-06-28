@@ -12,6 +12,7 @@ message Bootstrap {
   Log log = 3;
   Otel otel = 4;
   Heartbeat heartbeat = 5;
+  JwtConfig jwt = 6;
 }
 
 message Server {
@@ -62,6 +63,11 @@ message Log {
 message Heartbeat {
   int32 timeout_seconds = 1; // offline timeout, default 180 (3min)
   int32 sweep_interval  = 2; // sweep interval, default 10
+}
+
+message JwtConfig {
+  google.protobuf.Duration access_ttl  = 1; // access token TTL, default 24h
+  google.protobuf.Duration refresh_ttl = 2; // refresh token TTL, default 7 days
 }
 
 message Otel {

@@ -29,6 +29,7 @@ type Bootstrap struct {
 	Log           *Log                   `protobuf:"bytes,3,opt,name=log,proto3" json:"log,omitempty"`
 	Otel          *Otel                  `protobuf:"bytes,4,opt,name=otel,proto3" json:"otel,omitempty"`
 	Heartbeat     *Heartbeat             `protobuf:"bytes,5,opt,name=heartbeat,proto3" json:"heartbeat,omitempty"`
+	Jwt           *JwtConfig             `protobuf:"bytes,6,opt,name=jwt,proto3" json:"jwt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,6 +95,13 @@ func (x *Bootstrap) GetOtel() *Otel {
 func (x *Bootstrap) GetHeartbeat() *Heartbeat {
 	if x != nil {
 		return x.Heartbeat
+	}
+	return nil
+}
+
+func (x *Bootstrap) GetJwt() *JwtConfig {
+	if x != nil {
+		return x.Jwt
 	}
 	return nil
 }
@@ -434,6 +442,58 @@ func (x *Heartbeat) GetSweepInterval() int32 {
 	return 0
 }
 
+type JwtConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AccessTtl     *durationpb.Duration   `protobuf:"bytes,1,opt,name=access_ttl,json=accessTtl,proto3" json:"access_ttl,omitempty"`    // access token TTL, default 24h
+	RefreshTtl    *durationpb.Duration   `protobuf:"bytes,2,opt,name=refresh_ttl,json=refreshTtl,proto3" json:"refresh_ttl,omitempty"` // refresh token TTL, default 7 days
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JwtConfig) Reset() {
+	*x = JwtConfig{}
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JwtConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JwtConfig) ProtoMessage() {}
+
+func (x *JwtConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JwtConfig.ProtoReflect.Descriptor instead.
+func (*JwtConfig) Descriptor() ([]byte, []int) {
+	return file_services_user_internal_conf_conf_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *JwtConfig) GetAccessTtl() *durationpb.Duration {
+	if x != nil {
+		return x.AccessTtl
+	}
+	return nil
+}
+
+func (x *JwtConfig) GetRefreshTtl() *durationpb.Duration {
+	if x != nil {
+		return x.RefreshTtl
+	}
+	return nil
+}
+
 type Otel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
@@ -449,7 +509,7 @@ type Otel struct {
 
 func (x *Otel) Reset() {
 	*x = Otel{}
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -461,7 +521,7 @@ func (x *Otel) String() string {
 func (*Otel) ProtoMessage() {}
 
 func (x *Otel) ProtoReflect() protoreflect.Message {
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[7]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -474,7 +534,7 @@ func (x *Otel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Otel.ProtoReflect.Descriptor instead.
 func (*Otel) Descriptor() ([]byte, []int) {
-	return file_services_user_internal_conf_conf_proto_rawDescGZIP(), []int{7}
+	return file_services_user_internal_conf_conf_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Otel) GetServiceName() string {
@@ -537,7 +597,7 @@ type Server_HTTP struct {
 
 func (x *Server_HTTP) Reset() {
 	*x = Server_HTTP{}
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -549,7 +609,7 @@ func (x *Server_HTTP) String() string {
 func (*Server_HTTP) ProtoMessage() {}
 
 func (x *Server_HTTP) ProtoReflect() protoreflect.Message {
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[8]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -597,7 +657,7 @@ type Server_GRPC struct {
 
 func (x *Server_GRPC) Reset() {
 	*x = Server_GRPC{}
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -609,7 +669,7 @@ func (x *Server_GRPC) String() string {
 func (*Server_GRPC) ProtoMessage() {}
 
 func (x *Server_GRPC) ProtoReflect() protoreflect.Message {
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[9]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -659,7 +719,7 @@ type Database_MySQL struct {
 
 func (x *Database_MySQL) Reset() {
 	*x = Database_MySQL{}
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[10]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -671,7 +731,7 @@ func (x *Database_MySQL) String() string {
 func (*Database_MySQL) ProtoMessage() {}
 
 func (x *Database_MySQL) ProtoReflect() protoreflect.Message {
-	mi := &file_services_user_internal_conf_conf_proto_msgTypes[10]
+	mi := &file_services_user_internal_conf_conf_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,13 +786,14 @@ var File_services_user_internal_conf_conf_proto protoreflect.FileDescriptor
 
 const file_services_user_internal_conf_conf_proto_rawDesc = "" +
 	"\n" +
-	"&services/user/internal/conf/conf.proto\x12\rhim.user.conf\x1a\x1egoogle/protobuf/duration.proto\"\xea\x01\n" +
+	"&services/user/internal/conf/conf.proto\x12\rhim.user.conf\x1a\x1egoogle/protobuf/duration.proto\"\x96\x02\n" +
 	"\tBootstrap\x12-\n" +
 	"\x06server\x18\x01 \x01(\v2\x15.him.user.conf.ServerR\x06server\x12'\n" +
 	"\x04data\x18\x02 \x01(\v2\x13.him.user.conf.DataR\x04data\x12$\n" +
 	"\x03log\x18\x03 \x01(\v2\x12.him.user.conf.LogR\x03log\x12'\n" +
 	"\x04otel\x18\x04 \x01(\v2\x13.him.user.conf.OtelR\x04otel\x126\n" +
-	"\theartbeat\x18\x05 \x01(\v2\x18.him.user.conf.HeartbeatR\theartbeat\"\xd0\x02\n" +
+	"\theartbeat\x18\x05 \x01(\v2\x18.him.user.conf.HeartbeatR\theartbeat\x12*\n" +
+	"\x03jwt\x18\x06 \x01(\v2\x18.him.user.conf.JwtConfigR\x03jwt\"\xd0\x02\n" +
 	"\x06Server\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12.\n" +
 	"\x04http\x18\x02 \x01(\v2\x1a.him.user.conf.Server.HTTPR\x04http\x12.\n" +
@@ -767,7 +828,12 @@ const file_services_user_internal_conf_conf_proto_rawDesc = "" +
 	"\x05level\x18\x01 \x01(\tR\x05level\"[\n" +
 	"\tHeartbeat\x12'\n" +
 	"\x0ftimeout_seconds\x18\x01 \x01(\x05R\x0etimeoutSeconds\x12%\n" +
-	"\x0esweep_interval\x18\x02 \x01(\x05R\rsweepInterval\"\xe9\x01\n" +
+	"\x0esweep_interval\x18\x02 \x01(\x05R\rsweepInterval\"\x81\x01\n" +
+	"\tJwtConfig\x128\n" +
+	"\n" +
+	"access_ttl\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\taccessTtl\x12:\n" +
+	"\vrefresh_ttl\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\n" +
+	"refreshTtl\"\xe9\x01\n" +
 	"\x04Otel\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x1a\n" +
 	"\bendpoint\x18\x02 \x01(\tR\bendpoint\x12\x1f\n" +
@@ -790,7 +856,7 @@ func file_services_user_internal_conf_conf_proto_rawDescGZIP() []byte {
 	return file_services_user_internal_conf_conf_proto_rawDescData
 }
 
-var file_services_user_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_services_user_internal_conf_conf_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_services_user_internal_conf_conf_proto_goTypes = []any{
 	(*Bootstrap)(nil),           // 0: him.user.conf.Bootstrap
 	(*Server)(nil),              // 1: him.user.conf.Server
@@ -799,35 +865,39 @@ var file_services_user_internal_conf_conf_proto_goTypes = []any{
 	(*Redis)(nil),               // 4: him.user.conf.Redis
 	(*Log)(nil),                 // 5: him.user.conf.Log
 	(*Heartbeat)(nil),           // 6: him.user.conf.Heartbeat
-	(*Otel)(nil),                // 7: him.user.conf.Otel
-	(*Server_HTTP)(nil),         // 8: him.user.conf.Server.HTTP
-	(*Server_GRPC)(nil),         // 9: him.user.conf.Server.GRPC
-	(*Database_MySQL)(nil),      // 10: him.user.conf.Database.MySQL
-	(*durationpb.Duration)(nil), // 11: google.protobuf.Duration
+	(*JwtConfig)(nil),           // 7: him.user.conf.JwtConfig
+	(*Otel)(nil),                // 8: him.user.conf.Otel
+	(*Server_HTTP)(nil),         // 9: him.user.conf.Server.HTTP
+	(*Server_GRPC)(nil),         // 10: him.user.conf.Server.GRPC
+	(*Database_MySQL)(nil),      // 11: him.user.conf.Database.MySQL
+	(*durationpb.Duration)(nil), // 12: google.protobuf.Duration
 }
 var file_services_user_internal_conf_conf_proto_depIdxs = []int32{
 	1,  // 0: him.user.conf.Bootstrap.server:type_name -> him.user.conf.Server
 	2,  // 1: him.user.conf.Bootstrap.data:type_name -> him.user.conf.Data
 	5,  // 2: him.user.conf.Bootstrap.log:type_name -> him.user.conf.Log
-	7,  // 3: him.user.conf.Bootstrap.otel:type_name -> him.user.conf.Otel
+	8,  // 3: him.user.conf.Bootstrap.otel:type_name -> him.user.conf.Otel
 	6,  // 4: him.user.conf.Bootstrap.heartbeat:type_name -> him.user.conf.Heartbeat
-	8,  // 5: him.user.conf.Server.http:type_name -> him.user.conf.Server.HTTP
-	9,  // 6: him.user.conf.Server.grpc:type_name -> him.user.conf.Server.GRPC
-	3,  // 7: him.user.conf.Data.database:type_name -> him.user.conf.Database
-	4,  // 8: him.user.conf.Data.redis:type_name -> him.user.conf.Redis
-	10, // 9: him.user.conf.Database.user:type_name -> him.user.conf.Database.MySQL
-	11, // 10: him.user.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
-	11, // 11: him.user.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
-	11, // 12: him.user.conf.Otel.timeout:type_name -> google.protobuf.Duration
-	11, // 13: him.user.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
-	11, // 14: him.user.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
-	11, // 15: him.user.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
-	11, // 16: him.user.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	7,  // 5: him.user.conf.Bootstrap.jwt:type_name -> him.user.conf.JwtConfig
+	9,  // 6: him.user.conf.Server.http:type_name -> him.user.conf.Server.HTTP
+	10, // 7: him.user.conf.Server.grpc:type_name -> him.user.conf.Server.GRPC
+	3,  // 8: him.user.conf.Data.database:type_name -> him.user.conf.Database
+	4,  // 9: him.user.conf.Data.redis:type_name -> him.user.conf.Redis
+	11, // 10: him.user.conf.Database.user:type_name -> him.user.conf.Database.MySQL
+	12, // 11: him.user.conf.Redis.read_timeout:type_name -> google.protobuf.Duration
+	12, // 12: him.user.conf.Redis.write_timeout:type_name -> google.protobuf.Duration
+	12, // 13: him.user.conf.JwtConfig.access_ttl:type_name -> google.protobuf.Duration
+	12, // 14: him.user.conf.JwtConfig.refresh_ttl:type_name -> google.protobuf.Duration
+	12, // 15: him.user.conf.Otel.timeout:type_name -> google.protobuf.Duration
+	12, // 16: him.user.conf.Server.HTTP.timeout:type_name -> google.protobuf.Duration
+	12, // 17: him.user.conf.Server.GRPC.timeout:type_name -> google.protobuf.Duration
+	12, // 18: him.user.conf.Database.MySQL.conn_max_lifetime:type_name -> google.protobuf.Duration
+	12, // 19: him.user.conf.Database.MySQL.conn_max_idle_time:type_name -> google.protobuf.Duration
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_services_user_internal_conf_conf_proto_init() }
@@ -841,7 +911,7 @@ func file_services_user_internal_conf_conf_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_services_user_internal_conf_conf_proto_rawDesc), len(file_services_user_internal_conf_conf_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

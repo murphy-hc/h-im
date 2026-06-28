@@ -25,7 +25,8 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	}
 	userRepo := data.NewUserRepo(dataData)
 	heartbeatConfig := biz.NewHeartbeatConfig(bc)
-	userUseCase := biz.NewUserUseCase(userRepo, heartbeatConfig)
+	manager := biz.NewJWTManager(bc)
+	userUseCase := biz.NewUserUseCase(userRepo, heartbeatConfig, manager)
 	authUseCase := biz.NewAuthUseCase(userRepo)
 	userService := service.NewUserService(userUseCase, authUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, userService)

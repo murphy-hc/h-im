@@ -7,6 +7,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/murphy-hc/h-im/gen/go v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260622162121-360627438658
+	github.com/murphy-hc/h-im/pkg/jwt v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/redis v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/tracing v0.0.0-20260620170028-8f8ba2793bc5
@@ -14,6 +15,7 @@ require (
 	github.com/redis/go-redis/v9 v9.20.1
 	github.com/rs/xid v1.6.0
 	go.opentelemetry.io/otel/metric v1.41.0
+	golang.org/x/crypto v0.48.0
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
 )
@@ -33,6 +35,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/form/v4 v4.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect

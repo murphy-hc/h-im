@@ -23,6 +23,9 @@ func NewGatewayService(uc *biz.GatewayUseCase, cm biz.ConnManager, cfg *conf.Use
 	if wsCfg.GetEnableCompression() {
 		opts.CompressionMode = websocket.CompressionNoContextTakeover
 	}
+	if origins := wsCfg.GetOriginPatterns(); len(origins) > 0 {
+		opts.OriginPatterns = origins
+	}
 	return &GatewayService{uc: uc, cm: cm, cfg: cfg, acceptOpts: opts}
 }
 

@@ -395,8 +395,9 @@ func (x *GetProfileResponse) GetUser() *User {
 
 type UpdateProfileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Nickname      string                 `protobuf:"bytes,1,opt,name=nickname,proto3" json:"nickname,omitempty"`
-	Avatar        string                 `protobuf:"bytes,2,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Nickname      string                 `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"`
+	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -429,6 +430,13 @@ func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
 	return file_him_user_v1_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateProfileRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 func (x *UpdateProfileRequest) GetNickname() string {
@@ -1050,10 +1058,11 @@ const file_him_user_v1_user_proto_rawDesc = "" +
 	"\x11GetProfileRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\";\n" +
 	"\x12GetProfileResponse\x12%\n" +
-	"\x04user\x18\x01 \x01(\v2\x11.him.user.v1.UserR\x04user\"J\n" +
-	"\x14UpdateProfileRequest\x12\x1a\n" +
-	"\bnickname\x18\x01 \x01(\tR\bnickname\x12\x16\n" +
-	"\x06avatar\x18\x02 \x01(\tR\x06avatar\">\n" +
+	"\x04user\x18\x01 \x01(\v2\x11.him.user.v1.UserR\x04user\"c\n" +
+	"\x14UpdateProfileRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bnickname\x18\x02 \x01(\tR\bnickname\x12\x16\n" +
+	"\x06avatar\x18\x03 \x01(\tR\x06avatar\">\n" +
 	"\x15UpdateProfileResponse\x12%\n" +
 	"\x04user\x18\x01 \x01(\v2\x11.him.user.v1.UserR\x04user\"1\n" +
 	"\x14BatchGetUsersRequest\x12\x19\n" +

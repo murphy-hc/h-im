@@ -10,18 +10,34 @@ import (
 
 // MediaHTTPHandler handles HTTP upload/callback requests.
 type MediaHTTPHandler struct {
-	uc *biz.MediaUseCase
+	uc     *biz.MediaUseCase
+	secret string
 }
 
 // NewMediaHTTPHandler creates a MediaHTTPHandler.
-func NewMediaHTTPHandler(uc *biz.MediaUseCase) *MediaHTTPHandler {
-	return &MediaHTTPHandler{uc: uc}
+func NewMediaHTTPHandler(uc *biz.MediaUseCase, secret string) *MediaHTTPHandler {
+	return &MediaHTTPHandler{uc: uc, secret: secret}
+}
+
+func (h *MediaHTTPHandler) auth(r *http.Request) bool {
+	if h.secret == "" {
+		return true // dev mode: no secret configured
+	}
+	token := r.Header.Get("X-Media-Secret")
+	if token == "" {
+		token = r.FormValue("secret")
+	}
+	return token == h.secret
 }
 
 // Upload handles POST /media/v1/upload.
 func (h *MediaHTTPHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !h.auth(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	if err := r.ParseMultipartForm(50 << 20); err != nil {
@@ -61,6 +77,10 @@ func (h *MediaHTTPHandler) Token(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	if !h.auth(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 	userID := r.FormValue("user_id")
 	if userID == "" {
 		http.Error(w, "missing user_id", http.StatusBadRequest)
@@ -82,6 +102,10 @@ func (h *MediaHTTPHandler) Token(w http.ResponseWriter, r *http.Request) {
 func (h *MediaHTTPHandler) Confirm(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !h.auth(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 	mediaID := r.FormValue("media_id")

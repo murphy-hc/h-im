@@ -28,6 +28,7 @@ type Bootstrap struct {
 	Data          *Data                  `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 	Log           *Log                   `protobuf:"bytes,3,opt,name=log,proto3" json:"log,omitempty"`
 	Otel          *Otel                  `protobuf:"bytes,4,opt,name=otel,proto3" json:"otel,omitempty"`
+	MediaSecret   string                 `protobuf:"bytes,5,opt,name=media_secret,json=mediaSecret,proto3" json:"media_secret,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -88,6 +89,13 @@ func (x *Bootstrap) GetOtel() *Otel {
 		return x.Otel
 	}
 	return nil
+}
+
+func (x *Bootstrap) GetMediaSecret() string {
+	if x != nil {
+		return x.MediaSecret
+	}
+	return ""
 }
 
 type Server struct {
@@ -742,12 +750,13 @@ var File_services_media_internal_conf_conf_proto protoreflect.FileDescriptor
 
 const file_services_media_internal_conf_conf_proto_rawDesc = "" +
 	"\n" +
-	"'services/media/internal/conf/conf.proto\x12\x0ehim.media.conf\x1a\x1egoogle/protobuf/duration.proto\"\xb6\x01\n" +
+	"'services/media/internal/conf/conf.proto\x12\x0ehim.media.conf\x1a\x1egoogle/protobuf/duration.proto\"\xd9\x01\n" +
 	"\tBootstrap\x12.\n" +
 	"\x06server\x18\x01 \x01(\v2\x16.him.media.conf.ServerR\x06server\x12(\n" +
 	"\x04data\x18\x02 \x01(\v2\x14.him.media.conf.DataR\x04data\x12%\n" +
 	"\x03log\x18\x03 \x01(\v2\x13.him.media.conf.LogR\x03log\x12(\n" +
-	"\x04otel\x18\x04 \x01(\v2\x14.him.media.conf.OtelR\x04otel\"\xd2\x02\n" +
+	"\x04otel\x18\x04 \x01(\v2\x14.him.media.conf.OtelR\x04otel\x12!\n" +
+	"\fmedia_secret\x18\x05 \x01(\tR\vmediaSecret\"\xd2\x02\n" +
 	"\x06Server\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12/\n" +
 	"\x04http\x18\x02 \x01(\v2\x1b.him.media.conf.Server.HTTPR\x04http\x12/\n" +

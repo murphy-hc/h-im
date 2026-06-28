@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         && apt-get autoremove -y && apt-get autoclean -y
 
 COPY bin/server /app/bin/server
-COPY configs /app/configs/
 
 EXPOSE 9103
 EXPOSE 8103

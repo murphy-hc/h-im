@@ -29,6 +29,9 @@ func NewManager(secret string, accessTTL, refreshTTL time.Duration) *Manager {
 	}
 }
 
+// AccessTTL returns the configured access token TTL.
+func (m *Manager) AccessTTL() time.Duration { return m.accessTTL }
+
 // IssueAccessToken creates a short-lived access token for the given user.
 func (m *Manager) IssueAccessToken(userID string) (string, error) {
 	now := time.Now()

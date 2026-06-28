@@ -66,3 +66,47 @@ func (s *UserService) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 	}
 	return &pb.RegisterResponse{UserId: userID}, nil
 }
+
+func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+	access, refresh, expiresAt, err := s.uc.Login(ctx, req.Username, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.LoginResponse{
+		AccessToken:  access,
+		RefreshToken: refresh,
+		ExpiresAt:    expiresAt,
+	}, nil
+}
+
+func (s *UserService) GetProfile(ctx context.Context, req *pb.GetProfileRequest) (*pb.GetProfileResponse, error) {
+	u, err := s.uc.GetProfile(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetProfileResponse{User: &pb.User{
+		UserId: u.UserID, Nickname: u.Nickname, Avatar: u.Avatar,
+	}}, nil
+}
+
+func (s *UserService) UpdateProfile(ctx context.Context, req *pb.UpdateProfileRequest) (*pb.UpdateProfileResponse, error) {
+	err := s.uc.UpdateProfile(ctx, req.UserId, req.Nickname, req.Avatar)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.UpdateProfileResponse{}, nil
+}
+
+func (s *UserService) BatchGetUsers(ctx context.Context, req *pb.BatchGetUsersRequest) (*pb.BatchGetUsersResponse, error) {
+	users, err := s.uc.BatchGetUsers(ctx, req.UserIds)
+	if err != nil {
+		return nil, err
+	}
+	pbUsers := make([]*pb.User, 0, len(users))
+	for _, u := range users {
+		pbUsers = append(pbUsers, &pb.User{
+			UserId: u.UserID, Nickname: u.Nickname, Avatar: u.Avatar,
+		})
+	}
+	return &pb.BatchGetUsersResponse{Users: pbUsers}, nil
+}

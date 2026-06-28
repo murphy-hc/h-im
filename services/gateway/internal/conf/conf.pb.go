@@ -588,6 +588,7 @@ type Server_WS struct {
 	WriteBufferSize   int32                  `protobuf:"varint,6,opt,name=write_buffer_size,json=writeBufferSize,proto3" json:"write_buffer_size,omitempty"`
 	HandshakeTimeout  *durationpb.Duration   `protobuf:"bytes,7,opt,name=handshake_timeout,json=handshakeTimeout,proto3" json:"handshake_timeout,omitempty"`
 	EnableCompression bool                   `protobuf:"varint,8,opt,name=enable_compression,json=enableCompression,proto3" json:"enable_compression,omitempty"`
+	OriginPatterns    []string               `protobuf:"bytes,9,rep,name=origin_patterns,json=originPatterns,proto3" json:"origin_patterns,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -676,6 +677,13 @@ func (x *Server_WS) GetEnableCompression() bool {
 		return x.EnableCompression
 	}
 	return false
+}
+
+func (x *Server_WS) GetOriginPatterns() []string {
+	if x != nil {
+		return x.OriginPatterns
+	}
+	return nil
 }
 
 type Server_HTTP struct {
@@ -885,12 +893,12 @@ const file_services_gateway_internal_conf_conf_proto_rawDesc = "" +
 	"\x03log\x18\x03 \x01(\v2\x15.him.gateway.conf.LogR\x03log\x12*\n" +
 	"\x04otel\x18\x04 \x01(\v2\x16.him.gateway.conf.OtelR\x04otel\x12*\n" +
 	"\x04user\x18\x05 \x01(\v2\x16.him.gateway.conf.UserR\x04user\x129\n" +
-	"\theartbeat\x18\x06 \x01(\v2\x1b.him.gateway.conf.HeartbeatR\theartbeat\"\x83\x06\n" +
+	"\theartbeat\x18\x06 \x01(\v2\x1b.him.gateway.conf.HeartbeatR\theartbeat\"\xac\x06\n" +
 	"\x06Server\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12+\n" +
 	"\x02ws\x18\x02 \x01(\v2\x1b.him.gateway.conf.Server.WSR\x02ws\x121\n" +
 	"\x04http\x18\x03 \x01(\v2\x1d.him.gateway.conf.Server.HTTPR\x04http\x121\n" +
-	"\x04grpc\x18\x04 \x01(\v2\x1d.him.gateway.conf.Server.GRPCR\x04grpc\x1a\xfd\x02\n" +
+	"\x04grpc\x18\x04 \x01(\v2\x1d.him.gateway.conf.Server.GRPCR\x04grpc\x1a\xa6\x03\n" +
 	"\x02WS\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x12<\n" +
@@ -899,7 +907,8 @@ const file_services_gateway_internal_conf_conf_proto_rawDesc = "" +
 	"\x10read_buffer_size\x18\x05 \x01(\x05R\x0ereadBufferSize\x12*\n" +
 	"\x11write_buffer_size\x18\x06 \x01(\x05R\x0fwriteBufferSize\x12F\n" +
 	"\x11handshake_timeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\x10handshakeTimeout\x12-\n" +
-	"\x12enable_compression\x18\b \x01(\bR\x11enableCompression\x1ai\n" +
+	"\x12enable_compression\x18\b \x01(\bR\x11enableCompression\x12'\n" +
+	"\x0forigin_patterns\x18\t \x03(\tR\x0eoriginPatterns\x1ai\n" +
 	"\x04HTTP\x12\x18\n" +
 	"\anetwork\x18\x01 \x01(\tR\anetwork\x12\x12\n" +
 	"\x04addr\x18\x02 \x01(\tR\x04addr\x123\n" +

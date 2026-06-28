@@ -4,6 +4,9 @@ package errcode
 import (
 	"errors"
 	"fmt"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Domain error codes, kept in sync with proto/him/common/v1/error.proto.
@@ -83,4 +86,74 @@ func Code(err error) int32 {
 		return e.Code
 	}
 	return 0
+}
+
+// GRPCCode maps a domain error code to a gRPC status code.
+func GRPCCode(code int32) codes.Code {
+	switch {
+	// Auth
+	case code >= 1000 && code <= 1001:
+		return codes.Unauthenticated
+	case code == 1002:
+		return codes.PermissionDenied
+
+	// User
+	case code == 1100:
+		return codes.NotFound
+	case code == 1101:
+		return codes.AlreadyExists
+
+	// Message
+	case code == 1200:
+		return codes.NotFound
+	case code == 1201:
+		return codes.Internal
+
+	// Contact
+	case code == 1300:
+		return codes.AlreadyExists
+	case code == 1301:
+		return codes.FailedPrecondition
+	case code == 1302:
+		return codes.FailedPrecondition
+
+	// Group
+	case code == 1400:
+		return codes.NotFound
+	case code == 1401:
+		return codes.FailedPrecondition
+	case code == 1402:
+		return codes.ResourceExhausted
+	case code == 1403:
+		return codes.PermissionDenied
+
+	// Chatroom
+	case code == 1500:
+		return codes.NotFound
+	case code == 1501:
+		return codes.FailedPrecondition
+	case code == 1502:
+		return codes.InvalidArgument
+
+	// Media
+	case code == 1600:
+		return codes.Internal
+	case code == 1601:
+		return codes.NotFound
+	case code == 1602:
+		return codes.InvalidArgument
+
+	default:
+		return codes.Internal
+	}
+}
+
+// ToGRPCStatus converts an error to a gRPC status. If the error is a domain
+// *Error, the mapped gRPC code is used; otherwise codes.Internal is returned.
+func ToGRPCStatus(err error) *status.Status {
+	var e *Error
+	if errors.As(err, &e) {
+		return status.New(GRPCCode(e.Code), e.Message)
+	}
+	return status.New(codes.Internal, err.Error())
 }

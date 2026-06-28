@@ -78,10 +78,10 @@ func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receive
 		MsgType: msgType, Text: text, Attachment: attachment, ServerTime: now, CreateTime: now,
 	}
 	if err := uc.repo.Insert(ctx, m); err != nil { return 0, fmt.Errorf("insert: %w", err) }
-	gp.SafeGo(ctx, func(_ context.Context) {
+	gp.SafeGo(ctx, func(pushCtx context.Context) {
 		pushSem <- struct{}{}
 		defer func() { <-pushSem }()
-		uc.pushToReceiver(m)
+		uc.pushToReceiver(pushCtx, m)
 	})
 	return serverID, nil
 }
@@ -125,6 +125,36 @@ func (uc *SendUseCase) RecallMessage(ctx context.Context, serverID int64, sender
 	return nil
 }
 
+func (uc *SendUseCase) SendGroupMessage(ctx context.Context, senderID, groupID string, msgType int32, text, clientID string, attachment []byte) (int64, error) {
+	serverID, err := uc.id.NextID(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("get sequence: %w", err)
+	}
+	now := time.Now().UnixMilli()
+	if err := uc.repo.InsertGroup(ctx, serverID, clientID, groupID, senderID, msgType, text, string(attachment), now); err != nil {
+		return 0, fmt.Errorf("insert group msg: %w", err)
+	}
+	payload, _ := proto.Marshal(&msgpb.Message{
+		MessageClientId: clientID, MessageServerId: serverID, SenderId: senderID,
+		Text: text, ServerTime: now, MsgType: msgpb.MessageType(msgType),
+		ConvType: msgpb.ConversationType_CONVERSATION_GROUP,
+	})
+	if len(attachment) > 0 {
+		var att msgpb.Attachment
+		if proto.Unmarshal(attachment, &att) == nil {
+			payload, _ = proto.Marshal(&msgpb.Message{
+				MessageClientId: clientID, MessageServerId: serverID, SenderId: senderID,
+				Text: text, ServerTime: now, MsgType: msgpb.MessageType(msgType),
+				ConvType: msgpb.ConversationType_CONVERSATION_GROUP, Attachment: &att,
+			})
+		}
+	}
+	gp.SafeGo(ctx, func(pushCtx context.Context) {
+		uc.gw.BroadcastToGroup(pushCtx, groupID, int32(gatewayv1.FrameType_FRAME_TYPE_GROUP_CHAT), payload)
+	})
+	return serverID, nil
+}
+
 func (uc *SendUseCase) AckMessage(ctx context.Context, serverID int64, userID string) error {
 	return uc.repo.MarkRead(ctx, serverID)
 }
@@ -153,7 +183,7 @@ func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, frameTy
 	if delivered && markDelivered != nil { markDelivered(ctx, msgServerID) }
 }
 
-func (uc *SendUseCase) pushToReceiver(m *Message) {
+func (uc *SendUseCase) pushToReceiver(ctx context.Context, m *Message) {
 	pushMsg := &msgpb.Message{
 		MessageClientId: m.ClientID, MessageServerId: m.ServerID, SenderId: m.SenderID,
 		ReceiverId: m.ReceiverID, Text: m.Text, ServerTime: m.ServerTime,
@@ -164,13 +194,13 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 		if proto.Unmarshal(m.Attachment, &att) == nil { pushMsg.Attachment = &att }
 	}
 	payload, _ := proto.Marshal(pushMsg)
-	uc.pushToDevices(context.Background(), m.ReceiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload, uc.repo.MarkDelivered, m.ServerID)
+	uc.pushToDevices(ctx, m.ReceiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload, uc.repo.MarkDelivered, m.ServerID)
 
 	// If receiver is offline and push is configured, send push notification
 	if uc.push != nil {
-		devices, _ := uc.user.GetUserOnline(context.Background(), m.ReceiverID)
+		devices, _ := uc.user.GetUserOnline(ctx, m.ReceiverID)
 		if len(devices) == 0 {
-			uc.push.PushToUser(context.Background(), m.ReceiverID, "New message", m.Text, payload)
+			uc.push.PushToUser(ctx, m.ReceiverID, "New message", m.Text, payload)
 		}
 	}
 }

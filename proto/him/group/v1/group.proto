@@ -16,13 +16,14 @@ enum GroupRole {
 }
 
 message GroupInfo {
-  string group_id   = 1;
-  string name       = 2;
-  string avatar     = 3;
-  string owner_id   = 4;
+  string group_id     = 1;
+  string name         = 2;
+  string avatar       = 3;
+  string owner_id     = 4;
   int32  member_count = 5;
-  int64  created_at = 6;
-  int64  updated_at = 7;
+  string announcement = 6;
+  int64  created_at   = 7;
+  int64  updated_at   = 8;
 }
 
 message GroupMember {
@@ -39,6 +40,7 @@ message CreateGroupRequest {
   string name           = 1;
   string avatar         = 2;
   repeated string member_ids = 3;
+  string owner_id       = 4;
 }
 
 message CreateGroupResponse {
@@ -65,6 +67,7 @@ message LeaveGroupResponse {
 
 message DismissGroupRequest {
   string group_id = 1;
+  string owner_id = 2;
 }
 
 message DismissGroupResponse {
@@ -90,9 +93,10 @@ message GetGroupMembersResponse {
 }
 
 message SetMemberRoleRequest {
-  string group_id = 1;
-  string user_id  = 2;
-  GroupRole role  = 3;
+  string group_id    = 1;
+  string user_id     = 2;
+  GroupRole role     = 3;
+  string operator_id = 4;
 }
 
 message SetMemberRoleResponse {
@@ -100,8 +104,9 @@ message SetMemberRoleResponse {
 }
 
 message KickMemberRequest {
-  string group_id = 1;
-  string user_id  = 2;
+  string group_id    = 1;
+  string user_id     = 2;
+  string operator_id = 3;
 }
 
 message KickMemberResponse {
@@ -119,4 +124,20 @@ service GroupService {
   rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse);
   rpc SetMemberRole(SetMemberRoleRequest)     returns (SetMemberRoleResponse);
   rpc KickMember(KickMemberRequest)           returns (KickMemberResponse);
+  rpc MuteMember(MuteMemberRequest)           returns (MuteMemberResponse);
+  rpc UnmuteMember(UnmuteMemberRequest)       returns (UnmuteMemberResponse);
 }
+
+message MuteMemberRequest {
+  string group_id          = 1;
+  string user_id           = 2;
+  int32  duration_seconds  = 3;
+  string operator_id       = 4;
+}
+message MuteMemberResponse { bool success = 1; }
+
+message UnmuteMemberRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+message UnmuteMemberResponse { bool success = 1; }

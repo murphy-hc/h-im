@@ -37,6 +37,8 @@ const (
 	FrameType_FRAME_TYPE_PRIVATE_RECALL FrameType = 10
 	FrameType_FRAME_TYPE_CHATROOM_JOIN  FrameType = 11
 	FrameType_FRAME_TYPE_CHATROOM_LEAVE FrameType = 12
+	FrameType_FRAME_TYPE_GROUP_JOIN     FrameType = 13
+	FrameType_FRAME_TYPE_GROUP_LEAVE    FrameType = 14
 )
 
 // Enum value maps for FrameType.
@@ -55,6 +57,8 @@ var (
 		10: "FRAME_TYPE_PRIVATE_RECALL",
 		11: "FRAME_TYPE_CHATROOM_JOIN",
 		12: "FRAME_TYPE_CHATROOM_LEAVE",
+		13: "FRAME_TYPE_GROUP_JOIN",
+		14: "FRAME_TYPE_GROUP_LEAVE",
 	}
 	FrameType_value = map[string]int32{
 		"FRAME_TYPE_UNSPECIFIED":    0,
@@ -70,6 +74,8 @@ var (
 		"FRAME_TYPE_PRIVATE_RECALL": 10,
 		"FRAME_TYPE_CHATROOM_JOIN":  11,
 		"FRAME_TYPE_CHATROOM_LEAVE": 12,
+		"FRAME_TYPE_GROUP_JOIN":     13,
+		"FRAME_TYPE_GROUP_LEAVE":    14,
 	}
 )
 
@@ -159,7 +165,7 @@ const file_him_gateway_v1_ws_proto_rawDesc = "" +
 	"\x17him/gateway/v1/ws.proto\x12\x0ehim.gateway.v1\"<\n" +
 	"\fErrorMessage\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage*\xf0\x02\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage*\xa7\x03\n" +
 	"\tFrameType\x12\x1a\n" +
 	"\x16FRAME_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17FRAME_TYPE_PRIVATE_CHAT\x10\x01\x12\x1a\n" +
@@ -174,7 +180,9 @@ const file_him_gateway_v1_ws_proto_rawDesc = "" +
 	"\x19FRAME_TYPE_PRIVATE_RECALL\x10\n" +
 	"\x12\x1c\n" +
 	"\x18FRAME_TYPE_CHATROOM_JOIN\x10\v\x12\x1d\n" +
-	"\x19FRAME_TYPE_CHATROOM_LEAVE\x10\fB;Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1b\x06proto3"
+	"\x19FRAME_TYPE_CHATROOM_LEAVE\x10\f\x12\x19\n" +
+	"\x15FRAME_TYPE_GROUP_JOIN\x10\r\x12\x1a\n" +
+	"\x16FRAME_TYPE_GROUP_LEAVE\x10\x0eB;Z9github.com/murphy-hc/h-im/gen/go/him/gateway/v1;gatewayv1b\x06proto3"
 
 var (
 	file_him_gateway_v1_ws_proto_rawDescOnce sync.Once

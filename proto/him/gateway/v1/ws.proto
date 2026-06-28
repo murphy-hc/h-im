@@ -16,6 +16,8 @@ enum FrameType {
   FRAME_TYPE_PRIVATE_RECALL = 10;
   FRAME_TYPE_CHATROOM_JOIN  = 11;
   FRAME_TYPE_CHATROOM_LEAVE = 12;
+  FRAME_TYPE_GROUP_JOIN     = 13;
+  FRAME_TYPE_GROUP_LEAVE    = 14;
 }
 
 message ErrorMessage { int32 code = 1; string message = 2; }

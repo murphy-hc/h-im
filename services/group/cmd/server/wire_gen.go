@@ -19,7 +19,7 @@ import (
 // Injectors from wire.go:
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData()
+	dataData, cleanup, err := data.NewData(bc)
 	if err != nil {
 		return nil, nil, err
 	}

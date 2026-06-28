@@ -9,7 +9,21 @@ service GatewayService {
   rpc SendCommand(SendCommandRequest)         returns (SendCommandResponse);
   rpc JoinChatroom(JoinChatroomRequest)       returns (JoinChatroomResponse);
   rpc LeaveChatroom(LeaveChatroomRequest)      returns (LeaveChatroomResponse);
+  rpc JoinGroup(JoinGroupRequest)             returns (JoinGroupResponse);
+  rpc LeaveGroup(LeaveGroupRequest)           returns (LeaveGroupResponse);
 }
+
+message JoinGroupRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+message JoinGroupResponse { bool success = 1; }
+
+message LeaveGroupRequest {
+  string group_id = 1;
+  string user_id  = 2;
+}
+message LeaveGroupResponse { bool success = 1; }
 
 message SendToUserRequest {
   string user_id   = 1;

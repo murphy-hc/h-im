@@ -239,6 +239,7 @@ enum MessagePayloadType {
   MESSAGE_PAYLOAD_TYPE_SEND          = 1;
   MESSAGE_PAYLOAD_TYPE_RECALL        = 2;
   MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND = 3;
+  MESSAGE_PAYLOAD_TYPE_GROUP_SEND   = 4;
 }
 
 message MessageEnvelope {
@@ -247,6 +248,7 @@ message MessageEnvelope {
     SendMessageReq   send          = 2;
     RecallMessageReq recall        = 3;
     SendMessageReq   chatroom_send = 4;
+    SendMessageReq   group_send    = 5;
   }
 }
 

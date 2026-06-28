@@ -16,6 +16,7 @@ import (
 const (
 	kafkaTopicPrivate  = "him.private.message"
 	kafkaTopicChatroom = "him.chatroom.message"
+	kafkaTopicGroup    = "him.group.message"
 )
 
 // grpcMessageClient handles gRPC calls to the message service (used for Ack).
@@ -78,10 +79,14 @@ func (c *KafkaMessageClient) sendEnvelope(ctx context.Context, topic, key string
 }
 
 func (c *KafkaMessageClient) topicFor(convType pb.ConversationType) string {
-	if convType == pb.ConversationType_CONVERSATION_ROOM {
+	switch convType {
+	case pb.ConversationType_CONVERSATION_ROOM:
 		return kafkaTopicChatroom
+	case pb.ConversationType_CONVERSATION_GROUP:
+		return kafkaTopicGroup
+	default:
+		return kafkaTopicPrivate
 	}
-	return kafkaTopicPrivate
 }
 
 // SendMessage wraps the request in a MessageEnvelope and produces to Kafka.

@@ -25,6 +25,8 @@ const (
 	GatewayService_SendCommand_FullMethodName         = "/him.gateway.v1.GatewayService/SendCommand"
 	GatewayService_JoinChatroom_FullMethodName        = "/him.gateway.v1.GatewayService/JoinChatroom"
 	GatewayService_LeaveChatroom_FullMethodName       = "/him.gateway.v1.GatewayService/LeaveChatroom"
+	GatewayService_JoinGroup_FullMethodName           = "/him.gateway.v1.GatewayService/JoinGroup"
+	GatewayService_LeaveGroup_FullMethodName          = "/him.gateway.v1.GatewayService/LeaveGroup"
 )
 
 // GatewayServiceClient is the client API for GatewayService service.
@@ -37,6 +39,8 @@ type GatewayServiceClient interface {
 	SendCommand(ctx context.Context, in *SendCommandRequest, opts ...grpc.CallOption) (*SendCommandResponse, error)
 	JoinChatroom(ctx context.Context, in *JoinChatroomRequest, opts ...grpc.CallOption) (*JoinChatroomResponse, error)
 	LeaveChatroom(ctx context.Context, in *LeaveChatroomRequest, opts ...grpc.CallOption) (*LeaveChatroomResponse, error)
+	JoinGroup(ctx context.Context, in *JoinGroupRequest, opts ...grpc.CallOption) (*JoinGroupResponse, error)
+	LeaveGroup(ctx context.Context, in *LeaveGroupRequest, opts ...grpc.CallOption) (*LeaveGroupResponse, error)
 }
 
 type gatewayServiceClient struct {
@@ -107,6 +111,26 @@ func (c *gatewayServiceClient) LeaveChatroom(ctx context.Context, in *LeaveChatr
 	return out, nil
 }
 
+func (c *gatewayServiceClient) JoinGroup(ctx context.Context, in *JoinGroupRequest, opts ...grpc.CallOption) (*JoinGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(JoinGroupResponse)
+	err := c.cc.Invoke(ctx, GatewayService_JoinGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gatewayServiceClient) LeaveGroup(ctx context.Context, in *LeaveGroupRequest, opts ...grpc.CallOption) (*LeaveGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaveGroupResponse)
+	err := c.cc.Invoke(ctx, GatewayService_LeaveGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GatewayServiceServer is the server API for GatewayService service.
 // All implementations must embed UnimplementedGatewayServiceServer
 // for forward compatibility.
@@ -117,6 +141,8 @@ type GatewayServiceServer interface {
 	SendCommand(context.Context, *SendCommandRequest) (*SendCommandResponse, error)
 	JoinChatroom(context.Context, *JoinChatroomRequest) (*JoinChatroomResponse, error)
 	LeaveChatroom(context.Context, *LeaveChatroomRequest) (*LeaveChatroomResponse, error)
+	JoinGroup(context.Context, *JoinGroupRequest) (*JoinGroupResponse, error)
+	LeaveGroup(context.Context, *LeaveGroupRequest) (*LeaveGroupResponse, error)
 	mustEmbedUnimplementedGatewayServiceServer()
 }
 
@@ -144,6 +170,12 @@ func (UnimplementedGatewayServiceServer) JoinChatroom(context.Context, *JoinChat
 }
 func (UnimplementedGatewayServiceServer) LeaveChatroom(context.Context, *LeaveChatroomRequest) (*LeaveChatroomResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaveChatroom not implemented")
+}
+func (UnimplementedGatewayServiceServer) JoinGroup(context.Context, *JoinGroupRequest) (*JoinGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method JoinGroup not implemented")
+}
+func (UnimplementedGatewayServiceServer) LeaveGroup(context.Context, *LeaveGroupRequest) (*LeaveGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaveGroup not implemented")
 }
 func (UnimplementedGatewayServiceServer) mustEmbedUnimplementedGatewayServiceServer() {}
 func (UnimplementedGatewayServiceServer) testEmbeddedByValue()                        {}
@@ -274,6 +306,42 @@ func _GatewayService_LeaveChatroom_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GatewayService_JoinGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).JoinGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayService_JoinGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).JoinGroup(ctx, req.(*JoinGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GatewayService_LeaveGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GatewayServiceServer).LeaveGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GatewayService_LeaveGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GatewayServiceServer).LeaveGroup(ctx, req.(*LeaveGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GatewayService_ServiceDesc is the grpc.ServiceDesc for GatewayService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +372,14 @@ var GatewayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LeaveChatroom",
 			Handler:    _GatewayService_LeaveChatroom_Handler,
+		},
+		{
+			MethodName: "JoinGroup",
+			Handler:    _GatewayService_JoinGroup_Handler,
+		},
+		{
+			MethodName: "LeaveGroup",
+			Handler:    _GatewayService_LeaveGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -304,6 +304,7 @@ const (
 	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_SEND          MessagePayloadType = 1
 	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL        MessagePayloadType = 2
 	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND MessagePayloadType = 3
+	MessagePayloadType_MESSAGE_PAYLOAD_TYPE_GROUP_SEND    MessagePayloadType = 4
 )
 
 // Enum value maps for MessagePayloadType.
@@ -313,12 +314,14 @@ var (
 		1: "MESSAGE_PAYLOAD_TYPE_SEND",
 		2: "MESSAGE_PAYLOAD_TYPE_RECALL",
 		3: "MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND",
+		4: "MESSAGE_PAYLOAD_TYPE_GROUP_SEND",
 	}
 	MessagePayloadType_value = map[string]int32{
 		"MESSAGE_PAYLOAD_TYPE_UNSPECIFIED":   0,
 		"MESSAGE_PAYLOAD_TYPE_SEND":          1,
 		"MESSAGE_PAYLOAD_TYPE_RECALL":        2,
 		"MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND": 3,
+		"MESSAGE_PAYLOAD_TYPE_GROUP_SEND":    4,
 	}
 )
 
@@ -2159,6 +2162,7 @@ type MessageEnvelope struct {
 	//	*MessageEnvelope_Send
 	//	*MessageEnvelope_Recall
 	//	*MessageEnvelope_ChatroomSend
+	//	*MessageEnvelope_GroupSend
 	Payload       isMessageEnvelope_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2235,6 +2239,15 @@ func (x *MessageEnvelope) GetChatroomSend() *SendMessageReq {
 	return nil
 }
 
+func (x *MessageEnvelope) GetGroupSend() *SendMessageReq {
+	if x != nil {
+		if x, ok := x.Payload.(*MessageEnvelope_GroupSend); ok {
+			return x.GroupSend
+		}
+	}
+	return nil
+}
+
 type isMessageEnvelope_Payload interface {
 	isMessageEnvelope_Payload()
 }
@@ -2251,11 +2264,17 @@ type MessageEnvelope_ChatroomSend struct {
 	ChatroomSend *SendMessageReq `protobuf:"bytes,4,opt,name=chatroom_send,json=chatroomSend,proto3,oneof"`
 }
 
+type MessageEnvelope_GroupSend struct {
+	GroupSend *SendMessageReq `protobuf:"bytes,5,opt,name=group_send,json=groupSend,proto3,oneof"`
+}
+
 func (*MessageEnvelope_Send) isMessageEnvelope_Payload() {}
 
 func (*MessageEnvelope_Recall) isMessageEnvelope_Payload() {}
 
 func (*MessageEnvelope_ChatroomSend) isMessageEnvelope_Payload() {}
+
+func (*MessageEnvelope_GroupSend) isMessageEnvelope_Payload() {}
 
 type RecallMessageReq struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -2668,12 +2687,14 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\"*\n" +
 	"\x0eAckMessageResp\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x8d\x02\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xce\x02\n" +
 	"\x0fMessageEnvelope\x126\n" +
 	"\x04type\x18\x01 \x01(\x0e2\".him.message.v1.MessagePayloadTypeR\x04type\x124\n" +
 	"\x04send\x18\x02 \x01(\v2\x1e.him.message.v1.SendMessageReqH\x00R\x04send\x12:\n" +
 	"\x06recall\x18\x03 \x01(\v2 .him.message.v1.RecallMessageReqH\x00R\x06recall\x12E\n" +
-	"\rchatroom_send\x18\x04 \x01(\v2\x1e.him.message.v1.SendMessageReqH\x00R\fchatroomSendB\t\n" +
+	"\rchatroom_send\x18\x04 \x01(\v2\x1e.him.message.v1.SendMessageReqH\x00R\fchatroomSend\x12?\n" +
+	"\n" +
+	"group_send\x18\x05 \x01(\v2\x1e.him.message.v1.SendMessageReqH\x00R\tgroupSendB\t\n" +
 	"\apayload\"[\n" +
 	"\x10RecallMessageReq\x12*\n" +
 	"\x11message_server_id\x18\x01 \x01(\x03R\x0fmessageServerId\x12\x1b\n" +
@@ -2722,12 +2743,13 @@ const file_him_message_v1_message_proto_rawDesc = "" +
 	"\bACK_SENT\x10\x01\x12\x11\n" +
 	"\rACK_DELIVERED\x10\x02\x12\f\n" +
 	"\bACK_READ\x10\x03\x12\x10\n" +
-	"\fACK_RECALLED\x10\x04*\xa2\x01\n" +
+	"\fACK_RECALLED\x10\x04*\xc7\x01\n" +
 	"\x12MessagePayloadType\x12$\n" +
 	" MESSAGE_PAYLOAD_TYPE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19MESSAGE_PAYLOAD_TYPE_SEND\x10\x01\x12\x1f\n" +
 	"\x1bMESSAGE_PAYLOAD_TYPE_RECALL\x10\x02\x12&\n" +
-	"\"MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND\x10\x032\xd6\x02\n" +
+	"\"MESSAGE_PAYLOAD_TYPE_CHATROOM_SEND\x10\x03\x12#\n" +
+	"\x1fMESSAGE_PAYLOAD_TYPE_GROUP_SEND\x10\x042\xd6\x02\n" +
 	"\x0eMessageService\x12N\n" +
 	"\vSendMessage\x12\x1e.him.message.v1.SendMessageReq\x1a\x1f.him.message.v1.SendMessageResp\x12K\n" +
 	"\n" +
@@ -2813,20 +2835,21 @@ var file_him_message_v1_message_proto_depIdxs = []int32{
 	27, // 21: him.message.v1.MessageEnvelope.send:type_name -> him.message.v1.SendMessageReq
 	32, // 22: him.message.v1.MessageEnvelope.recall:type_name -> him.message.v1.RecallMessageReq
 	27, // 23: him.message.v1.MessageEnvelope.chatroom_send:type_name -> him.message.v1.SendMessageReq
-	14, // 24: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
-	27, // 25: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
-	29, // 26: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
-	35, // 27: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
-	32, // 28: him.message.v1.MessageService.RecallMessage:input_type -> him.message.v1.RecallMessageReq
-	28, // 29: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
-	30, // 30: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
-	36, // 31: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
-	33, // 32: him.message.v1.MessageService.RecallMessage:output_type -> him.message.v1.RecallMessageResp
-	29, // [29:33] is the sub-list for method output_type
-	25, // [25:29] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	27, // 24: him.message.v1.MessageEnvelope.group_send:type_name -> him.message.v1.SendMessageReq
+	14, // 25: him.message.v1.PullMessagesResp.messages:type_name -> him.message.v1.Message
+	27, // 26: him.message.v1.MessageService.SendMessage:input_type -> him.message.v1.SendMessageReq
+	29, // 27: him.message.v1.MessageService.AckMessage:input_type -> him.message.v1.AckMessageReq
+	35, // 28: him.message.v1.MessageService.PullMessages:input_type -> him.message.v1.PullMessagesReq
+	32, // 29: him.message.v1.MessageService.RecallMessage:input_type -> him.message.v1.RecallMessageReq
+	28, // 30: him.message.v1.MessageService.SendMessage:output_type -> him.message.v1.SendMessageResp
+	30, // 31: him.message.v1.MessageService.AckMessage:output_type -> him.message.v1.AckMessageResp
+	36, // 32: him.message.v1.MessageService.PullMessages:output_type -> him.message.v1.PullMessagesResp
+	33, // 33: him.message.v1.MessageService.RecallMessage:output_type -> him.message.v1.RecallMessageResp
+	30, // [30:34] is the sub-list for method output_type
+	26, // [26:30] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_him_message_v1_message_proto_init() }
@@ -2845,6 +2868,7 @@ func file_him_message_v1_message_proto_init() {
 		(*MessageEnvelope_Send)(nil),
 		(*MessageEnvelope_Recall)(nil),
 		(*MessageEnvelope_ChatroomSend)(nil),
+		(*MessageEnvelope_GroupSend)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

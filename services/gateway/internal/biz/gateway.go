@@ -42,13 +42,14 @@ type GatewayUseCase struct {
 	msgClient   MessageClient
 	userStatus  UserStatusClient
 	chatroomSvc ChatroomClient
+	groupSvc    GroupClient
 	hbCfg       HeartbeatConfig
 	gatewayAddr string
 }
 
-func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, chatroomSvc ChatroomClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
+func NewGatewayUseCase(cm ConnManager, msgClient MessageClient, userStatus UserStatusClient, chatroomSvc ChatroomClient, groupSvc GroupClient, hbCfg HeartbeatConfig, gatewayAddr string) *GatewayUseCase {
 	uc := &GatewayUseCase{
-		cm: cm, msgClient: msgClient, userStatus: userStatus, chatroomSvc: chatroomSvc,
+		cm: cm, msgClient: msgClient, userStatus: userStatus, chatroomSvc: chatroomSvc, groupSvc: groupSvc,
 		hbCfg: hbCfg, gatewayAddr: gatewayAddr,
 	}
 	gp.SafeGo(context.Background(), func(_ context.Context) { uc.sweepLoop() })
@@ -154,6 +155,17 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 			uc.handleChatroomJoin(ctx, conn, userID, payload)
 		case gatewayv1.FrameType_FRAME_TYPE_CHATROOM_LEAVE:
 			uc.handleChatroomLeave(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_GROUP_CHAT:
+			uc.handleGroupChat(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_GROUP_ACK:
+			var ack msgpb.PrivateAck
+			if err := proto.Unmarshal(payload, &ack); err == nil {
+				gp.SafeGo(ctx, func(_ context.Context) { uc.msgClient.AckMessage(ctx, ack.MsgServerId, userID) })
+			}
+		case gatewayv1.FrameType_FRAME_TYPE_GROUP_JOIN:
+			uc.handleGroupJoin(ctx, conn, userID, payload)
+		case gatewayv1.FrameType_FRAME_TYPE_GROUP_LEAVE:
+			uc.handleGroupLeave(ctx, conn, userID, payload)
 		}
 	}
 }
@@ -245,7 +257,7 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 	wcCancel()
 }
 
-func (uc *GatewayUseCase) handleChatroomJoin(ctx context.Context, conn *websocket.Conn, userID string, payload []byte) {
+func (uc *GatewayUseCase) handleChatroomJoin(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
 	roomID := string(payload)
 	if roomID == "" {
 		return
@@ -256,7 +268,7 @@ func (uc *GatewayUseCase) handleChatroomJoin(ctx context.Context, conn *websocke
 	uc.cm.JoinRoom(roomID, userID)
 }
 
-func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, conn *websocket.Conn, userID string, payload []byte) {
+func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
 	roomID := string(payload)
 	if roomID == "" {
 		return
@@ -265,4 +277,44 @@ func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, conn *websock
 		return
 	}
 	uc.cm.LeaveRoom(roomID, userID)
+}
+
+func (uc *GatewayUseCase) handleGroupChat(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
+	var msg msgpb.Message
+	if err := proto.Unmarshal(payload, &msg); err != nil {
+		return
+	}
+	resp, err := uc.msgClient.SendMessage(ctx, &msgpb.SendMessageReq{
+		SenderId: senderID, ReceiverId: msg.ReceiverId,
+		ConvType: msgpb.ConversationType_CONVERSATION_GROUP,
+		MsgType: msg.MsgType, Text: msg.Text,
+		MessageClientId: msg.MessageClientId,
+		Attachment: msg.Attachment,
+	})
+	if err != nil {
+		return
+	}
+	ack := &msgpb.PrivateAck{
+		MsgServerId: resp.MessageServerId,
+		MsgClientId: msg.MessageClientId,
+		Status:      msgpb.AckStatus_ACK_SENT,
+	}
+	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_GROUP_ACK, ack)
+	wc, wcCancel := writeCtx()
+	conn.Write(wc, websocket.MessageBinary, frame)
+	wcCancel()
+}
+
+func (uc *GatewayUseCase) handleGroupJoin(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
+	groupID := string(payload)
+	if groupID == "" { return }
+	if err := uc.groupSvc.JoinGroup(ctx, groupID, userID); err != nil { return }
+	uc.cm.JoinGroup(groupID, userID)
+}
+
+func (uc *GatewayUseCase) handleGroupLeave(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
+	groupID := string(payload)
+	if groupID == "" { return }
+	if err := uc.groupSvc.LeaveGroup(ctx, groupID, userID); err != nil { return }
+	uc.cm.LeaveGroup(groupID, userID)
 }

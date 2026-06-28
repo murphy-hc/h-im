@@ -85,3 +85,17 @@ func (s *GatewayGrpcService) SendCommand(ctx context.Context, req *gatewayv1.Sen
 	}
 	return &gatewayv1.SendCommandResponse{Success: len(conns) > 0}, nil
 }
+
+func (s *GatewayGrpcService) JoinGroup(ctx context.Context, req *gatewayv1.JoinGroupRequest) (*gatewayv1.JoinGroupResponse, error) {
+	if err := s.cm.JoinGroup(req.GroupId, req.UserId); err != nil {
+		return &gatewayv1.JoinGroupResponse{Success: false}, nil
+	}
+	return &gatewayv1.JoinGroupResponse{Success: true}, nil
+}
+
+func (s *GatewayGrpcService) LeaveGroup(ctx context.Context, req *gatewayv1.LeaveGroupRequest) (*gatewayv1.LeaveGroupResponse, error) {
+	if err := s.cm.LeaveGroup(req.GroupId, req.UserId); err != nil {
+		return &gatewayv1.LeaveGroupResponse{Success: false}, nil
+	}
+	return &gatewayv1.LeaveGroupResponse{Success: true}, nil
+}

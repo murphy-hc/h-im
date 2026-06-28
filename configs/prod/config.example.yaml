@@ -1,0 +1,73 @@
+# Production configuration template
+# Sensitive values should be set via environment variables or K8s Secrets,
+# NOT committed to this file. Replace ${VAR_NAME} placeholders at deploy time.
+#
+# Usage:
+#   export JWT_SECRET=xxx
+#   export DB_PASSWORD=xxx
+#   envsubst < config.example.yaml > config.yaml
+#   ./bin/server -conf ./config.yaml
+
+server:
+  env: production
+  ws:
+    network: tcp
+    addr: ":8080"
+    read_timeout: 60s
+    write_timeout: 5s
+    enable_compression: true
+    origin_patterns:
+      - "*.your-domain.com"
+  http:
+    network: tcp
+    addr: ":8180"
+    timeout: 10s
+  grpc:
+    network: tcp
+    addr: ":9200"
+    timeout: 10s
+
+data:
+  database:
+    message:
+      dsn: "${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:3306)/him?charset=utf8mb4&parseTime=true&loc=Local"
+      max_idle_conns: 20
+      max_open_conns: 100
+      conn_max_lifetime: 300s
+      conn_max_idle_time: 60s
+  redis:
+    addr: "${REDIS_HOST}:6379"
+    password: "${REDIS_PASSWORD}"
+    read_timeout: 3s
+    write_timeout: 3s
+  kafka:
+    brokers:
+      - "${KAFKA_BROKER_1}:9092"
+      - "${KAFKA_BROKER_2}:9092"
+    group_id: message-service
+    topic: him.private.message
+
+log:
+  level: info
+
+otel:
+  service_name: him-gateway
+  endpoint: "${OTEL_COLLECTOR_ENDPOINT}:4317"
+  sample_rate: 0.1
+  path: ""
+  timeout: 5s
+  insecure: false
+  transport: grpc
+
+heartbeat:
+  timeout_seconds: 180
+  sweep_interval: 10
+
+user:
+  multi_device: true
+
+jwt:
+  access_ttl: 86400s
+  refresh_ttl: 604800s
+
+media_secret: "${MEDIA_SECRET}"

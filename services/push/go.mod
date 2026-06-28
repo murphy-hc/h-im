@@ -53,9 +53,3 @@ require (
 	google.golang.org/grpc v1.75.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace (
-	github.com/murphy-hc/h-im/gen/go => ../../gen/go
-	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
-	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
-)

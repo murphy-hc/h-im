@@ -7,7 +7,7 @@ toolchain go1.24.13
 require (
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/google/wire v0.7.0
-	github.com/murphy-hc/h-im/gen/go v0.0.0-20260622162121-360627438658
+	github.com/murphy-hc/h-im/gen/go v0.0.0-20260628041319-7f0e787c9c69
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260627143143-268439f7d28d
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/oss v0.0.0-20260627143143-268439f7d28d
@@ -64,10 +64,4 @@ require (
 	google.golang.org/grpc v1.75.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
-)
-
-replace (
-	github.com/murphy-hc/h-im/gen/go => ../../gen/go
-	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
-	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 )

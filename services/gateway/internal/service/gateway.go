@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/coder/websocket"
-	"github.com/murphy-hc/h-im/pkg/logger"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
 )
@@ -43,14 +43,14 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 
 	valid, err := s.uc.ValidateToken(r.Context(), appID, userID, token)
 	if err != nil || !valid {
-		logger.Errorf("token validation failed: app=%s user=%s err=%v", appID, userID, err)
+		log.Errorf("token validation failed: app=%s user=%s err=%v", appID, userID, err)
 		http.Error(w, "invalid token", http.StatusUnauthorized)
 		return
 	}
 
 	conn, err := websocket.Accept(w, r, s.acceptOpts)
 	if err != nil {
-		logger.Errorf("websocket upgrade failed: %v", err)
+		log.Errorf("websocket upgrade failed: %v", err)
 		return
 	}
 

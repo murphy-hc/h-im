@@ -16,7 +16,7 @@ func SafeGo(ctx context.Context, f func(ctx context.Context)) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				log.Context(bgCtx).Errorf("SafeGo panic: %s", string(debug.Stack()))
+				log.Context(bgCtx).Errorf( "SafeGo panic: %s", string(debug.Stack()))
 			}
 		}()
 		f(bgCtx)

@@ -1,9 +1,9 @@
 package data
 
 import (
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/murphy-hc/h-im/pkg/database"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"github.com/murphy-hc/h-im/services/message/internal/conf"
 	"gorm.io/gorm"
@@ -15,9 +15,11 @@ var ProviderSet = wire.NewSet(
 	NewMessageRepo,
 	NewGatewayClient,
 	NewUserClient,
+	NewPushClient,
 	wire.Bind(new(biz.MessageRepo), new(*MessageRepo)),
 	wire.Bind(new(biz.MessageGateway), new(*GatewayClient)),
 	wire.Bind(new(biz.UserStatusClient), new(*UserClient)),
+	wire.Bind(new(biz.PushClient), new(*PushClient)),
 )
 
 // Data holds data source clients.

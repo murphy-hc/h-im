@@ -1,25 +1,40 @@
 package data
 
 import (
+	"context"
+
 	"github.com/google/wire"
+	"github.com/murphy-hc/h-im/pkg/database"
+	"github.com/murphy-hc/h-im/pkg/redis"
 	"github.com/murphy-hc/h-im/services/push/internal/biz"
+	"github.com/murphy-hc/h-im/services/push/internal/conf"
+	goredis "github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
-// ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewPushRepo)
+var ProviderSet = wire.NewSet(NewData, NewPushRepo, NewPusher)
 
-// Data holds all data source clients.
 type Data struct {
-	// TODO: add db, redis, mq clients
+	DB  *gorm.DB
+	RDB *goredis.Client
 }
 
-// NewData creates a Data instance.
-func NewData() (*Data, func(), error) {
-	d := &Data{}
-	cleanup := func() {
-		// TODO: close connections
-	}
-	return d, cleanup, nil
+func NewData(bc *conf.Bootstrap) (*Data, func(), error) {
+	pg := bc.GetData().GetDatabase().GetPush()
+	db, dbCleanup, err := database.NewDB(&database.Config{
+		DSN:          pg.GetDsn(),
+		MaxIdleConns: int(pg.GetMaxIdleConns()),
+		MaxOpenConns: int(pg.GetMaxOpenConns()),
+	})
+	if err != nil { return nil, nil, err }
+	rdbCfg := bc.GetData().GetRedis()
+	addr := rdbCfg.GetAddr()
+	if addr == "" { addr = "localhost:6379" }
+	rdb, err := redis.NewClient(context.Background(), redis.Config{Host: addr, Password: rdbCfg.GetPassword()})
+	if err != nil { dbCleanup(); return nil, nil, err }
+	return &Data{DB: db, RDB: rdb}, func() { dbCleanup(); rdb.Close() }, nil
 }
+
+func (d *Data) Migrate() error { return d.DB.AutoMigrate(&PushDeviceModel{}) }
 
 var _ biz.PushRepo = (*pushRepo)(nil)

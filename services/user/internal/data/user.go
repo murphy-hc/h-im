@@ -129,6 +129,20 @@ func splitOnlineKey(key string) []string {
 
 var _ redis.Cmdable = (*redis.Client)(nil)
 
+func (r *userRepo) Register(ctx context.Context, userID, username, passwordHash string) error {
+	return r.data.DB.WithContext(ctx).Create(&UserModel{
+		UserID: userID, Username: username, PasswordHash: passwordHash,
+	}).Error
+}
+
+func (r *userRepo) FindByUsername(ctx context.Context, username string) (string, string, error) {
+	var m UserModel
+	if err := r.data.DB.WithContext(ctx).Where("username = ?", username).First(&m).Error; err != nil {
+		return "", "", err
+	}
+	return m.UserID, m.PasswordHash, nil
+}
+
 func (r *userRepo) FindAppByID(ctx context.Context, appID string) (*biz.App, error) {
 	var model AppModel
 	err := r.data.DB.WithContext(ctx).Where("app_id = ? AND enabled = true", appID).First(&model).Error

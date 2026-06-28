@@ -2,7 +2,11 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"time"
+
+	"github.com/rs/xid"
 )
 
 // HeartbeatConfig holds heartbeat parameters for the user service.
@@ -53,4 +57,25 @@ func (uc *UserUseCase) ReportDisconnect(ctx context.Context, userID, deviceID st
 // GetUserOnline returns all online devices for a user.
 func (uc *UserUseCase) GetUserOnline(ctx context.Context, userID string) ([]OnlineDevice, error) {
 	return uc.repo.GetUserOnline(ctx, userID)
+}
+
+// Register creates a new user account.
+func (uc *UserUseCase) Register(ctx context.Context, username, password string) (string, error) {
+	if username == "" || password == "" {
+		return "", fmt.Errorf("username and password required")
+	}
+	if _, _, err := uc.repo.FindByUsername(ctx, username); err == nil {
+		return "", fmt.Errorf("username already exists")
+	}
+	userID := xid.New().String()
+	hash := hashPassword(password)
+	if err := uc.repo.Register(ctx, userID, username, hash); err != nil {
+		return "", fmt.Errorf("register: %w", err)
+	}
+	return userID, nil
+}
+
+func hashPassword(pw string) string {
+	h := sha256.Sum256([]byte(pw))
+	return fmt.Sprintf("%x", h)
 }

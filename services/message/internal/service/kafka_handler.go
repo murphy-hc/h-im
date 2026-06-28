@@ -5,7 +5,7 @@ import (
 
 	pb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/murphy-hc/h-im/pkg/kafka"
-	"github.com/murphy-hc/h-im/pkg/logger"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/murphy-hc/h-im/services/message/internal/biz"
 	"google.golang.org/protobuf/proto"
 )
@@ -39,7 +39,7 @@ func (s *KafkaService) Handle(ctx context.Context, msg kafka.Message) error {
 		req := env.GetRecall()
 		return s.uc.RecallMessage(ctx, req.MessageServerId, req.SenderId)
 	default:
-		logger.ContextWarnf(ctx, "unknown message payload type: %v", env.Type)
+		log.Context(ctx).Warnf( "unknown message payload type: %v", env.Type)
 		return nil
 	}
 }

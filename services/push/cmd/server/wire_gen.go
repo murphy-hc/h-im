@@ -19,12 +19,13 @@ import (
 // Injectors from wire.go:
 
 func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error) {
-	dataData, cleanup, err := data.NewData()
+	dataData, cleanup, err := data.NewData(bc)
 	if err != nil {
 		return nil, nil, err
 	}
 	pushRepo := data.NewPushRepo(dataData)
-	pushUseCase := biz.NewPushUseCase(pushRepo)
+	pusher := data.NewPusher()
+	pushUseCase := biz.NewPushUseCase(pushRepo, pusher)
 	pushService := service.NewPushService(pushUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, pushService)
 	httpServer := server.NewHTTPServer(bc, meter)

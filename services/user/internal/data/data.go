@@ -60,6 +60,6 @@ func NewRedisClient(bc *conf.Bootstrap) (*goredis.Client, func(), error) {
 }
 
 // Migrate runs auto-migration.
-func (d *Data) Migrate() error { return d.DB.AutoMigrate(&AppModel{}) }
+func (d *Data) Migrate() error { return d.DB.AutoMigrate(&AppModel{}, &UserModel{}) }
 
 var _ biz.UserRepo = (*userRepo)(nil)

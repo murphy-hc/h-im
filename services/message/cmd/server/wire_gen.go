@@ -42,7 +42,15 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		cleanup()
 		return nil, nil, err
 	}
-	sendUseCase := biz.NewSendUseCase(messageRepo, gatewayClient, userClient, sequenceServiceClient)
+	pushClient, cleanup5, err := data.NewPushClient()
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sendUseCase := biz.NewSendUseCase(messageRepo, gatewayClient, userClient, sequenceServiceClient, pushClient)
 	messageService := service.NewMessageService(sendUseCase)
 	grpcServer := server.NewGRPCServer(bc, meter, messageService)
 	httpServer := server.NewHTTPServer(bc, meter)
@@ -50,6 +58,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	kafkaServers := server.NewAllConsumers(bc, kafkaService)
 	app := newApp(grpcServer, httpServer, kafkaServers)
 	return app, func() {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

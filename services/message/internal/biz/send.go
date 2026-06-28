@@ -62,10 +62,11 @@ type SendUseCase struct {
 	gw   MessageGateway
 	user UserStatusClient
 	id   *idAllocator
+	push PushClient // optional: may be nil if push service not configured
 }
 
-func NewSendUseCase(repo MessageRepo, gw MessageGateway, user UserStatusClient, seq pb.SequenceServiceClient) *SendUseCase {
-	return &SendUseCase{repo: repo, gw: gw, user: user, id: newIDAllocator(seq)}
+func NewSendUseCase(repo MessageRepo, gw MessageGateway, user UserStatusClient, seq pb.SequenceServiceClient, push PushClient) *SendUseCase {
+	return &SendUseCase{repo: repo, gw: gw, user: user, id: newIDAllocator(seq), push: push}
 }
 
 func (uc *SendUseCase) SendPrivateMessage(ctx context.Context, senderID, receiverID string, msgType int32, text, clientID string, attachment []byte) (int64, error) {
@@ -164,4 +165,12 @@ func (uc *SendUseCase) pushToReceiver(m *Message) {
 	}
 	payload, _ := proto.Marshal(pushMsg)
 	uc.pushToDevices(context.Background(), m.ReceiverID, int32(gatewayv1.FrameType_FRAME_TYPE_PRIVATE_CHAT), payload, uc.repo.MarkDelivered, m.ServerID)
+
+	// If receiver is offline and push is configured, send push notification
+	if uc.push != nil {
+		devices, _ := uc.user.GetUserOnline(context.Background(), m.ReceiverID)
+		if len(devices) == 0 {
+			uc.push.PushToUser(context.Background(), m.ReceiverID, "New message", m.Text, payload)
+		}
+	}
 }

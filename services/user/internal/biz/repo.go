@@ -24,6 +24,8 @@ type UserRepo interface {
 	GetUserOnline(ctx context.Context, userID string) ([]OnlineDevice, error)
 	SweepOffline(ctx context.Context, timeoutSeconds int64) ([]OfflinePair, error)
 	FindAppByID(ctx context.Context, appID string) (*App, error)
+	Register(ctx context.Context, userID, username, passwordHash string) error
+	FindByUsername(ctx context.Context, username string) (userID, passwordHash string, err error)
 }
 
 type OfflinePair struct {

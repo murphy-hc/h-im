@@ -30,3 +30,8 @@ type OnlineDevice struct {
 	GatewayAddr   string
 	LastHeartbeat int64
 }
+
+// PushClient sends push notifications when users are offline.
+type PushClient interface {
+	PushToUser(ctx context.Context, userID, title, body string, payload []byte) error
+}

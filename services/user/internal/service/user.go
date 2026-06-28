@@ -58,3 +58,11 @@ func (s *UserService) ValidateAppToken(ctx context.Context, req *pb.ValidateAppT
 	}
 	return &pb.ValidateAppTokenResponse{Valid: true}, nil
 }
+
+func (s *UserService) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	userID, err := s.uc.Register(ctx, req.Username, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.RegisterResponse{UserId: userID}, nil
+}

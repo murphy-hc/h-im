@@ -1,6 +1,6 @@
 module github.com/murphy-hc/h-im/pkg/database
 
-go 1.24.0
+go 1.24.11
 
 require (
 	github.com/go-kratos/kratos/v2 v2.9.2
@@ -12,5 +12,5 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )

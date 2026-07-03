@@ -12,4 +12,4 @@ var WSServerProviderSet = wire.NewSet(
 	wire.FieldsOf(new(*conf.Server), "Ws"),
 )
 var HTTPProviderSet = wire.NewSet(NewHTTPServer)
-var GRPCProviderSet = wire.NewSet(NewGRPCServer)
+var GRPCProviderSet = wire.NewSet(NewGRPCServer, NewPubSubServer)

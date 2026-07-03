@@ -72,7 +72,7 @@ func (uc *GatewayUseCase) sweepLoop() {
 		offline := uc.cm.SweepOffline(timeout)
 		for _, dev := range offline {
 			dev.Conn.Close(websocket.StatusNormalClosure, CloseReasonHeartbeatTimeout)
-			gp.SafeGo(context.Background(), func(_ context.Context) {
+			gp.SafeGo(context.Background(), func(bgCtx context.Context) {
 				uc.userStatus.ReportDisconnect(context.Background(), dev.UserID, dev.DeviceID)
 			})
 		}
@@ -80,16 +80,20 @@ func (uc *GatewayUseCase) sweepLoop() {
 }
 
 func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.Conn, userID, deviceID string) {
+		gp.SafeGo(ctx, func(bgCtx context.Context) {
+			uc.syncMissedMessages(bgCtx, conn, userID)
+		})
+
 	defer func() {
 		uc.cm.Remove(userID, deviceID)
-		gp.SafeGo(ctx, func(_ context.Context) {
+		gp.SafeGo(ctx, func(bgCtx context.Context) {
 			uc.userStatus.ReportDisconnect(context.Background(), userID, deviceID)
 		})
 	}()
 
 	done := make(chan struct{})
 	defer close(done)
-	gp.SafeGo(ctx, func(_ context.Context) {
+	gp.SafeGo(ctx, func(bgCtx context.Context) {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 		for {
@@ -131,7 +135,7 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 				uc.cm.MarkHeartbeatFail(userID, deviceID)
 			} else {
 				uc.cm.MarkHeartbeatSuccess(userID, deviceID)
-				gp.SafeGo(ctx, func(_ context.Context) {
+				gp.SafeGo(ctx, func(bgCtx context.Context) {
 					uc.userStatus.ReportHeartbeat(context.Background(), userID, deviceID, uc.gatewayAddr, time.Now().Unix())
 				})
 			}
@@ -317,4 +321,23 @@ func (uc *GatewayUseCase) handleGroupLeave(ctx context.Context, _ *websocket.Con
 	if groupID == "" { return }
 	if err := uc.groupSvc.LeaveGroup(ctx, groupID, userID); err != nil { return }
 	uc.cm.LeaveGroup(groupID, userID)
+}
+
+func (uc *GatewayUseCase) syncMissedMessages(ctx context.Context, conn *websocket.Conn, userID string) {
+	msgs, err := uc.msgClient.PullMessages(ctx, userID, 0, 50)
+	if err != nil || len(msgs) == 0 {
+		return
+	}
+	for _, m := range msgs {
+		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_SYNC,
+			&msgpb.Message{
+				MessageClientId: m.ClientID, MessageServerId: m.ServerID,
+				SenderId: m.SenderID, ReceiverId: m.ReceiverID, Text: m.Text,
+				ServerTime: m.ServerTime, MsgType: msgpb.MessageType(m.MsgType),
+				ConvType: msgpb.ConversationType(m.ConvType),
+			})
+		wc, wcCancel := writeCtx()
+		conn.Write(wc, websocket.MessageBinary, frame)
+		wcCancel()
+	}
 }

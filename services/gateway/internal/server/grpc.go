@@ -12,7 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/metrics"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
+	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	"go.opentelemetry.io/otel/metric"
 
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
@@ -34,12 +34,12 @@ func rateLimitMiddleware() middleware.Middleware {
 	}
 }
 
-func NewGRPCServer(bc *conf.Bootstrap, meter metric.Meter, svc *service.GatewayGrpcService) *grpc.Server {
+func NewGRPCServer(bc *conf.Bootstrap, meter metric.Meter, svc *service.GatewayGrpcService) *kgrpc.Server {
 	counter, _ := metrics.DefaultRequestsCounter(meter, metrics.DefaultServerRequestsCounterName)
 	histogram, _ := metrics.DefaultSecondsHistogram(meter, metrics.DefaultServerSecondsHistogramName)
-	srv := grpc.NewServer(
-		grpc.Address(bc.GetServer().GetGrpc().GetAddr()),
-		grpc.Middleware(
+	srv := kgrpc.NewServer(
+		kgrpc.Address(bc.GetServer().GetGrpc().GetAddr()),
+		kgrpc.Middleware(
 			recovery.Recovery(),
 			tracing.Server(),
 			rateLimitMiddleware(),

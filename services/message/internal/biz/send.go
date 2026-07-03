@@ -172,10 +172,26 @@ func (uc *SendUseCase) pushToDevices(ctx context.Context, userID string, frameTy
 	defer func() { <-pushSem }()
 	delivered := false
 	for _, device := range devices {
+		addr := device.GatewayAddr
 		for i := 0; i < maxRetries; i++ {
-			if err := uc.gw.SendToDevice(ctx, device.GatewayAddr, userID, frameType, payload); err == nil { delivered = true; break }
+			if err := uc.gw.SendToDevice(ctx, addr, userID, frameType, payload); err == nil {
+				delivered = true
+				break
+			}
+			// On failure, re-query user service for potentially updated gateway address
+			if i == 1 {
+				if fresh, _ := uc.user.GetUserOnline(ctx, userID); len(fresh) > 0 {
+					for _, d := range fresh {
+						if d.DeviceID == device.DeviceID {
+							addr = d.GatewayAddr
+							break
+						}
+					}
+				}
+			}
 			select {
-			case <-ctx.Done(): return
+			case <-ctx.Done():
+				return
 			case <-time.After(baseDelay * time.Duration(1<<i)):
 			}
 		}

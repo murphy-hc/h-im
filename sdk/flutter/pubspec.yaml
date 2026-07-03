@@ -1,0 +1,20 @@
+name: him_flutter
+description: Flutter SDK for the h-im instant messaging system. WebSocket real-time messaging, chat widgets, and push notifications.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  web_socket_channel: ^3.0.0
+  http: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  test: ^1.25.0

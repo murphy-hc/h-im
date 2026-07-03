@@ -23,7 +23,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	if err != nil {
 		return nil, nil, err
 	}
-	userRepo := data.NewUserRepo(dataData)
+	userRepo := data.NewUserRepo(dataData, bc)
 	heartbeatConfig := biz.NewHeartbeatConfig(bc)
 	manager := biz.NewJWTManager(bc)
 	userUseCase := biz.NewUserUseCase(userRepo, heartbeatConfig, manager)

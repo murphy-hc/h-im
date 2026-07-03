@@ -39,12 +39,14 @@ type redisConnManager struct {
 	rdb        *redis.Client
 	mu         sync.RWMutex
 	localConns map[string]map[string]*biz.ConnState
+	ttl        time.Duration
 }
 
-func newRedisConnManager(rdb *redis.Client) *redisConnManager {
+func newRedisConnManager(rdb *redis.Client, heartbeatTimeout time.Duration) *redisConnManager {
 	return &redisConnManager{
 		rdb:        rdb,
 		localConns: make(map[string]map[string]*biz.ConnState),
+		ttl:        heartbeatTimeout + 60*time.Second,
 	}
 }
 
@@ -62,7 +64,7 @@ func (cm *redisConnManager) Add(userID, deviceID string, conn *websocket.Conn) e
 		LastSuccessHeartbeat: time.Now(),
 	}
 	cm.mu.Unlock()
-	return cm.rdb.Set(context.Background(), connKey(userID, deviceID), instanceID, 0).Err()
+	return cm.rdb.Set(context.Background(), connKey(userID, deviceID), instanceID, cm.ttl).Err()
 }
 
 func (cm *redisConnManager) Remove(userID, deviceID string) error {

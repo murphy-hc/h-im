@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-kratos/kratos/v2"
@@ -30,7 +32,7 @@ func init() {
 	flag.StringVar(&flagconf, "conf", "../../configs", "config path, eg: -conf config.yaml")
 }
 
-func newApp(ws *server.WSServer, hs *khttp.Server, gs *kratosgrpc.Server) *kratos.App {
+func newApp(ws *server.WSServer, hs *khttp.Server, gs *kratosgrpc.Server, pss *server.PubSubServer) *kratos.App {
 	id := xid.New().String()
 	return kratos.New(
 		kratos.ID(id),
@@ -38,7 +40,7 @@ func newApp(ws *server.WSServer, hs *khttp.Server, gs *kratosgrpc.Server) *krato
 		kratos.Version(Version),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(log.DefaultLogger),
-		kratos.Server(ws, hs, gs),
+		kratos.Server(ws, hs, gs, pss),
 	)
 }
 
@@ -90,7 +92,15 @@ func main() {
 		panic(err)
 	}
 	defer cleanup()
+	// Graceful shutdown on SIGTERM/SIGINT
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-quit
+		log.Infof("gateway: shutting down...")
+		app.Stop()
+	}()
 	if err := app.Run(); err != nil {
-		panic(err)
+		log.Errorf("gateway: %v", err)
 	}
 }

@@ -84,3 +84,18 @@ docker-down:
 docker-reset:
 	docker compose -f docker/docker-compose.yml down -v
 	docker compose -f docker/docker-compose.yml up -d
+
+# ── Dart SDK ─────────────────────────────────────────────────────────────────
+proto-dart:
+	buf generate --template buf.gen.dart.yaml
+
+sdk-get:
+	cd sdk/flutter && dart pub get
+
+sdk-analyze:
+	cd sdk/flutter && dart analyze
+
+sdk-test:
+	cd sdk/flutter && dart test
+
+sdk: sdk-get sdk-analyze sdk-test

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gateway
+  namespace: default
+  labels:
+    app: gateway
+spec:
+  serviceName: gateway-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: gateway
+          image: halei-acr-new-registry.eu-central-1.cr.aliyuncs.com/test/him-gateway:${VERSION}
+          ports:
+            - containerPort: 8080
+              name: ws
+            - containerPort: 9200
+              name: grpc
+            - containerPort: 8180
+              name: http
+          env:
+            - name: INSTANCE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: GATEWAY_ADDR
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KAFKA_BROADCAST_GROUP
+              value: "gateway-broadcast-$(INSTANCE_ID)"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "sleep 5"
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8180
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8180
+            initialDelaySeconds: 3
+            periodSeconds: 5

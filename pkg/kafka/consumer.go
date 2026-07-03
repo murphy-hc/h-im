@@ -30,13 +30,14 @@ type DeadLetterConfig struct {
 // Consumer reads messages from a single Kafka topic. It implements
 // kratos.transport.Server (Start/Stop).
 type Consumer struct {
-	r          *kafka.Reader
-	handler    MessageHandler
-	onAlert    AlertHandler
-	tracing    bool
-	maxRetries int
-	retryBase  time.Duration
-	dlq        *DeadLetterConfig
+	r           *kafka.Reader
+	handler     MessageHandler
+	onAlert     AlertHandler
+	tracing     bool
+	maxRetries  int
+	retryBase   time.Duration
+	dlq         *DeadLetterConfig
+	startOffset int64
 }
 
 // ConsumerOption configures a Consumer.
@@ -62,23 +63,32 @@ func WithAlertHandler(h AlertHandler) ConsumerOption {
 	return func(c *Consumer) { c.onAlert = h }
 }
 
+// WithStartOffset sets the initial offset for new consumer groups.
+// Default: kafka.FirstOffset (replay history). Use kafka.LastOffset for
+// groups that should only process new messages (e.g. broadcast consumers).
+func WithStartOffset(offset int64) ConsumerOption {
+	return func(c *Consumer) { c.startOffset = offset }
+}
+
 // NewConsumer creates a single Kafka Consumer (kratos transport.Server).
 func NewConsumer(brokers []string, groupID string, topic string, handler MessageHandler, opts ...ConsumerOption) *Consumer {
 	c := &Consumer{
-		r: kafka.NewReader(kafka.ReaderConfig{
-			Brokers:  brokers,
-			GroupID:  groupID,
-			Topic:    topic,
-			MinBytes: 10e3,
-			MaxBytes: 10e6,
-		}),
 		handler:    handler,
 		maxRetries: defaultMaxRetries,
 		retryBase:  defaultRetryBase,
+		startOffset: kafka.FirstOffset,
 	}
 	for _, o := range opts {
 		o(c)
 	}
+	c.r = kafka.NewReader(kafka.ReaderConfig{
+		Brokers:     brokers,
+		GroupID:     groupID,
+		Topic:       topic,
+		StartOffset: c.startOffset,
+		MinBytes:    10e3,
+		MaxBytes:    10e6,
+	})
 	return c
 }
 

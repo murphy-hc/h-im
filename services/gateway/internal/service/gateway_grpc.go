@@ -6,15 +6,22 @@ import (
 	"github.com/coder/websocket"
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
 	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
+	"github.com/rs/xid"
 )
 
 type GatewayGrpcService struct {
 	gatewayv1.UnimplementedGatewayServiceServer
-	cm biz.ConnManager
+	cm          biz.ConnManager
+	broadcaster biz.Broadcaster
 }
 
-func NewGatewayGrpcService(cm biz.ConnManager) *GatewayGrpcService {
-	return &GatewayGrpcService{cm: cm}
+func NewGatewayGrpcService(cm biz.ConnManager, broadcaster biz.Broadcaster) *GatewayGrpcService {
+	return &GatewayGrpcService{cm: cm, broadcaster: broadcaster}
+}
+
+// HandleBroadcast delivers a Pub/Sub broadcast to local connections.
+func (s *GatewayGrpcService) HandleBroadcast(ctx context.Context, bm *biz.BroadcastMsg) {
+	s.deliverBroadcast(ctx, bm)
 }
 
 func writeToConns(ctx context.Context, conns []*websocket.Conn, msg []byte) (delivered int32) {
@@ -29,37 +36,42 @@ func writeToConns(ctx context.Context, conns []*websocket.Conn, msg []byte) (del
 func (s *GatewayGrpcService) SendToUser(ctx context.Context, req *gatewayv1.SendToUserRequest) (*gatewayv1.SendToUserResponse, error) {
 	conns, _ := s.cm.GetConns(req.UserId)
 	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
-	writeToConns(ctx, conns, msg)
-	return &gatewayv1.SendToUserResponse{Success: len(conns) > 0}, nil
+	delivered := writeToConns(ctx, conns, msg)
+	return &gatewayv1.SendToUserResponse{Success: delivered > 0}, nil
 }
 
 func (s *GatewayGrpcService) BroadcastToGroup(ctx context.Context, req *gatewayv1.BroadcastToGroupRequest) (*gatewayv1.BroadcastToGroupResponse, error) {
-	exclude := make(map[string]bool, len(req.ExcludeUserIds))
-	for _, uid := range req.ExcludeUserIds {
-		exclude[uid] = true
-	}
-	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
-	var delivered int32
-	members, _ := s.cm.GetGroupMembers(req.GroupId)
-	for _, uid := range members {
-		if exclude[uid] {
-			continue
-		}
-		conns, _ := s.cm.GetConns(uid)
-		delivered += writeToConns(ctx, conns, msg)
-	}
-	return &gatewayv1.BroadcastToGroupResponse{DeliveredCount: delivered}, nil
+	s.broadcast(ctx, biz.BroadcastTypeGroup, req.GroupId, req.FrameType, req.Payload)
+	return &gatewayv1.BroadcastToGroupResponse{}, nil
 }
 
 func (s *GatewayGrpcService) BroadcastToChatroom(ctx context.Context, req *gatewayv1.BroadcastToChatroomRequest) (*gatewayv1.BroadcastToChatroomResponse, error) {
-	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
-	var delivered int32
-	members, _ := s.cm.GetRoomMembers(req.RoomId)
-	for _, uid := range members {
-		conns, _ := s.cm.GetConns(uid)
-		delivered += writeToConns(ctx, conns, msg)
+	s.broadcast(ctx, biz.BroadcastTypeRoom, req.RoomId, req.FrameType, req.Payload)
+	return &gatewayv1.BroadcastToChatroomResponse{}, nil
+}
+
+func (s *GatewayGrpcService) broadcast(ctx context.Context, msgType int32, targetID string, frameType int32, payload []byte) {
+	bm := &biz.BroadcastMsg{
+		Type: msgType, TargetID: targetID, FrameType: frameType,
+		Payload: payload, MsgID: xid.New().String(),
 	}
-	return &gatewayv1.BroadcastToChatroomResponse{DeliveredCount: delivered}, nil
+	s.broadcaster.Publish(ctx, bm)
+	s.deliverBroadcast(ctx, bm)
+}
+
+func (s *GatewayGrpcService) deliverBroadcast(ctx context.Context, bm *biz.BroadcastMsg) {
+	msg := biz.BuildFrame(biz.CurrentVersion, uint32(bm.FrameType), bm.Payload)
+	var memberIDs []string
+	switch bm.Type {
+	case biz.BroadcastTypeGroup:
+		memberIDs, _ = s.cm.GetGroupMembers(bm.TargetID)
+	case biz.BroadcastTypeRoom:
+		memberIDs, _ = s.cm.GetRoomMembers(bm.TargetID)
+	}
+	for _, uid := range memberIDs {
+		conns, _ := s.cm.GetConns(uid)
+		writeToConns(ctx, conns, msg)
+	}
 }
 
 func (s *GatewayGrpcService) JoinChatroom(ctx context.Context, req *gatewayv1.JoinChatroomRequest) (*gatewayv1.JoinChatroomResponse, error) {

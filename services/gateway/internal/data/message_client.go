@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	pb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/murphy-hc/h-im/pkg/kafka"
+	"github.com/murphy-hc/h-im/services/gateway/internal/biz"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -37,6 +38,25 @@ func NewGrpcMessageClient() (*grpcMessageClient, func(), error) {
 func (c *grpcMessageClient) ackMessage(ctx context.Context, serverID int64, userID string) error {
 	_, err := c.client.AckMessage(ctx, &pb.AckMessageReq{MessageServerId: serverID, UserId: userID})
 	return err
+}
+
+func (c *grpcMessageClient) pullMessages(ctx context.Context, userID string, sinceID int64, limit int32) ([]biz.PullMessage, error) {
+	resp, err := c.client.PullMessages(ctx, &pb.PullMessagesReq{
+		UserId: userID, SinceMessageId: sinceID, Limit: limit,
+	})
+	if err != nil {
+		return nil, err
+	}
+	result := make([]biz.PullMessage, 0, len(resp.Messages))
+	for _, m := range resp.Messages {
+		result = append(result, biz.PullMessage{
+			ServerID: m.MessageServerId, ClientID: m.MessageClientId,
+			SenderID: m.SenderId, ReceiverID: m.ReceiverId,
+			ConvType: int32(m.ConvType), MsgType: int32(m.MsgType),
+			Text: m.Text, ServerTime: m.ServerTime,
+		})
+	}
+	return result, nil
 }
 
 // KafkaMessageClient implements biz.MessageClient, sending messages via Kafka.
@@ -130,4 +150,9 @@ func (c *KafkaMessageClient) RecallMessage(ctx context.Context, req *pb.RecallMe
 		Type:    pb.MessagePayloadType_MESSAGE_PAYLOAD_TYPE_RECALL,
 		Payload: &pb.MessageEnvelope_Recall{Recall: req},
 	})
+}
+
+// PullMessages delegates to the gRPC client for message history.
+func (c *KafkaMessageClient) PullMessages(ctx context.Context, userID string, sinceID int64, limit int32) ([]biz.PullMessage, error) {
+	return c.grpc.pullMessages(ctx, userID, sinceID, limit)
 }

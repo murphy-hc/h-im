@@ -2,6 +2,9 @@ package data
 
 import (
 	"context"
+	"net"
+	"strconv"
+	"time"
 
 	"github.com/google/wire"
 	"github.com/murphy-hc/h-im/pkg/database"
@@ -13,7 +16,14 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewRedisClient, NewConnManager, NewUserStatusClient, GatewayAddr, NewGrpcMessageClient, NewKafkaMessageClient, NewChatroomClient, NewGroupClient)
+var ProviderSet = wire.NewSet(
+	NewData, NewRedisClient, NewConnManager, NewPubSub,
+	NewUserStatusClient, GatewayAddr,
+	NewGrpcMessageClient, NewKafkaMessageClient,
+	NewChatroomClient, NewGroupClient,
+	wire.Bind(new(biz.Broadcaster), new(*PubSub)),
+	wire.Bind(new(biz.BroadcastListener), new(*PubSub)),
+)
 
 // GatewayAddr returns this gateway's gRPC address.
 func GatewayAddr() string { return gatewayAddr() }
@@ -43,14 +53,24 @@ func (d *Data) Migrate() error { return nil }
 // NewRedisClient creates a Redis client from config.
 func NewRedisClient(bc *conf.Bootstrap) (*goredis.Client, func(), error) {
 	cfg := bc.GetData().GetRedis()
-	addr := cfg.GetAddr()
-	if addr == "" { addr = "localhost:6379" }
+	host, portStr := "localhost", "6379"
+	if addr := cfg.GetAddr(); addr != "" {
+		host, portStr, _ = net.SplitHostPort(addr)
+	}
+	port, _ := strconv.Atoi(portStr)
+	if port == 0 { port = 6379 }
 	rdb, err := redis.NewClient(context.Background(), redis.Config{
-		Host: addr, Password: cfg.GetPassword(),
+		Host: host, Port: port, Password: cfg.GetPassword(),
 	})
 	if err != nil { return nil, nil, err }
 	return rdb, func() { rdb.Close() }, nil
 }
 
-func NewConnManager(rdb *goredis.Client) biz.ConnManager { return newRedisConnManager(rdb) }
+func NewConnManager(rdb *goredis.Client, bc *conf.Bootstrap) biz.ConnManager {
+	hbTimeout := 180 * time.Second
+	if bc.GetHeartbeat() != nil && bc.GetHeartbeat().GetTimeoutSeconds() > 0 {
+		hbTimeout = time.Duration(bc.GetHeartbeat().GetTimeoutSeconds()) * time.Second
+	}
+	return newRedisConnManager(rdb, hbTimeout)
+}
 func NewMemoryConnManager() biz.ConnManager               { return newMemoryConnManager() }

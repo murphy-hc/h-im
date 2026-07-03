@@ -24,7 +24,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	if err != nil {
 		return nil, nil, err
 	}
-	connManager := data.NewConnManager(client)
+	connManager := data.NewConnManager(client, bc)
 	grpcMessageClient, cleanup2, err := data.NewGrpcMessageClient()
 	if err != nil {
 		cleanup()
@@ -68,9 +68,12 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 	gatewayService := service.NewGatewayService(gatewayUseCase, connManager, user, server_WS)
 	wsServer := server.NewWSServer(confServer, gatewayService)
 	httpServer := server.NewHTTPServer(bc, meter)
-	gatewayGrpcService := service.NewGatewayGrpcService(connManager)
+	pubSub := data.NewPubSub(client)
+	gatewayGrpcService := service.NewGatewayGrpcService(connManager, pubSub)
 	grpcServer := server.NewGRPCServer(bc, meter, gatewayGrpcService)
-	app := newApp(wsServer, httpServer, grpcServer)
+	pubSubService := service.NewPubSubService(pubSub, pubSub)
+	pubSubServer := server.NewPubSubServer(pubSubService, gatewayGrpcService)
+	app := newApp(wsServer, httpServer, grpcServer, pubSubServer)
 	return app, func() {
 		cleanup6()
 		cleanup5()

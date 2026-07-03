@@ -7,28 +7,37 @@ import (
 	"time"
 
 	"github.com/murphy-hc/h-im/services/user/internal/biz"
+	"github.com/murphy-hc/h-im/services/user/internal/conf"
 	"github.com/redis/go-redis/v9"
 )
 
 type userRepo struct {
 	data *Data
+	ttl  time.Duration
 }
 
-// NewUserRepo creates a UserRepo implementation.
-func NewUserRepo(data *Data) biz.UserRepo {
-	return &userRepo{data: data}
+// NewUserRepo creates a UserRepo implementation. Redis keys expire at heartbeat_timeout + 60s.
+func NewUserRepo(data *Data, bc *conf.Bootstrap) biz.UserRepo {
+	hbTimeout := 180 * time.Second
+	if bc.GetHeartbeat() != nil && bc.GetHeartbeat().GetTimeoutSeconds() > 0 {
+		hbTimeout = time.Duration(bc.GetHeartbeat().GetTimeoutSeconds()) * time.Second
+	}
+	return &userRepo{data: data, ttl: hbTimeout + 60*time.Second}
 }
 
 func onlineKey(userID, deviceID string) string { return fmt.Sprintf("user:online:%s:%s", userID, deviceID) }
 func devicesKey(userID string) string          { return fmt.Sprintf("user:devices:%s", userID) }
 
 func (r *userRepo) SetOnline(ctx context.Context, userID, deviceID, gatewayAddr string, timestamp int64) error {
+	key := onlineKey(userID, deviceID)
 	pipe := r.data.RDB.Pipeline()
-	pipe.HSet(ctx, onlineKey(userID, deviceID),
+	pipe.HSet(ctx, key,
 		"gateway_addr", gatewayAddr,
 		"last_heartbeat_ts", timestamp,
 	)
+	pipe.Expire(ctx, key, r.ttl)
 	pipe.SAdd(ctx, devicesKey(userID), deviceID)
+	pipe.Expire(ctx, devicesKey(userID), r.ttl)
 	_, err := pipe.Exec(ctx)
 	return err
 }

@@ -29,13 +29,14 @@ const (
 
 // Config holds OpenTelemetry tracing configuration.
 type Config struct {
-	ServiceName string
-	Rate        float64
-	Endpoint    string
-	Path        string
-	Timeout     time.Duration
-	Insecure    bool
-	Transport   Transport
+	ServiceName      string
+	Rate             float64
+	Endpoint         string
+	Path             string
+	Timeout          time.Duration
+	Insecure         bool
+	Transport        Transport
+	EnableStackTrace bool
 }
 
 func (c *Config) timeout() time.Duration {
@@ -118,9 +119,13 @@ func InitTracer(conf *Config) (func(), error) {
 	}, nil
 }
 
-// FinishSpan ends a span with stack trace and timestamp.
-func FinishSpan(span trace.Span) {
-	span.End(trace.WithStackTrace(true), trace.WithTimestamp(time.Now()))
+// FinishSpan ends a span with optional stack trace and timestamp.
+func FinishSpan(span trace.Span, withStackTrace bool) {
+	if withStackTrace {
+		span.End(trace.WithStackTrace(true), trace.WithTimestamp(time.Now()))
+	} else {
+		span.End(trace.WithTimestamp(time.Now()))
+	}
 }
 
 // Tracer returns a tracer instance for the given service name.

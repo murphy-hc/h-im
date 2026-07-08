@@ -6,4 +6,4 @@ import (
 )
 
 var GRPCProviderSet = wire.NewSet(NewGRPCServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
-var HTTPProviderSet = wire.NewSet(NewHTTPServer)
+var HTTPProviderSet = wire.NewSet(NewHTTPServer, NewMediaHTTPHandler)

@@ -54,7 +54,7 @@ func connKey(userID, deviceID string) string { return redisKeyPrefix + ":conn:" 
 func groupKey(groupID string) string         { return redisKeyPrefix + ":group:" + groupID }
 func roomKey(roomID string) string           { return redisKeyPrefix + ":room:" + roomID }
 
-func (cm *redisConnManager) Add(userID, deviceID string, conn *websocket.Conn) error {
+func (cm *redisConnManager) Add(ctx context.Context, userID, deviceID string, conn *websocket.Conn) error {
 	cm.mu.Lock()
 	if cm.localConns[userID] == nil {
 		cm.localConns[userID] = make(map[string]*biz.ConnState)
@@ -64,10 +64,10 @@ func (cm *redisConnManager) Add(userID, deviceID string, conn *websocket.Conn) e
 		LastSuccessHeartbeat: time.Now(),
 	}
 	cm.mu.Unlock()
-	return cm.rdb.Set(context.Background(), connKey(userID, deviceID), instanceID, cm.ttl).Err()
+	return cm.rdb.Set(ctx, connKey(userID, deviceID), instanceID, cm.ttl).Err()
 }
 
-func (cm *redisConnManager) Remove(userID, deviceID string) error {
+func (cm *redisConnManager) Remove(ctx context.Context, userID, deviceID string) error {
 	cm.mu.Lock()
 	if devs, ok := cm.localConns[userID]; ok {
 		delete(devs, deviceID)
@@ -76,10 +76,10 @@ func (cm *redisConnManager) Remove(userID, deviceID string) error {
 		}
 	}
 	cm.mu.Unlock()
-	return cm.rdb.Del(context.Background(), connKey(userID, deviceID)).Err()
+	return cm.rdb.Del(ctx, connKey(userID, deviceID)).Err()
 }
 
-func (cm *redisConnManager) GetConns(userID string) ([]*websocket.Conn, error) {
+func (cm *redisConnManager) GetConns(_ context.Context, userID string) ([]*websocket.Conn, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	devs := cm.localConns[userID]
@@ -93,14 +93,13 @@ func (cm *redisConnManager) GetConns(userID string) ([]*websocket.Conn, error) {
 	return conns, nil
 }
 
-func (cm *redisConnManager) KickUser(userID string) ([]*websocket.Conn, error) {
+func (cm *redisConnManager) KickUser(ctx context.Context, userID string) ([]*websocket.Conn, error) {
 	cm.mu.Lock()
 	devs := cm.localConns[userID]
 	delete(cm.localConns, userID)
 	cm.mu.Unlock()
 
 	conns := make([]*websocket.Conn, 0, len(devs))
-	ctx := context.Background()
 	for deviceID, cs := range devs {
 		conns = append(conns, cs.Conn)
 		cm.rdb.Del(ctx, connKey(userID, deviceID))
@@ -108,23 +107,23 @@ func (cm *redisConnManager) KickUser(userID string) ([]*websocket.Conn, error) {
 	return conns, nil
 }
 
-func (cm *redisConnManager) JoinGroup(groupID, userID string) error {
-	return cm.rdb.SAdd(context.Background(), groupKey(groupID), userID).Err()
+func (cm *redisConnManager) JoinGroup(ctx context.Context, groupID, userID string) error {
+	return cm.rdb.SAdd(ctx, groupKey(groupID), userID).Err()
 }
-func (cm *redisConnManager) LeaveGroup(groupID, userID string) error {
-	return cm.rdb.SRem(context.Background(), groupKey(groupID), userID).Err()
+func (cm *redisConnManager) LeaveGroup(ctx context.Context, groupID, userID string) error {
+	return cm.rdb.SRem(ctx, groupKey(groupID), userID).Err()
 }
-func (cm *redisConnManager) GetGroupMembers(groupID string) ([]string, error) {
-	return cm.rdb.SMembers(context.Background(), groupKey(groupID)).Result()
+func (cm *redisConnManager) GetGroupMembers(ctx context.Context, groupID string) ([]string, error) {
+	return cm.rdb.SMembers(ctx, groupKey(groupID)).Result()
 }
-func (cm *redisConnManager) JoinRoom(roomID, userID string) error {
-	return cm.rdb.SAdd(context.Background(), roomKey(roomID), userID).Err()
+func (cm *redisConnManager) JoinRoom(ctx context.Context, roomID, userID string) error {
+	return cm.rdb.SAdd(ctx, roomKey(roomID), userID).Err()
 }
-func (cm *redisConnManager) LeaveRoom(roomID, userID string) error {
-	return cm.rdb.SRem(context.Background(), roomKey(roomID), userID).Err()
+func (cm *redisConnManager) LeaveRoom(ctx context.Context, roomID, userID string) error {
+	return cm.rdb.SRem(ctx, roomKey(roomID), userID).Err()
 }
-func (cm *redisConnManager) GetRoomMembers(roomID string) ([]string, error) {
-	return cm.rdb.SMembers(context.Background(), roomKey(roomID)).Result()
+func (cm *redisConnManager) GetRoomMembers(ctx context.Context, roomID string) ([]string, error) {
+	return cm.rdb.SMembers(ctx, roomKey(roomID)).Result()
 }
 func (cm *redisConnManager) OnlineCount() int {
 	cm.mu.RLock()
@@ -168,13 +167,12 @@ func (cm *redisConnManager) MarkHeartbeatFail(userID, deviceID string) {
 }
 
 // SweepOffline scans all connections and returns those that have exceeded the timeout.
-func (cm *redisConnManager) SweepOffline(timeout time.Duration) []biz.OfflineDevice {
+func (cm *redisConnManager) SweepOffline(ctx context.Context, timeout time.Duration) []biz.OfflineDevice {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
 	now := time.Now()
 	var offline []biz.OfflineDevice
-	ctx := context.Background()
 
 	for userID, devs := range cm.localConns {
 		for deviceID, cs := range devs {

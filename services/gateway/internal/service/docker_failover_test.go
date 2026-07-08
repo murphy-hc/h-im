@@ -90,7 +90,7 @@ func (g *dockerGateway) stop() {
 
 func (g *dockerGateway) joinGroup(userID string) {
 	ctx := context.Background()
-	g.cm.JoinGroup(testGroupID, userID)
+	g.cm.JoinGroup(context.Background(),testGroupID, userID)
 	g.svc.JoinGroup(ctx, &gatewayv1.JoinGroupRequest{GroupId: testGroupID, UserId: userID})
 	traceS(g.name, "用户 %s 加入群组 %s", userID, testGroupID)
 }
@@ -120,7 +120,7 @@ func (g *dockerGateway) deliverLocally(bm *biz.BroadcastMsg) {
 
 	msg := biz.BuildFrame(biz.CurrentVersion, uint32(bm.FrameType), bm.Payload)
 	ctx := context.Background()
-	memberIDs, _ := g.cm.GetGroupMembers(bm.TargetID)
+	memberIDs, _ := g.cm.GetGroupMembers(context.Background(),bm.TargetID)
 	for _, uid := range memberIDs {
 		if c, ok := g.conns[uid]; ok {
 			c.Write(ctx, websocket.MessageBinary, msg)

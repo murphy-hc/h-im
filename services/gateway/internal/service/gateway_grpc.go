@@ -34,7 +34,7 @@ func writeToConns(ctx context.Context, conns []*websocket.Conn, msg []byte) (del
 }
 
 func (s *GatewayGrpcService) SendToUser(ctx context.Context, req *gatewayv1.SendToUserRequest) (*gatewayv1.SendToUserResponse, error) {
-	conns, _ := s.cm.GetConns(req.UserId)
+	conns, _ := s.cm.GetConns(ctx, req.UserId)
 	msg := biz.BuildFrame(biz.CurrentVersion, uint32(req.FrameType), req.Payload)
 	delivered := writeToConns(ctx, conns, msg)
 	return &gatewayv1.SendToUserResponse{Success: delivered > 0}, nil
@@ -64,18 +64,18 @@ func (s *GatewayGrpcService) deliverBroadcast(ctx context.Context, bm *biz.Broad
 	var memberIDs []string
 	switch bm.Type {
 	case biz.BroadcastTypeGroup:
-		memberIDs, _ = s.cm.GetGroupMembers(bm.TargetID)
+		memberIDs, _ = s.cm.GetGroupMembers(ctx, bm.TargetID)
 	case biz.BroadcastTypeRoom:
-		memberIDs, _ = s.cm.GetRoomMembers(bm.TargetID)
+		memberIDs, _ = s.cm.GetRoomMembers(ctx, bm.TargetID)
 	}
 	for _, uid := range memberIDs {
-		conns, _ := s.cm.GetConns(uid)
+		conns, _ := s.cm.GetConns(ctx, uid)
 		writeToConns(ctx, conns, msg)
 	}
 }
 
 func (s *GatewayGrpcService) JoinChatroom(ctx context.Context, req *gatewayv1.JoinChatroomRequest) (*gatewayv1.JoinChatroomResponse, error) {
-	err := s.cm.JoinRoom(req.RoomId, req.UserId)
+	err := s.cm.JoinRoom(ctx, req.RoomId, req.UserId)
 	if err != nil {
 		return &gatewayv1.JoinChatroomResponse{Success: false}, nil
 	}
@@ -83,7 +83,7 @@ func (s *GatewayGrpcService) JoinChatroom(ctx context.Context, req *gatewayv1.Jo
 }
 
 func (s *GatewayGrpcService) LeaveChatroom(ctx context.Context, req *gatewayv1.LeaveChatroomRequest) (*gatewayv1.LeaveChatroomResponse, error) {
-	err := s.cm.LeaveRoom(req.RoomId, req.UserId)
+	err := s.cm.LeaveRoom(ctx, req.RoomId, req.UserId)
 	if err != nil {
 		return &gatewayv1.LeaveChatroomResponse{Success: false}, nil
 	}
@@ -91,7 +91,7 @@ func (s *GatewayGrpcService) LeaveChatroom(ctx context.Context, req *gatewayv1.L
 }
 
 func (s *GatewayGrpcService) SendCommand(ctx context.Context, req *gatewayv1.SendCommandRequest) (*gatewayv1.SendCommandResponse, error) {
-	conns, _ := s.cm.KickUser(req.UserId)
+	conns, _ := s.cm.KickUser(ctx, req.UserId)
 	for _, c := range conns {
 		c.Close(websocket.StatusNormalClosure, req.Command)
 	}
@@ -99,14 +99,14 @@ func (s *GatewayGrpcService) SendCommand(ctx context.Context, req *gatewayv1.Sen
 }
 
 func (s *GatewayGrpcService) JoinGroup(ctx context.Context, req *gatewayv1.JoinGroupRequest) (*gatewayv1.JoinGroupResponse, error) {
-	if err := s.cm.JoinGroup(req.GroupId, req.UserId); err != nil {
+	if err := s.cm.JoinGroup(ctx, req.GroupId, req.UserId); err != nil {
 		return &gatewayv1.JoinGroupResponse{Success: false}, nil
 	}
 	return &gatewayv1.JoinGroupResponse{Success: true}, nil
 }
 
 func (s *GatewayGrpcService) LeaveGroup(ctx context.Context, req *gatewayv1.LeaveGroupRequest) (*gatewayv1.LeaveGroupResponse, error) {
-	if err := s.cm.LeaveGroup(req.GroupId, req.UserId); err != nil {
+	if err := s.cm.LeaveGroup(ctx, req.GroupId, req.UserId); err != nil {
 		return &gatewayv1.LeaveGroupResponse{Success: false}, nil
 	}
 	return &gatewayv1.LeaveGroupResponse{Success: true}, nil

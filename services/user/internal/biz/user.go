@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/murphy-hc/h-im/pkg/gp"
 	"github.com/murphy-hc/h-im/pkg/jwt"
 	"github.com/rs/xid"
 	"golang.org/x/crypto/bcrypt"
@@ -26,7 +27,7 @@ type UserUseCase struct {
 // NewUserUseCase creates a UserUseCase.
 func NewUserUseCase(repo UserRepo, hbCfg HeartbeatConfig, jwtManager *jwt.Manager) *UserUseCase {
 	uc := &UserUseCase{repo: repo, hbCfg: hbCfg, jwtManager: jwtManager}
-	go uc.sweepLoop()
+	gp.SafeGo(context.Background(), func(_ context.Context) { uc.sweepLoop() })
 	return uc
 }
 
@@ -70,7 +71,10 @@ func (uc *UserUseCase) Register(ctx context.Context, username, password string) 
 		return "", fmt.Errorf("username already exists")
 	}
 	userID := xid.New().String()
-	hash := hashPassword(password)
+	hash, err := hashPassword(password)
+	if err != nil {
+		return "", fmt.Errorf("hash password: %w", err)
+	}
 	if err := uc.repo.Register(ctx, userID, username, hash); err != nil {
 		return "", fmt.Errorf("register: %w", err)
 	}
@@ -114,10 +118,10 @@ func (uc *UserUseCase) BatchGetUsers(ctx context.Context, userIDs []string) ([]*
 }
 
 
-func hashPassword(pw string) string {
+func hashPassword(pw string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
 	if err != nil {
-		panic("bcrypt: " + err.Error())
+		return "", fmt.Errorf("bcrypt: %w", err)
 	}
-	return string(hash)
+	return string(hash), nil
 }

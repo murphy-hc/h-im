@@ -5,5 +5,5 @@ import (
 	"github.com/murphy-hc/h-im/services/user/internal/conf"
 )
 
-var GRPCProviderSet = wire.NewSet(NewGRPCServer, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
+var GRPCProviderSet = wire.NewSet(NewGRPCServer, NewHeartbeatConfig, NewJWTManager, wire.FieldsOf(new(*conf.Bootstrap), "Server"))
 var HTTPProviderSet = wire.NewSet(NewHTTPServer)

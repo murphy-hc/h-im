@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	pb "github.com/murphy-hc/h-im/gen/go/him/media/v1"
 	"github.com/murphy-hc/h-im/services/media/internal/biz"
+	"github.com/murphy-hc/h-im/services/media/internal/conf"
 )
 
 // MediaHTTPHandler handles HTTP upload/callback requests.
@@ -14,14 +15,14 @@ type MediaHTTPHandler struct {
 	secret string
 }
 
-// NewMediaHTTPHandler creates a MediaHTTPHandler.
-func NewMediaHTTPHandler(uc *biz.MediaUseCase, secret string) *MediaHTTPHandler {
-	return &MediaHTTPHandler{uc: uc, secret: secret}
+// NewMediaHTTPHandler creates a MediaHTTPHandler from config.
+func NewMediaHTTPHandler(uc *biz.MediaUseCase, bc *conf.Bootstrap) *MediaHTTPHandler {
+	return &MediaHTTPHandler{uc: uc, secret: bc.GetMediaSecret()}
 }
 
 func (h *MediaHTTPHandler) auth(r *http.Request) bool {
 	if h.secret == "" {
-		return true // dev mode: no secret configured
+		return false // fail closed: no secret configured
 	}
 	token := r.Header.Get("X-Media-Secret")
 	if token == "" {

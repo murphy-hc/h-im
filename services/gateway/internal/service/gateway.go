@@ -58,13 +58,13 @@ func (s *GatewayService) HandleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 
 	if !s.cfg.GetMultiDevice() {
-		if conns, err := s.cm.KickUser(userID); err == nil {
+		if conns, err := s.cm.KickUser(r.Context(), userID); err == nil {
 			for _, old := range conns {
 				old.Close(websocket.StatusNormalClosure, biz.CloseReasonKicked)
 			}
 		}
 	}
 
-	s.cm.Add(userID, deviceID, conn)
+	s.cm.Add(r.Context(), userID, deviceID, conn)
 	s.uc.HandleConnection(r.Context(), conn, userID, deviceID)
 }

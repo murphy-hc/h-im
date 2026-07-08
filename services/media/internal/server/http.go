@@ -8,12 +8,11 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/murphy-hc/h-im/services/media/internal/conf"
-	"github.com/murphy-hc/h-im/services/media/internal/service"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel/metric"
 )
 
-func NewHTTPServer(bc *conf.Bootstrap, meter metric.Meter, h *service.MediaHTTPHandler) *khttp.Server {
+func NewHTTPServer(bc *conf.Bootstrap, meter metric.Meter, h *MediaHTTPHandler) *khttp.Server {
 	counter, _ := metrics.DefaultRequestsCounter(meter, metrics.DefaultServerRequestsCounterName)
 	histogram, _ := metrics.DefaultSecondsHistogram(meter, metrics.DefaultServerSecondsHistogramName)
 	srv := khttp.NewServer(

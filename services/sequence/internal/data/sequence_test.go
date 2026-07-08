@@ -6,20 +6,20 @@ import (
 	"testing"
 
 	"github.com/murphy-hc/h-im/services/sequence/internal/data"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-// Requires a running PostgreSQL.
+// Requires a running MySQL.
 func TestAllocateSegment_Integration(t *testing.T) {
-	dsn := os.Getenv("PG_DSN")
+	dsn := os.Getenv("MYSQL_DSN")
 	if dsn == "" {
-		dsn = "postgres://him:him_secret@localhost:5432/him?sslmode=disable"
+		dsn = "him:him_secret@tcp(localhost:3306)/him?charset=utf8mb4&parseTime=True"
 	}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		t.Skipf("PG not available: %v", err)
+		t.Skipf("MySQL not available: %v", err)
 	}
 
 	// Ensure the sequences table exists.
@@ -28,7 +28,7 @@ func TestAllocateSegment_Integration(t *testing.T) {
 	}
 
 	t.Cleanup(func() {
-		db.Exec("DELETE FROM sequences WHERE key LIKE 'test_%'")
+		db.Exec("DELETE FROM sequences WHERE `key` LIKE 'test_%'")
 	})
 
 	d := &data.Data{DB: db}

@@ -50,44 +50,44 @@ func newTestCM() *testCM {
 	}
 }
 
-func (cm *testCM) Add(userID, deviceID string, conn *websocket.Conn) error { return nil }
-func (cm *testCM) Remove(userID, deviceID string) error                     { return nil }
-func (cm *testCM) GetConns(userID string) ([]*websocket.Conn, error)        { return nil, nil }
-func (cm *testCM) KickUser(userID string) ([]*websocket.Conn, error)        { return nil, nil }
+func (cm *testCM) Add(_ context.Context, userID, deviceID string, conn *websocket.Conn) error { return nil }
+func (cm *testCM) Remove(_ context.Context, userID, deviceID string) error                     { return nil }
+func (cm *testCM) GetConns(_ context.Context, userID string) ([]*websocket.Conn, error)        { return nil, nil }
+func (cm *testCM) KickUser(_ context.Context, userID string) ([]*websocket.Conn, error)        { return nil, nil }
 func (cm *testCM) OnlineCount() int                                         { return 0 }
 func (cm *testCM) MarkHeartbeatSuccess(userID, deviceID string)             {}
 func (cm *testCM) MarkHeartbeatFail(userID, deviceID string)                {}
-func (cm *testCM) SweepOffline(timeout time.Duration) []biz.OfflineDevice   { return nil }
+func (cm *testCM) SweepOffline(_ context.Context, timeout time.Duration) []biz.OfflineDevice   { return nil }
 
-func (cm *testCM) JoinGroup(groupID, userID string) error {
+func (cm *testCM) JoinGroup(_ context.Context, groupID, userID string) error {
 	cm.mu.Lock(); defer cm.mu.Unlock()
 	if cm.groups[groupID] == nil { cm.groups[groupID] = make(map[string]struct{}) }
 	cm.groups[groupID][userID] = struct{}{}
 	return nil
 }
-func (cm *testCM) LeaveGroup(groupID, userID string) error {
+func (cm *testCM) LeaveGroup(_ context.Context, groupID, userID string) error {
 	cm.mu.Lock(); defer cm.mu.Unlock()
 	delete(cm.groups[groupID], userID)
 	return nil
 }
-func (cm *testCM) GetGroupMembers(groupID string) ([]string, error) {
+func (cm *testCM) GetGroupMembers(_ context.Context, groupID string) ([]string, error) {
 	cm.mu.RLock(); defer cm.mu.RUnlock()
 	var ids []string
 	for id := range cm.groups[groupID] { ids = append(ids, id) }
 	return ids, nil
 }
-func (cm *testCM) JoinRoom(roomID, userID string) error {
+func (cm *testCM) JoinRoom(_ context.Context, roomID, userID string) error {
 	cm.mu.Lock(); defer cm.mu.Unlock()
 	if cm.rooms[roomID] == nil { cm.rooms[roomID] = make(map[string]struct{}) }
 	cm.rooms[roomID][userID] = struct{}{}
 	return nil
 }
-func (cm *testCM) LeaveRoom(roomID, userID string) error {
+func (cm *testCM) LeaveRoom(_ context.Context, roomID, userID string) error {
 	cm.mu.Lock(); defer cm.mu.Unlock()
 	delete(cm.rooms[roomID], userID)
 	return nil
 }
-func (cm *testCM) GetRoomMembers(roomID string) ([]string, error) {
+func (cm *testCM) GetRoomMembers(_ context.Context, roomID string) ([]string, error) {
 	cm.mu.RLock(); defer cm.mu.RUnlock()
 	var ids []string
 	for id := range cm.rooms[roomID] { ids = append(ids, id) }
@@ -143,7 +143,7 @@ func (g *testGateway) sendToUser(ctx context.Context, userID string, payload []b
 
 // broadcastToGroup delivers a group message to all local group members.
 func (g *testGateway) broadcastToGroup(ctx context.Context, groupID string, payload []byte) int {
-	ids, _ := g.cm.GetGroupMembers(groupID)
+	ids, _ := g.cm.GetGroupMembers(context.Background(),groupID)
 	count := 0
 	for _, uid := range ids {
 		if g.sendToUser(ctx, uid, payload) {
@@ -165,8 +165,8 @@ func TestE2E_TwoGateways_GroupMessageFanOut(t *testing.T) {
 	connB := gw2.cm.addUser("userB")
 
 	// Both join group g1 on their respective gateways
-	gw1.cm.JoinGroup("g1", "userA")
-	gw2.cm.JoinGroup("g1", "userB")
+	gw1.cm.JoinGroup(context.Background(),"g1", "userA")
+	gw2.cm.JoinGroup(context.Background(),"g1", "userB")
 
 	// GW1 receives a group broadcast → delivers to local members (userA)
 	// In production, Redis Pub/Sub would propagate to GW2 → GW2 delivers to userB
@@ -192,8 +192,8 @@ func TestE2E_GatewayCrash_UserReconnect(t *testing.T) {
 	// userA on GW1, userB on GW2
 	connA := gw1.cm.addUser("userA")
 	connB := gw2.cm.addUser("userB")
-	gw1.cm.JoinGroup("g1", "userA")
-	gw2.cm.JoinGroup("g1", "userB")
+	gw1.cm.JoinGroup(context.Background(),"g1", "userA")
+	gw2.cm.JoinGroup(context.Background(),"g1", "userB")
 
 	// Pre-crash: send message
 	gw1.broadcastToGroup(ctx, "g1", []byte("before-crash"))
@@ -211,7 +211,7 @@ func TestE2E_GatewayCrash_UserReconnect(t *testing.T) {
 
 	// userA reconnects to GW2
 	connA2 := gw2.cm.addUser("userA")
-	gw2.cm.JoinGroup("g1", "userA")
+	gw2.cm.JoinGroup(context.Background(),"g1", "userA")
 
 	// Post-crash: send message — GW2 handles it for all members
 	gw2.broadcastToGroup(ctx, "g1", []byte("after-crash"))
@@ -244,13 +244,13 @@ func TestE2E_ScaleOut_NewInstance(t *testing.T) {
 	// Existing: userA on GW1, userB on GW2
 	connA := gw1.cm.addUser("userA")
 	connB := gw2.cm.addUser("userB")
-	gw1.cm.JoinGroup("g1", "userA")
-	gw2.cm.JoinGroup("g1", "userB")
+	gw1.cm.JoinGroup(context.Background(),"g1", "userA")
+	gw2.cm.JoinGroup(context.Background(),"g1", "userB")
 
 	// Scale out: add GW3 with userC
 	gw3 := newTestGateway()
 	connC := gw3.cm.addUser("userC")
-	gw3.cm.JoinGroup("g1", "userC")
+	gw3.cm.JoinGroup(context.Background(),"g1", "userC")
 
 	// All three gateways get the broadcast
 	gw1.broadcastToGroup(ctx, "g1", []byte("scale-msg"))
@@ -274,7 +274,7 @@ func TestE2E_NoMessageDuplication(t *testing.T) {
 	gw1 := newTestGateway()
 
 	connA := gw1.cm.addUser("userA")
-	gw1.cm.JoinGroup("g1", "userA")
+	gw1.cm.JoinGroup(context.Background(),"g1", "userA")
 
 	// Send multiple unique messages — verify each is received exactly once
 	uniqPayloads := [][]byte{
@@ -293,7 +293,7 @@ func TestE2E_NoMessageDuplication(t *testing.T) {
 	gw1.cm.removeUser("userA")
 	gw2 := newTestGateway()
 	connA2 := gw2.cm.addUser("userA")
-	gw2.cm.JoinGroup("g1", "userA")
+	gw2.cm.JoinGroup(context.Background(),"g1", "userA")
 
 	// Send more messages after reconnect
 	for _, p := range uniqPayloads {

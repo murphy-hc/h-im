@@ -35,7 +35,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		cleanup()
 		return nil, nil, err
 	}
-	sequenceServiceClient, cleanup4, err := server.NewSequenceClient()
+	sequenceServiceClient, cleanup4, err := data.NewSequenceClient()
 	if err != nil {
 		cleanup3()
 		cleanup2()

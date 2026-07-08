@@ -1,4 +1,4 @@
-package service
+package server_test
 
 import (
 	"bytes"
@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/murphy-hc/h-im/services/media/internal/biz"
+	"github.com/murphy-hc/h-im/services/media/internal/conf"
+	"github.com/murphy-hc/h-im/services/media/internal/server"
 )
 
 type e2eMediaRepo struct {
@@ -48,14 +50,15 @@ func (s *e2eStorage) PresignedUploadURL(key string, _ string, _ time.Duration) (
 func (s *e2eStorage) HeadObject(_ string) (map[string]string, error) { return nil, nil }
 func (s *e2eStorage) URL(key string) string                         { return "https://img.example.com/" + key }
 
-func newE2EMediaHandler() *MediaHTTPHandler {
+func newE2EMediaHandler() *server.MediaHTTPHandler {
 	repo := newE2EMediaRepo()
 	storage := newE2EStorage()
 	uc := biz.NewMediaUseCase(repo, storage)
-	return NewMediaHTTPHandler(uc, "") // empty secret = dev mode
+	bc := &conf.Bootstrap{MediaSecret: "test-secret"}
+	return server.NewMediaHTTPHandler(uc, bc)
 }
 
-func TestE2E_UploadAndConfirm(t *testing.T) {
+func TestE2E_UploadAndToken(t *testing.T) {
 	h := newE2EMediaHandler()
 
 	// 1. Upload
@@ -69,6 +72,7 @@ func TestE2E_UploadAndConfirm(t *testing.T) {
 
 	req := httptest.NewRequest("POST", "/media/v1/upload", body)
 	req.Header.Set("Content-Type", "multipart/form-data; boundary=boundary")
+	req.Header.Set("X-Media-Secret", "test-secret")
 	w := httptest.NewRecorder()
 
 	h.Upload(w, req)
@@ -80,6 +84,7 @@ func TestE2E_UploadAndConfirm(t *testing.T) {
 	tokenBody := bytes.NewBufferString("user_id=user-1&file_name=video.mp4&mime_type=video/mp4")
 	req2 := httptest.NewRequest("POST", "/media/v1/token", tokenBody)
 	req2.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req2.Header.Set("X-Media-Secret", "test-secret")
 	w2 := httptest.NewRecorder()
 
 	h.Token(w2, req2)

@@ -23,6 +23,8 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+require github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
+
 require (
 	cel.dev/expr v0.25.2 // indirect
 	dario.cat/mergo v1.0.0 // indirect
@@ -45,6 +47,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/murphy-hc/h-im/pkg/jwt v0.0.0-00010101000000-000000000000
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.66.1 // indirect
@@ -76,7 +79,6 @@ replace (
 	github.com/murphy-hc/h-im/pkg/gp => ../../pkg/gp
 	github.com/murphy-hc/h-im/pkg/jwt => ../../pkg/jwt
 	github.com/murphy-hc/h-im/pkg/kafka => ../../pkg/kafka
-	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 	github.com/murphy-hc/h-im/pkg/redis => ../../pkg/redis
 )
 

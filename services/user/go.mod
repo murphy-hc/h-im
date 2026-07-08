@@ -7,6 +7,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/murphy-hc/h-im/gen/go v0.0.0-20260622162121-360627438658
 	github.com/murphy-hc/h-im/pkg/database v0.0.0-20260622162121-360627438658
+	github.com/murphy-hc/h-im/pkg/gp v0.0.0-20260703143439-12d54d28cbe4
 	github.com/murphy-hc/h-im/pkg/jwt v0.0.0-00010101000000-000000000000
 	github.com/murphy-hc/h-im/pkg/metrics v0.0.0-20260620170028-8f8ba2793bc5
 	github.com/murphy-hc/h-im/pkg/redis v0.0.0-20260622162121-360627438658
@@ -72,5 +73,4 @@ replace (
 	github.com/murphy-hc/h-im/gen/go => ../../gen/go
 	github.com/murphy-hc/h-im/pkg/errcode => ../../pkg/errcode
 	github.com/murphy-hc/h-im/pkg/jwt => ../../pkg/jwt
-	github.com/murphy-hc/h-im/pkg/logger => ../../pkg/logger
 )

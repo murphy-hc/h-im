@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/murphy-hc/h-im/services/user/internal/biz"
@@ -81,9 +82,6 @@ func (r *userRepo) SweepOffline(ctx context.Context, timeoutSeconds int64) ([]bi
 	var offline []biz.OfflinePair
 	var cursor uint64
 	pattern := "user:online:*"
-	cutoff := int64(0) // placeholder — we compare per-key
-	_ = cutoff
-
 	for {
 		keys, nextCursor, err := r.data.RDB.Scan(ctx, cursor, pattern, 100).Result()
 		if err != nil {
@@ -121,17 +119,15 @@ func (r *userRepo) SweepOffline(ctx context.Context, timeoutSeconds int64) ([]bi
 }
 
 // splitOnlineKey parses "user:online:{userID}:{deviceID}" into [userID, deviceID].
+// Uses LastIndex so that user IDs containing colons are handled correctly.
 func splitOnlineKey(key string) []string {
-	// key = "user:online:user123:device456"
 	prefixLen := len("user:online:")
 	if len(key) <= prefixLen {
 		return nil
 	}
 	rest := key[prefixLen:]
-	for i := 0; i < len(rest); i++ {
-		if rest[i] == ':' {
-			return []string{rest[:i], rest[i+1:]}
-		}
+	if idx := strings.LastIndex(rest, ":"); idx >= 0 {
+		return []string{rest[:idx], rest[idx+1:]}
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -23,7 +24,7 @@ func newMemoryConnManager() biz.ConnManager {
 	}
 }
 
-func (cm *memoryConnManager) Add(userID, deviceID string, conn *websocket.Conn) error {
+func (cm *memoryConnManager) Add(_ context.Context, userID, deviceID string, conn *websocket.Conn) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if cm.localConns[userID] == nil {
@@ -36,7 +37,7 @@ func (cm *memoryConnManager) Add(userID, deviceID string, conn *websocket.Conn) 
 	return nil
 }
 
-func (cm *memoryConnManager) Remove(userID, deviceID string) error {
+func (cm *memoryConnManager) Remove(_ context.Context, userID, deviceID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if devs, ok := cm.localConns[userID]; ok {
@@ -48,7 +49,7 @@ func (cm *memoryConnManager) Remove(userID, deviceID string) error {
 	return nil
 }
 
-func (cm *memoryConnManager) GetConns(userID string) ([]*websocket.Conn, error) {
+func (cm *memoryConnManager) GetConns(_ context.Context, userID string) ([]*websocket.Conn, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	devs := cm.localConns[userID]
@@ -62,7 +63,7 @@ func (cm *memoryConnManager) GetConns(userID string) ([]*websocket.Conn, error) 
 	return conns, nil
 }
 
-func (cm *memoryConnManager) KickUser(userID string) ([]*websocket.Conn, error) {
+func (cm *memoryConnManager) KickUser(_ context.Context, userID string) ([]*websocket.Conn, error) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	devs := cm.localConns[userID]
@@ -74,7 +75,7 @@ func (cm *memoryConnManager) KickUser(userID string) ([]*websocket.Conn, error) 
 	return conns, nil
 }
 
-func (cm *memoryConnManager) JoinGroup(groupID, userID string) error {
+func (cm *memoryConnManager) JoinGroup(_ context.Context, groupID, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if cm.groupUsers[groupID] == nil {
@@ -84,14 +85,14 @@ func (cm *memoryConnManager) JoinGroup(groupID, userID string) error {
 	return nil
 }
 
-func (cm *memoryConnManager) LeaveGroup(groupID, userID string) error {
+func (cm *memoryConnManager) LeaveGroup(_ context.Context, groupID, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	delete(cm.groupUsers[groupID], userID)
 	return nil
 }
 
-func (cm *memoryConnManager) GetGroupMembers(groupID string) ([]string, error) {
+func (cm *memoryConnManager) GetGroupMembers(_ context.Context, groupID string) ([]string, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	var ids []string
@@ -101,7 +102,7 @@ func (cm *memoryConnManager) GetGroupMembers(groupID string) ([]string, error) {
 	return ids, nil
 }
 
-func (cm *memoryConnManager) JoinRoom(roomID, userID string) error {
+func (cm *memoryConnManager) JoinRoom(_ context.Context, roomID, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	if cm.roomUsers[roomID] == nil {
@@ -111,14 +112,14 @@ func (cm *memoryConnManager) JoinRoom(roomID, userID string) error {
 	return nil
 }
 
-func (cm *memoryConnManager) LeaveRoom(roomID, userID string) error {
+func (cm *memoryConnManager) LeaveRoom(_ context.Context, roomID, userID string) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 	delete(cm.roomUsers[roomID], userID)
 	return nil
 }
 
-func (cm *memoryConnManager) GetRoomMembers(roomID string) ([]string, error) {
+func (cm *memoryConnManager) GetRoomMembers(_ context.Context, roomID string) ([]string, error) {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	var ids []string
@@ -167,7 +168,7 @@ func (cm *memoryConnManager) MarkHeartbeatFail(userID, deviceID string) {
 	cs.ConsecutiveEchoFailures++
 }
 
-func (cm *memoryConnManager) SweepOffline(timeout time.Duration) []biz.OfflineDevice {
+func (cm *memoryConnManager) SweepOffline(_ context.Context, timeout time.Duration) []biz.OfflineDevice {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 

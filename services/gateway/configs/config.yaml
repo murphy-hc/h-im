@@ -23,14 +23,14 @@ data:
     password: ""
   database:
     gateway:
-      dsn: "him:him_secret@tcp(localhost:3306)/him?charset=utf8mb4&parseTime=True""
+      dsn: "him:him_secret@tcp(localhost:3306)/him?charset=utf8mb4&parseTime=True"
       max_idle_conns: 10
       max_open_conns: 50
 
 otel:
   service_name: "him-gateway"
   endpoint: "localhost:4318"
-  sample_rate: 1.0
+  sample_rate: 0.1
   path: "/v1/traces"
   timeout: "5s"
   insecure: true

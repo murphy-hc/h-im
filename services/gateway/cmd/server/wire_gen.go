@@ -60,7 +60,7 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		cleanup()
 		return nil, nil, err
 	}
-	heartbeatConfig := biz.NewHeartbeatConfig(bc)
+	heartbeatConfig := server.NewHeartbeatConfig(bc)
 	string2 := data.GatewayAddr()
 	gatewayUseCase := biz.NewGatewayUseCase(connManager, kafkaMessageClient, userStatusClient, chatroomClient, groupClient, heartbeatConfig, string2)
 	user := bc.User

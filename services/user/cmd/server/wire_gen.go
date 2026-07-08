@@ -24,12 +24,12 @@ func wireApp(bc *conf.Bootstrap, meter metric.Meter) (*kratos.App, func(), error
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, bc)
-	heartbeatConfig := biz.NewHeartbeatConfig(bc)
-	manager := biz.NewJWTManager(bc)
+	heartbeatConfig := server.NewHeartbeatConfig(bc)
+	manager := server.NewJWTManager(bc)
 	userUseCase := biz.NewUserUseCase(userRepo, heartbeatConfig, manager)
 	authUseCase := biz.NewAuthUseCase(userRepo)
 	userService := service.NewUserService(userUseCase, authUseCase)
-	grpcServer := server.NewGRPCServer(bc, meter, userService)
+	grpcServer := server.NewGRPCServer(bc, meter, userService, manager)
 	httpServer := server.NewHTTPServer(bc, meter)
 	app := newApp(grpcServer, httpServer)
 	return app, func() {

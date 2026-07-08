@@ -7,6 +7,7 @@ import (
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
 	msgpb "github.com/murphy-hc/h-im/gen/go/him/message/v1"
 	"github.com/coder/websocket"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/murphy-hc/h-im/pkg/gp"
 	"google.golang.org/protobuf/proto"
 )
@@ -16,6 +17,16 @@ const (
 	writeTimeout = 5 * time.Second
 	pingTimeout  = 5 * time.Second
 )
+
+// encodeFrame encodes a protobuf message into a websocket frame, logging on failure.
+func encodeFrame(version uint8, ft gatewayv1.FrameType, msg proto.Message) []byte {
+	frame, err := Encode(version, ft, msg)
+	if err != nil {
+		log.Warnf("gateway: encode frame type=%v: %v", ft, err)
+		return nil
+	}
+	return frame
+}
 
 type HeartbeatConfig struct {
 	IntervalSeconds int32
@@ -69,7 +80,7 @@ func (uc *GatewayUseCase) sweepLoop() {
 	defer ticker.Stop()
 	timeout := uc.hbCfg.Timeout()
 	for range ticker.C {
-		offline := uc.cm.SweepOffline(timeout)
+		offline := uc.cm.SweepOffline(context.Background(), timeout)
 		for _, dev := range offline {
 			dev.Conn.Close(websocket.StatusNormalClosure, CloseReasonHeartbeatTimeout)
 			gp.SafeGo(context.Background(), func(bgCtx context.Context) {
@@ -85,7 +96,7 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 		})
 
 	defer func() {
-		uc.cm.Remove(userID, deviceID)
+		uc.cm.Remove(context.Background(), userID, deviceID)
 		gp.SafeGo(ctx, func(bgCtx context.Context) {
 			uc.userStatus.ReportDisconnect(context.Background(), userID, deviceID)
 		})
@@ -117,7 +128,7 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 		}
 		version, ft, payload, err := Decode(raw)
 		if err != nil {
-			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
+			frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 				&gatewayv1.ErrorMessage{Code: 1, Message: err.Error()})
 			wc, wcCancel := writeCtx()
 			conn.Write(wc, websocket.MessageBinary, frame)
@@ -127,7 +138,7 @@ func (uc *GatewayUseCase) HandleConnection(ctx context.Context, conn *websocket.
 		_ = version
 		switch ft {
 		case gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT:
-			frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT, nil)
+			frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_HEARTBEAT, nil)
 			wc, wcCancel := writeCtx()
 			err := conn.Write(wc, websocket.MessageBinary, frame)
 			wcCancel()
@@ -196,7 +207,7 @@ func (uc *GatewayUseCase) handleChatroomMsg(ctx context.Context, conn *websocket
 		MsgClientId: msg.MessageClientId,
 		Status:      msgpb.AckStatus_ACK_SENT,
 	}
-	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_CHATROOM_ACK, ack)
+	frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_CHATROOM_ACK, ack)
 	wc, wcCancel := writeCtx()
 	conn.Write(wc, websocket.MessageBinary, frame)
 	wcCancel()
@@ -205,7 +216,7 @@ func (uc *GatewayUseCase) handleChatroomMsg(ctx context.Context, conn *websocket
 func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
 	var req msgpb.RecallMessageReq
 	if err := proto.Unmarshal(payload, &req); err != nil {
-		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
+		frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 			&gatewayv1.ErrorMessage{Code: 1, Message: "invalid recall request"})
 		wc, wcCancel := writeCtx()
 		conn.Write(wc, websocket.MessageBinary, frame)
@@ -215,7 +226,7 @@ func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.C
 	req.SenderId = senderID
 
 	if err := uc.msgClient.RecallMessage(ctx, &req); err != nil {
-		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
+		frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_ERROR,
 			&gatewayv1.ErrorMessage{Code: 2, Message: err.Error()})
 		wc, wcCancel := writeCtx()
 		conn.Write(wc, websocket.MessageBinary, frame)
@@ -227,7 +238,7 @@ func (uc *GatewayUseCase) handleRecallMsg(ctx context.Context, conn *websocket.C
 		MsgServerId: req.MessageServerId,
 		Status:      msgpb.AckStatus_ACK_RECALLED,
 	}
-	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
+	frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
 	wc, wcCancel := writeCtx()
 	conn.Write(wc, websocket.MessageBinary, frame)
 	wcCancel()
@@ -255,7 +266,7 @@ func (uc *GatewayUseCase) handlePrivateChat(ctx context.Context, conn *websocket
 		MsgClientId: msg.MessageClientId,
 		Status:      msgpb.AckStatus_ACK_SENT,
 	}
-	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
+	frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_PRIVATE_ACK, ack)
 	wc, wcCancel := writeCtx()
 	conn.Write(wc, websocket.MessageBinary, frame)
 	wcCancel()
@@ -269,7 +280,7 @@ func (uc *GatewayUseCase) handleChatroomJoin(ctx context.Context, _ *websocket.C
 	if err := uc.chatroomSvc.JoinRoom(ctx, roomID, userID); err != nil {
 		return
 	}
-	uc.cm.JoinRoom(roomID, userID)
+	uc.cm.JoinRoom(ctx, roomID, userID)
 }
 
 func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
@@ -280,7 +291,7 @@ func (uc *GatewayUseCase) handleChatroomLeave(ctx context.Context, _ *websocket.
 	if err := uc.chatroomSvc.LeaveRoom(ctx, roomID, userID); err != nil {
 		return
 	}
-	uc.cm.LeaveRoom(roomID, userID)
+	uc.cm.LeaveRoom(ctx, roomID, userID)
 }
 
 func (uc *GatewayUseCase) handleGroupChat(ctx context.Context, conn *websocket.Conn, senderID string, payload []byte) {
@@ -303,7 +314,7 @@ func (uc *GatewayUseCase) handleGroupChat(ctx context.Context, conn *websocket.C
 		MsgClientId: msg.MessageClientId,
 		Status:      msgpb.AckStatus_ACK_SENT,
 	}
-	frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_GROUP_ACK, ack)
+	frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_GROUP_ACK, ack)
 	wc, wcCancel := writeCtx()
 	conn.Write(wc, websocket.MessageBinary, frame)
 	wcCancel()
@@ -313,14 +324,14 @@ func (uc *GatewayUseCase) handleGroupJoin(ctx context.Context, _ *websocket.Conn
 	groupID := string(payload)
 	if groupID == "" { return }
 	if err := uc.groupSvc.JoinGroup(ctx, groupID, userID); err != nil { return }
-	uc.cm.JoinGroup(groupID, userID)
+	uc.cm.JoinGroup(ctx, groupID, userID)
 }
 
 func (uc *GatewayUseCase) handleGroupLeave(ctx context.Context, _ *websocket.Conn, userID string, payload []byte) {
 	groupID := string(payload)
 	if groupID == "" { return }
 	if err := uc.groupSvc.LeaveGroup(ctx, groupID, userID); err != nil { return }
-	uc.cm.LeaveGroup(groupID, userID)
+	uc.cm.LeaveGroup(ctx, groupID, userID)
 }
 
 func (uc *GatewayUseCase) syncMissedMessages(ctx context.Context, conn *websocket.Conn, userID string) {
@@ -329,7 +340,7 @@ func (uc *GatewayUseCase) syncMissedMessages(ctx context.Context, conn *websocke
 		return
 	}
 	for _, m := range msgs {
-		frame, _ := Encode(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_SYNC,
+		frame := encodeFrame(CurrentVersion, gatewayv1.FrameType_FRAME_TYPE_SYNC,
 			&msgpb.Message{
 				MessageClientId: m.ClientID, MessageServerId: m.ServerID,
 				SenderId: m.SenderID, ReceiverId: m.ReceiverID, Text: m.Text,

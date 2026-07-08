@@ -16,6 +16,7 @@ var ProviderSet = wire.NewSet(
 	NewGatewayClient,
 	NewUserClient,
 	NewPushClient,
+	NewSequenceClient,
 	wire.Bind(new(biz.MessageRepo), new(*MessageRepo)),
 	wire.Bind(new(biz.MessageGateway), new(*GatewayClient)),
 	wire.Bind(new(biz.UserStatusClient), new(*UserClient)),

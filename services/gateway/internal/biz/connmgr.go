@@ -1,6 +1,7 @@
 package biz
 
 import (
+	"context"
 	"time"
 
 	"github.com/coder/websocket"
@@ -8,8 +9,8 @@ import (
 
 // WebSocket close reasons.
 const (
-	CloseReasonAuthFailed      = "auth failed"
-	CloseReasonKicked          = "kicked"
+	CloseReasonAuthFailed       = "auth failed"
+	CloseReasonKicked           = "kicked"
 	CloseReasonHeartbeatTimeout = "heartbeat timeout"
 )
 
@@ -28,16 +29,16 @@ type OfflineDevice struct {
 }
 
 type ConnManager interface {
-	Add(userID, deviceID string, conn *websocket.Conn) error
-	Remove(userID, deviceID string) error
-	GetConns(userID string) ([]*websocket.Conn, error)
-	KickUser(userID string) ([]*websocket.Conn, error)
-	GetGroupMembers(groupID string) ([]string, error)
-	JoinGroup(groupID, userID string) error
-	LeaveGroup(groupID, userID string) error
-	GetRoomMembers(roomID string) ([]string, error)
-	JoinRoom(roomID, userID string) error
-	LeaveRoom(roomID, userID string) error
+	Add(ctx context.Context, userID, deviceID string, conn *websocket.Conn) error
+	Remove(ctx context.Context, userID, deviceID string) error
+	GetConns(ctx context.Context, userID string) ([]*websocket.Conn, error)
+	KickUser(ctx context.Context, userID string) ([]*websocket.Conn, error)
+	GetGroupMembers(ctx context.Context, groupID string) ([]string, error)
+	JoinGroup(ctx context.Context, groupID, userID string) error
+	LeaveGroup(ctx context.Context, groupID, userID string) error
+	GetRoomMembers(ctx context.Context, roomID string) ([]string, error)
+	JoinRoom(ctx context.Context, roomID, userID string) error
+	LeaveRoom(ctx context.Context, roomID, userID string) error
 	OnlineCount() int
 
 	// MarkHeartbeatSuccess marks a successful heartbeat (echo sent).
@@ -46,5 +47,5 @@ type ConnManager interface {
 	MarkHeartbeatFail(userID, deviceID string)
 	// SweepOffline scans all connections and returns those that have exceeded the timeout.
 	// It also removes the connections from the local map.
-	SweepOffline(timeout time.Duration) []OfflineDevice
+	SweepOffline(ctx context.Context, timeout time.Duration) []OfflineDevice
 }

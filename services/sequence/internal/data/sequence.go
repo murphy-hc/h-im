@@ -55,7 +55,7 @@ func (r *sequenceRepo) AllocateSegment(ctx context.Context, key string, size int
 		// Lock the row for update and read current values.
 		var m SequenceModel
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("key = ?", key).
+			Where("`key` = ?", key).
 			First(&m).Error; err != nil {
 			return fmt.Errorf("sequence: read key %s: %w", key, err)
 		}

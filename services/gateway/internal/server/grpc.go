@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/otel/metric"
 
 	gatewayv1 "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
+	"github.com/murphy-hc/h-im/pkg/jwt"
 	"github.com/murphy-hc/h-im/services/gateway/internal/conf"
 	"github.com/murphy-hc/h-im/services/gateway/internal/service"
 )
@@ -42,6 +43,7 @@ func NewGRPCServer(bc *conf.Bootstrap, meter metric.Meter, svc *service.GatewayG
 		kgrpc.Middleware(
 			recovery.Recovery(),
 			tracing.Server(),
+			jwt.ServiceAuth(),
 			rateLimitMiddleware(),
 			metadata.Server(),
 			metrics.Server(metrics.WithRequests(counter), metrics.WithSeconds(histogram)),

@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"sync"
+	"time"
 
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	gwpb "github.com/murphy-hc/h-im/gen/go/him/gateway/v1"
@@ -12,32 +13,75 @@ import (
 
 var _ biz.MessageGateway = (*GatewayClient)(nil)
 
+const poolCleanupInterval = 5 * time.Minute
+
+type poolConn struct {
+	client   gwpb.GatewayServiceClient
+	conn     *ggrpc.ClientConn
+	lastUsed time.Time
+}
+
 // GatewayClient proxies calls to the Gateway service.
 type GatewayClient struct {
 	client gwpb.GatewayServiceClient
 
-	mu   sync.RWMutex
-	pool map[string]gwpb.GatewayServiceClient // gatewayAddr -> client
+	mu      sync.RWMutex
+	pool    map[string]*poolConn // gatewayAddr -> conn
+	conns   []*ggrpc.ClientConn  // all connections for cleanup on shutdown
+	closeCh chan struct{}
 }
 
 // NewGatewayClient creates a Kratos gRPC client for the Gateway service.
 func NewGatewayClient() (*GatewayClient, func(), error) {
-	var conns []*ggrpc.ClientConn
 	conn, err := kgrpc.DialInsecure(context.Background(),
 		kgrpc.WithEndpoint("discovery:///gateway.default.svc.cluster.local:9200"),
 	)
 	if err != nil {
 		return nil, nil, err
 	}
-	conns = append(conns, conn)
-	return &GatewayClient{
-		client: gwpb.NewGatewayServiceClient(conn),
-		pool:   make(map[string]gwpb.GatewayServiceClient),
-	}, func() {
-		for _, c := range conns {
+	gc := &GatewayClient{
+		client:  gwpb.NewGatewayServiceClient(conn),
+		pool:    make(map[string]*poolConn),
+		conns:   []*ggrpc.ClientConn{conn},
+		closeCh: make(chan struct{}),
+	}
+	go gc.cleanupLoop()
+	return gc, func() {
+		close(gc.closeCh)
+		gc.mu.Lock()
+		for _, pc := range gc.pool {
+			pc.conn.Close()
+		}
+		gc.mu.Unlock()
+		for _, c := range gc.conns {
 			c.Close()
 		}
 	}, nil
+}
+
+func (c *GatewayClient) cleanupLoop() {
+	ticker := time.NewTicker(poolCleanupInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-c.closeCh:
+			return
+		case <-ticker.C:
+			c.evictIdle()
+		}
+	}
+}
+
+func (c *GatewayClient) evictIdle() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	cutoff := time.Now().Add(-poolCleanupInterval)
+	for addr, pc := range c.pool {
+		if pc.lastUsed.Before(cutoff) {
+			pc.conn.Close()
+			delete(c.pool, addr)
+		}
+	}
 }
 
 // SendToDevice sends a message to a specific gateway instance.
@@ -83,16 +127,18 @@ func (c *GatewayClient) BroadcastToGroup(ctx context.Context, groupID string, fr
 // getOrDial returns a cached gRPC client for the given gateway address, or dials a new one.
 func (c *GatewayClient) getOrDial(addr string) (gwpb.GatewayServiceClient, error) {
 	c.mu.RLock()
-	cl, ok := c.pool[addr]
+	pc, ok := c.pool[addr]
 	c.mu.RUnlock()
 	if ok {
-		return cl, nil
+		pc.lastUsed = time.Now()
+		return pc.client, nil
 	}
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if cl, ok = c.pool[addr]; ok {
-		return cl, nil
+	if pc, ok = c.pool[addr]; ok {
+		pc.lastUsed = time.Now()
+		return pc.client, nil
 	}
 
 	conn, err := kgrpc.DialInsecure(context.Background(),
@@ -101,7 +147,12 @@ func (c *GatewayClient) getOrDial(addr string) (gwpb.GatewayServiceClient, error
 	if err != nil {
 		return nil, err
 	}
-	cl = gwpb.NewGatewayServiceClient(conn)
-	c.pool[addr] = cl
-	return cl, nil
+	pc = &poolConn{
+		client:   gwpb.NewGatewayServiceClient(conn),
+		conn:     conn,
+		lastUsed: time.Now(),
+	}
+	c.pool[addr] = pc
+	c.conns = append(c.conns, conn)
+	return pc.client, nil
 }
